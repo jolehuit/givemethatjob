@@ -82,7 +82,7 @@ export function Hero() {
             transition={{ duration: 0.5 }}
           >
             Master Your Job Interviews with{" "}
-            <span className="relative inline-block min-w-[120px]">
+            <span className="relative inline-flex items-center">
               <AnimatePresence mode="wait">
                 {!showFinal ? (
                   <motion.span
@@ -109,7 +109,7 @@ export function Hero() {
                           transition={{ duration: 0.3, ease: "easeInOut" }}
                         />
                         <motion.div
-                          className="absolute top-full left-1/2 -translate-x-1/2 mt-2 px-3 py-1 bg-popover text-popover-foreground text-sm rounded-md shadow-lg"
+                          className="absolute whitespace-nowrap top-[calc(100%+1rem)] left-1/2 -translate-x-1/2 px-3 py-1 bg-popover text-popover-foreground text-sm rounded-md shadow-lg z-10"
                           initial={{ opacity: 0, y: -5 }}
                           animate={{ opacity: 1, y: 0 }}
                           transition={{ duration: 0.3 }}
@@ -122,7 +122,7 @@ export function Hero() {
                 ) : (
                   <motion.span
                     key="ai"
-                    className="relative inline-block"
+                    className="relative inline-block px-1"
                     initial={{ scale: 0.8, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
                     transition={{ 
@@ -131,10 +131,10 @@ export function Hero() {
                       damping: 15
                     }}
                   >
-                    <span className="bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-purple-400 relative">
+                    <span className="bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-purple-400">
                       AI
                       <motion.div
-                        className="absolute inset-0 rounded-lg"
+                        className="absolute inset-0"
                         animate={{ 
                           boxShadow: ["0 0 0px rgba(147, 51, 234, 0)", "0 0 20px rgba(147, 51, 234, 0.3)", "0 0 0px rgba(147, 51, 234, 0)"]
                         }}
