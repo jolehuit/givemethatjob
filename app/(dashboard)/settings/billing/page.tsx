@@ -7,12 +7,16 @@ import { SubscriptionStatus } from "@/components/subscription/subscription-statu
 import { Separator } from "@/components/ui/separator";
 import { initializeRevenueCat, getCustomerInfo } from "@/lib/revenuecat";
 import { supabase } from "@/lib/supabase";
+import { Loader2 } from "lucide-react";
+import { toast } from "sonner";
 
 const subscriptionPlans = [
   {
     name: "Free",
+    id: "tier-free",
+    monthlyPrice: "0€",
+    annualPrice: "0€",
     description: "Basic interview practice to get started",
-    price: "Free",
     packageId: "free",
     features: [
       "2 practice interviews per month",
@@ -23,8 +27,10 @@ const subscriptionPlans = [
   },
   {
     name: "Pro",
+    id: "tier-pro",
+    monthlyPrice: "9.99€",
+    annualPrice: "95.88€", // 20% discount
     description: "For serious job seekers who want to stand out",
-    price: "€9.99",
     packageId: "pro",
     features: [
       "Unlimited interviews",
@@ -38,8 +44,10 @@ const subscriptionPlans = [
   },
   {
     name: "Team",
+    id: "tier-team",
+    monthlyPrice: "99€",
+    annualPrice: "950.40€", // 20% discount
     description: "For career coaches and HR teams",
-    price: "€99",
     packageId: "team",
     features: [
       "Everything in Pro",
@@ -55,30 +63,46 @@ const subscriptionPlans = [
 
 export default function BillingPage() {
   const [currentPlan, setCurrentPlan] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [annualBilling, setAnnualBilling] = useState(true);
   
   useEffect(() => {
     const initializeSubscriptions = async () => {
       try {
         const { data: { user } } = await supabase.auth.getUser();
-        if (!user) return;
+        if (!user) {
+          toast.error("Please sign in to manage your subscription");
+          return;
+        }
 
-        initializeRevenueCat(user.id);
+        await initializeRevenueCat(user.id);
         const customerInfo = await getCustomerInfo();
         
-        if (customerInfo.entitlements.active["premium"]) {
+        if (customerInfo?.entitlements.active["premium"]) {
           setCurrentPlan("pro");
-        } else if (customerInfo.entitlements.active["team"]) {
+        } else if (customerInfo?.entitlements.active["team"]) {
           setCurrentPlan("team");
         } else {
           setCurrentPlan("free");
         }
-      } catch (error) {
+      } catch (error: any) {
         console.error("Failed to initialize subscriptions:", error);
+        toast.error("Failed to load subscription information");
+      } finally {
+        setIsLoading(false);
       }
     };
 
     initializeSubscriptions();
   }, []);
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-8">
@@ -94,13 +118,34 @@ export default function BillingPage() {
       <Separator />
 
       <div>
-        <h3 className="text-xl font-semibold mb-6">Available Plans</h3>
+        <div className="flex justify-between items-center mb-6">
+          <h3 className="text-xl font-semibold">Available Plans</h3>
+          <div className="flex items-center gap-2 bg-muted rounded-lg p-1">
+            <button
+              onClick={() => setAnnualBilling(false)}
+              className={`px-3 py-1 rounded-md text-sm transition-colors ${
+                !annualBilling ? 'bg-background shadow-sm' : 'text-muted-foreground'
+              }`}
+            >
+              Monthly
+            </button>
+            <button
+              onClick={() => setAnnualBilling(true)}
+              className={`px-3 py-1 rounded-md text-sm transition-colors ${
+                annualBilling ? 'bg-background shadow-sm' : 'text-muted-foreground'
+              }`}
+            >
+              Annually <span className="text-primary">-20%</span>
+            </button>
+          </div>
+        </div>
         <div className="grid gap-6 md:grid-cols-3">
           {subscriptionPlans.map((plan) => (
             <SubscriptionCard
               key={plan.packageId}
               {...plan}
               isCurrentPlan={currentPlan === plan.packageId}
+              annualBilling={annualBilling}
             />
           ))}
         </div>
