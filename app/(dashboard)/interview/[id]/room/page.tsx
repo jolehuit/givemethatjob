@@ -160,14 +160,15 @@ export default function InterviewRoomPage() {
         }),
       });
 
+      const data = await response.json();
+
       if (!response.ok) {
-        throw new Error('Failed to create Tavus conversation');
+        throw new Error(data.error || 'Failed to create Tavus conversation');
       }
 
-      const conversationData = await response.json();
-      console.log("Tavus conversation created:", conversationData);
+      console.log("Tavus conversation created:", data);
       
-      setTavusConversation(conversationData);
+      setTavusConversation(data);
       setIsInterviewStarted(true);
       
       // Start timer
@@ -184,7 +185,7 @@ export default function InterviewRoomPage() {
 
     } catch (error: any) {
       console.error("Failed to start interview:", error);
-      toast.error(error.message || "Failed to start interview");
+      toast.error(error.message);
     } finally {
       setIsStarting(false);
     }
