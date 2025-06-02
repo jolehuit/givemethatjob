@@ -22,7 +22,7 @@ export function Hero() {
   useEffect(() => {
     let timeout: NodeJS.Timeout;
     const startSequence = () => {
-      timeout = setTimeout(() => setCurrentIndex(0), 1500);
+      timeout = setTimeout(() => setCurrentIndex(0), 1000);
     };
     startSequence();
     return () => clearTimeout(timeout);
@@ -35,19 +35,15 @@ export function Hero() {
         const company = companies[currentIndex];
         setIsTyping(true);
         setShowTooltip(false);
-        
         for (let i = 0; i <= company.name.length; i++) {
-          await new Promise((resolve) => setTimeout(resolve, 80));
+          await new Promise((resolve) => setTimeout(resolve, 100));
           setDisplayText(company.name.slice(0, i));
         }
-        
         setIsTyping(false);
-        await new Promise((resolve) => setTimeout(resolve, 600));
-        
+        await new Promise((resolve) => setTimeout(resolve, 500));
         if (currentIndex < companies.length && !showFinal) {
           setShowTooltip(true);
         }
-        
         timeout = setTimeout(() => {
           setShowTooltip(false);
           setCurrentIndex((prev) => {
@@ -58,259 +54,213 @@ export function Hero() {
             }
             return prev + 1;
           });
-        }, 2200);
+        }, 2000);
       }
     };
-    
     if (!showFinal) animateText();
     return () => clearTimeout(timeout);
   }, [currentIndex, showFinal]);
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-gradient-to-br from-background via-background/95 to-muted/20">
-      {/* Background Effects */}
-      <div className="absolute inset-0">
-        <div className="absolute left-1/2 top-1/4 h-96 w-96 -translate-x-1/2 -translate-y-1/2 rounded-full bg-purple-500/10 blur-3xl" />
-        <div className="absolute right-1/4 top-1/3 h-64 w-64 rounded-full bg-blue-500/10 blur-3xl" />
-        <div className="absolute bottom-1/4 left-1/4 h-80 w-80 rounded-full bg-indigo-500/10 blur-3xl" />
-      </div>
-
-      <div className="relative z-10 mx-auto max-w-7xl px-4 py-20 sm:px-6 sm:py-24 lg:px-8 lg:py-32">
-        <div className="mx-auto max-w-4xl">
-          {/* Main Heading */}
-          <motion.div
-            className="text-center"
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, ease: "easeOut" }}
-          >
-            <h1 className="font-bold tracking-tight text-foreground">
-              {/* Container with consistent spacing */}
-              <div className="space-y-2 sm:space-y-4">
-                {/* First Line */}
-                <motion.div
-                  className="flex min-h-[3rem] items-center justify-center text-3xl sm:min-h-[4rem] sm:text-5xl lg:min-h-[5rem] lg:text-6xl xl:text-7xl"
-                  initial={{ opacity: 0, x: -50 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ duration: 0.8, delay: 0.2 }}
-                >
-                  <span className="bg-gradient-to-r from-foreground via-foreground to-muted-foreground bg-clip-text text-transparent">
-                    Master Your Job Interviews
-                  </span>
-                </motion.div>
-
-                {/* Second Line with Animation */}
-                <div className="flex min-h-[3rem] items-center justify-center text-3xl sm:min-h-[4rem] sm:text-5xl lg:min-h-[5rem] lg:text-6xl xl:text-7xl">
-                  <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-2 lg:gap-x-4">
-                    <motion.span
-                      className="bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text text-transparent"
-                      initial={{ opacity: 0, x: -30 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ duration: 0.8, delay: 0.4 }}
-                    >
-                      with
-                    </motion.span>
-
-                    {/* Animated Company/AI Section */}
-                    <div className="relative">
-                      <div className="flex min-h-[3rem] min-w-[8rem] items-center justify-center sm:min-h-[4rem] sm:min-w-[12rem] lg:min-h-[5rem] lg:min-w-[16rem]">
-                        <AnimatePresence mode="wait">
-                          {!showFinal ? (
-                            <motion.div
-                              key={`company-${currentIndex}`}
-                              className="relative flex items-center justify-center"
-                              initial={{ opacity: 0, scale: 0.9 }}
-                              animate={{ opacity: 1, scale: 1 }}
-                              exit={{ opacity: 0, scale: 0.9 }}
-                              transition={{ 
-                                duration: 0.3,
-                                ease: "easeInOut"
-                              }}
-                            >
-                              <span className="relative bg-gradient-to-r from-red-500 to-orange-500 bg-clip-text text-transparent">
-                                {displayText || "\u00A0"}
-                                {isTyping && (
-                                  <motion.span
-                                    className="ml-1 inline-block h-[0.8em] w-[3px] bg-gradient-to-b from-red-500 to-orange-500"
-                                    animate={{ opacity: [1, 0] }}
-                                    transition={{
-                                      duration: 0.6,
-                                      repeat: Infinity,
-                                      ease: "easeInOut",
-                                    }}
-                                  />
-                                )}
-                              </span>
-
-                              {/* Strikethrough Effect */}
-                              {showTooltip && (
-                                <motion.div
-                                  className="absolute inset-x-0 top-1/2 h-[3px] bg-gradient-to-r from-red-500 to-orange-500"
-                                  initial={{ scaleX: 0 }}
-                                  animate={{ scaleX: 1 }}
-                                  transition={{ duration: 0.4, ease: "easeOut" }}
-                                />
-                              )}
-
-                              {/* Tooltip */}
-                              {showTooltip && currentIndex >= 0 && currentIndex < companies.length && (
-                                <motion.div
-                                  className="absolute left-1/2 top-full z-20 mt-4 -translate-x-1/2 whitespace-nowrap rounded-lg bg-popover/95 px-4 py-2 text-sm text-popover-foreground shadow-xl backdrop-blur-sm ring-1 ring-border/50 sm:text-base"
-                                  initial={{ opacity: 0, y: -10, scale: 0.9 }}
-                                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                                  transition={{ 
-                                    duration: 0.3,
-                                    ease: "easeOut"
-                                  }}
-                                >
-                                  {companies[currentIndex]?.tooltip}
-                                  <div className="absolute -top-1 left-1/2 h-2 w-2 -translate-x-1/2 rotate-45 bg-popover ring-1 ring-border/50" />
-                                </motion.div>
-                              )}
-                            </motion.div>
-                          ) : (
-                            <motion.div
-                              key="ai-final"
-                              className="relative flex items-center justify-center"
-                              initial={{ scale: 0.5, opacity: 0, rotateY: -180 }}
-                              animate={{ scale: 1, opacity: 1, rotateY: 0 }}
-                              transition={{
-                                type: "spring",
-                                stiffness: 200,
-                                damping: 20,
-                                duration: 0.8
-                              }}
-                            >
-                              <span className="relative bg-gradient-to-r from-purple-600 via-blue-600 to-purple-400 bg-clip-text text-transparent">
-                                AI
-                                {/* Glow Effect */}
-                                <motion.div
-                                  className="absolute inset-0 bg-gradient-to-r from-purple-600/20 via-blue-600/20 to-purple-400/20 blur-xl"
-                                  animate={{ 
-                                    opacity: [0.5, 1, 0.5],
-                                    scale: [1, 1.1, 1]
-                                  }}
-                                  transition={{
-                                    duration: 2,
-                                    repeat: Infinity,
-                                    ease: "easeInOut"
-                                  }}
-                                />
-                              </span>
-                            </motion.div>
-                          )}
-                        </AnimatePresence>
-                      </div>
-                    </div>
-
-                    <motion.span
-                      className="bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text text-transparent"
-                      initial={{ opacity: 0, x: 30 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ duration: 0.8, delay: 0.6 }}
-                    >
-                      Recruiters
-                    </motion.span>
-                  </div>
-                </div>
-              </div>
-            </h1>
-
-            {/* Subtitle */}
-            <motion.p
-              className="mx-auto mt-8 max-w-2xl text-base leading-relaxed text-muted-foreground sm:mt-12 sm:text-lg sm:leading-8 lg:text-xl"
+    <div className="relative overflow-hidden bg-background">
+      {/* Container principal avec padding responsive intelligent */}
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        {/* Section hero avec padding top responsive */}
+        <div className="pb-12 pt-16 sm:pb-16 sm:pt-20 md:pb-20 md:pt-24 lg:pb-24 lg:pt-28">
+          {/* Container du contenu avec max-width adaptatif */}
+          <div className="mx-auto max-w-4xl text-center">
+            {/* Titre principal avec espacement optimisé */}
+            <motion.div
+              className="mb-8 sm:mb-12 md:mb-16"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.8 }}
+              transition={{ duration: 0.6, ease: "easeOut" }}
+            >
+              <h1 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl">
+                {/* Première ligne - hauteur fixe pour éviter les sauts */}
+                <div className="mb-2 sm:mb-3 md:mb-4">
+                  <div className="flex h-12 items-center justify-center sm:h-14 md:h-16 lg:h-20 xl:h-24">
+                    <span className="leading-none">Master Your Job Interviews</span>
+                  </div>
+                </div>
+
+                {/* Deuxième ligne avec animation - hauteur fixe */}
+                <div className="relative">
+                  <div className="flex h-12 items-center justify-center gap-2 sm:h-14 sm:gap-3 md:h-16 md:gap-4 lg:h-20 lg:gap-5 xl:h-24">
+                    <span className="leading-none">with</span>
+
+                    {/* Container de l'animation avec largeur minimum */}
+                    <div className="relative flex min-w-[120px] items-center justify-center sm:min-w-[140px] md:min-w-[160px] lg:min-w-[180px]">
+                      <AnimatePresence mode="wait">
+                        {!showFinal ? (
+                          <motion.div
+                            key={currentIndex}
+                            className="relative flex items-center justify-center"
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -10 }}
+                            transition={{ duration: 0.3, ease: "easeInOut" }}
+                          >
+                            <span className="relative inline-flex items-center leading-none">
+                              {displayText || <span className="opacity-0">A</span>}
+                              {isTyping && (
+                                <motion.span
+                                  className="ml-1 inline-block h-[0.8em] w-[2px] bg-primary"
+                                  animate={{ opacity: [1, 0, 1] }}
+                                  transition={{
+                                    duration: 1,
+                                    repeat: Infinity,
+                                    ease: "easeInOut",
+                                  }}
+                                />
+                              )}
+                            </span>
+
+                            {/* Ligne de barré et tooltip */}
+                            {showTooltip &&
+                              currentIndex >= 0 &&
+                              currentIndex < companies.length && (
+                                <>
+                                  <motion.div
+                                    className="absolute inset-x-0 top-1/2 h-[2px] bg-destructive sm:h-[3px]"
+                                    initial={{ scaleX: 0 }}
+                                    animate={{ scaleX: 1 }}
+                                    transition={{ duration: 0.4, ease: "easeOut" }}
+                                  />
+                                  <motion.div
+                                    className="absolute left-1/2 top-full z-20 mt-3 -translate-x-1/2 whitespace-nowrap rounded-lg bg-popover px-3 py-2 text-xs font-medium text-popover-foreground shadow-xl ring-1 ring-border sm:mt-4 sm:px-4 sm:py-2 sm:text-sm md:text-base"
+                                    initial={{ opacity: 0, y: -8, scale: 0.9 }}
+                                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                                    transition={{
+                                      duration: 0.4,
+                                      ease: "easeOut",
+                                    }}
+                                  >
+                                    {companies[currentIndex]?.tooltip}
+                                    {/* Petite flèche pointant vers le haut */}
+                                    <div className="absolute -top-1 left-1/2 h-3 w-3 -translate-x-1/2 rotate-45 bg-popover ring-1 ring-border"></div>
+                                  </motion.div>
+                                </>
+                              )}
+                          </motion.div>
+                        ) : (
+                          <motion.div
+                            key="ai"
+                            className="flex items-center justify-center"
+                            initial={{ scale: 0.5, opacity: 0, rotateY: -90 }}
+                            animate={{ scale: 1, opacity: 1, rotateY: 0 }}
+                            transition={{
+                              type: "spring",
+                              stiffness: 300,
+                              damping: 20,
+                              duration: 0.8,
+                            }}
+                          >
+                            <span className="bg-gradient-to-r from-purple-600 via-purple-400 to-indigo-500 bg-clip-text font-bold leading-none text-transparent">
+                              AI
+                            </span>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    </div>
+
+                    <span className="leading-none">Recruiters</span>
+                  </div>
+                </div>
+              </h1>
+            </motion.div>
+
+            {/* Description avec typographie responsive */}
+            <motion.p
+              className="mx-auto max-w-2xl text-base leading-7 text-muted-foreground sm:text-lg sm:leading-8 md:text-xl md:leading-9 lg:max-w-3xl"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.2, ease: "easeOut" }}
             >
               Practice with ultra-realistic AI interviewers that give you
               personalized feedback based on real job descriptions and your CV.
               Land your dream job faster.
             </motion.p>
 
-            {/* CTA Buttons */}
+            {/* Boutons d'action avec espacement optimisé */}
             <motion.div
-              className="mt-8 flex flex-col items-center justify-center gap-4 sm:mt-12 sm:flex-row sm:gap-6"
+              className="mt-8 flex flex-col items-center justify-center gap-4 sm:mt-10 sm:flex-row sm:gap-6 md:mt-12"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 1 }}
+              transition={{ duration: 0.6, delay: 0.4, ease: "easeOut" }}
             >
               <Link href="/register">
-                <Button 
-                  size="lg" 
-                  className="group relative w-full overflow-hidden rounded-full bg-gradient-to-r from-purple-600 to-blue-600 px-8 py-3 text-base font-semibold shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-xl sm:w-auto sm:text-lg"
+                <Button
+                  size="lg"
+                  className="w-full rounded-full px-8 py-3 text-base font-semibold sm:w-auto sm:px-10 sm:py-4 sm:text-lg md:px-12 md:py-5"
                 >
-                  <span className="relative z-10 flex items-center gap-2">
-                    Try for free
-                    <motion.span
-                      animate={{ x: [0, 4, 0] }}
-                      transition={{
-                        duration: 1.5,
-                        repeat: Infinity,
-                        ease: "easeInOut"
-                      }}
-                    >
-                      →
-                    </motion.span>
-                  </span>
-                  <div className="absolute inset-0 bg-gradient-to-r from-purple-700 to-blue-700 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+                  Try for free
                 </Button>
               </Link>
-              
               <Link
                 href="#features"
-                className="group flex items-center gap-2 text-base font-semibold text-foreground transition-colors duration-300 hover:text-purple-600 sm:text-lg"
+                className="group inline-flex items-center text-sm font-semibold leading-6 text-foreground transition-colors hover:text-primary sm:text-base"
               >
                 Learn more
-                <motion.span
-                  className="transition-transform duration-300 group-hover:translate-x-1"
+                <span
                   aria-hidden="true"
+                  className="ml-2 transition-transform group-hover:translate-x-1"
                 >
                   →
-                </motion.span>
+                </span>
               </Link>
             </motion.div>
-          </motion.div>
+          </div>
+        </div>
 
-          {/* Demo Section */}
-          <motion.div
-            className="mt-16 sm:mt-20 lg:mt-24"
-            initial={{ opacity: 0, y: 50 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1, delay: 1.2 }}
-          >
-            <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 p-2 shadow-2xl ring-1 ring-white/10 lg:rounded-3xl lg:p-4">
-              <div className="relative aspect-video overflow-hidden rounded-xl bg-gradient-to-br from-gray-800 to-gray-900 shadow-inner ring-1 ring-white/10 lg:rounded-2xl">
-                <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 via-transparent to-blue-500/10" />
-                <div className="relative flex h-full items-center justify-center">
-                  <div className="max-w-sm text-center">
-                    <motion.div
-                      className="mb-4 text-lg text-white/90 sm:text-xl"
-                      animate={{ opacity: [0.7, 1, 0.7] }}
-                      transition={{
-                        duration: 2,
-                        repeat: Infinity,
-                        ease: "easeInOut"
-                      }}
+        {/* Aperçu de démonstration avec design moderne */}
+        <motion.div
+          className="relative mx-auto max-w-6xl"
+          initial={{ opacity: 0, y: 40 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.6, ease: "easeOut" }}
+        >
+          <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 p-3 ring-1 ring-white/10 sm:rounded-3xl sm:p-4 md:p-6 lg:p-8">
+            <div className="relative overflow-hidden rounded-xl bg-gray-900/50 shadow-2xl ring-1 ring-white/5 sm:rounded-2xl">
+              <div className="aspect-[16/10] bg-gradient-to-br from-gray-800 via-gray-900 to-black sm:aspect-video">
+                <div className="flex h-full items-center justify-center p-6 sm:p-8 md:p-12">
+                  <div className="max-w-md text-center">
+                    <div className="mb-4 sm:mb-6">
+                      <div className="mx-auto mb-4 h-16 w-16 rounded-2xl bg-gradient-to-br from-purple-500 to-indigo-600 p-4 sm:h-20 sm:w-20">
+                        <svg
+                          className="h-full w-full text-white"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          strokeWidth={1.5}
+                          stroke="currentColor"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.347a1.125 1.125 0 0 1 0 1.972l-11.54 6.347a1.125 1.125 0 0 1-1.667-.986V5.653Z"
+                          />
+                        </svg>
+                      </div>
+                      <h3 className="text-lg font-semibold text-white sm:text-xl md:text-2xl">
+                        Interactive Interview Simulation
+                      </h3>
+                      <p className="mt-2 text-sm text-gray-300 sm:text-base">
+                        Experience realistic AI-powered interviews
+                      </p>
+                    </div>
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      className="bg-white/10 font-medium text-white backdrop-blur-sm transition-all hover:bg-white/20 hover:scale-105 sm:size-default"
                     >
-                      Interactive interview simulation preview
-                    </motion.div>
-                    <Button 
-                      variant="secondary" 
-                      size="sm" 
-                      className="bg-white/10 text-white backdrop-blur-sm transition-all duration-300 hover:bg-white/20 hover:scale-105"
-                    >
-                      <span className="flex items-center gap-2">
-                        Watch Demo
-                        <div className="h-2 w-2 animate-pulse rounded-full bg-red-500" />
-                      </span>
+                      Watch Demo
                     </Button>
                   </div>
                 </div>
               </div>
             </div>
-          </motion.div>
-        </div>
+          </div>
+        </motion.div>
       </div>
     </div>
   );
