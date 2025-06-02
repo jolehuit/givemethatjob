@@ -57,6 +57,7 @@ export interface Database {
           status: "in_progress" | "completed" | "cancelled"
           score: number
           language: string
+          completed_at: string | null
         }
         Insert: {
           id?: string
@@ -70,6 +71,7 @@ export interface Database {
           status?: "in_progress" | "completed" | "cancelled"
           score?: number
           language: string
+          completed_at?: string | null
         }
         Update: {
           id?: string
@@ -83,6 +85,7 @@ export interface Database {
           status?: "in_progress" | "completed" | "cancelled"
           score?: number
           language?: string
+          completed_at?: string | null
         }
       }
       questions: {
