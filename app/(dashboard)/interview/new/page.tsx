@@ -37,7 +37,7 @@ const formSchema = z.object({
   interviewType: z.enum(["hr", "technical", "manager"], {
     required_error: "Please select an interview type",
   }),
-  duration: z.enum(["15", "30", "45"], {
+  duration: z.enum(["1", "5", "10", "15", "30", "45"], {
     required_error: "Please select an interview duration",
   }),
   difficulty: z.enum(["easy", "medium", "hard"], {
@@ -457,6 +457,9 @@ export default function NewInterviewPage() {
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
+                            <SelectItem value="1">1 minute</SelectItem>
+                            <SelectItem value="5">5 minutes</SelectItem>
+                            <SelectItem value="10">10 minutes</SelectItem>
                             <SelectItem value="15">15 minutes</SelectItem>
                             <SelectItem value="30">30 minutes</SelectItem>
                             <SelectItem value="45">45 minutes</SelectItem>
