@@ -1,21 +1,21 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { toast } from "sonner";
 import { supabase } from "@/lib/supabase";
 import { Camera, CameraOff, Loader2, Mic, MicOff } from "lucide-react";
 import { 
   DailyProvider, 
-  useCallObject, 
   useLocalParticipant,
   useParticipantIds,
   useMeetingState,
   DailyAudio,
   DailyVideo,
-  useDevices
+  useDevices,
+  createCallObject
 } from '@daily-co/daily-react';
 
 interface InterviewData {
@@ -28,7 +28,7 @@ interface InterviewData {
   status: string;
 }
 
-// Composant principal qui utilise les hooks Daily
+// Main component that uses Daily hooks
 function InterviewRoom() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
@@ -38,13 +38,16 @@ function InterviewRoom() {
   const [isStarting, setIsStarting] = useState(false);
   const [isFinishing, setIsFinishing] = useState(false);
   const [elapsedTime, setElapsedTime] = useState(0);
+  const [callObject, setCallObject] = useState(null);
   
-  // Hooks Daily React
-  const callObject = useCallObject();
+  // Daily React hooks
   const localParticipant = useLocalParticipant();
   const participantIds = useParticipantIds();
   const meetingState = useMeetingState();
   const { microphones, cameras } = useDevices();
+
+  // Refs to prevent infinite loops
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     const fetchInterview = async () => {
@@ -67,18 +70,37 @@ function InterviewRoom() {
     };
     
     fetchInterview();
+
+    // Initialize call object
+    const co = createCallObject();
+    setCallObject(co);
+
+    // Cleanup function
+    return () => {
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+      }
+      
+      // Clean up call object
+      if (co) {
+        co.destroy();
+      }
+    };
   }, [id, router]);
 
-  // Timer pour le temps écoulé
+  // Timer for elapsed time - using ref to prevent infinite loops
   useEffect(() => {
-    let interval: NodeJS.Timeout;
     if (meetingState === 'joined-meeting') {
-      interval = setInterval(() => {
+      timerRef.current = setInterval(() => {
         setElapsedTime(prev => prev + 1);
       }, 1000);
     }
+    
     return () => {
-      if (interval) clearInterval(interval);
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+        timerRef.current = null;
+      }
     };
   }, [meetingState]);
 
@@ -87,7 +109,7 @@ function InterviewRoom() {
     setIsStarting(true);
 
     try {
-      // Créer la conversation Tavus
+      // Create the Tavus conversation
       const response = await fetch('/api/tavus/conversations', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -103,16 +125,18 @@ function InterviewRoom() {
       const data = await response.json();
       if (!response.ok) throw new Error(data.error);
 
-      // Rejoindre avec Daily
-      await callObject?.join({ 
-        url: data.conversation_url,
-        userName: 'Candidate'
-      });
+      // Join with Daily
+      if (callObject) {
+        await callObject.join({ 
+          url: data.conversation_url,
+          userName: 'Candidate'
+        });
+      }
 
       toast.success("Interview started successfully!");
     } catch (error: any) {
       console.error("Failed to start interview:", error);
-      toast.error(error.message);
+      toast.error(error.message || "Failed to start interview");
     } finally {
       setIsStarting(false);
     }
@@ -121,7 +145,9 @@ function InterviewRoom() {
   const finishInterview = async () => {
     setIsFinishing(true);
     try {
-      await callObject?.leave();
+      if (callObject) {
+        await callObject.leave();
+      }
       router.push('/dashboard');
       toast.success("Interview ended successfully");
     } catch (error: any) {
@@ -133,11 +159,15 @@ function InterviewRoom() {
   };
 
   const toggleCamera = () => {
-    callObject?.setLocalVideo(!localParticipant?.video);
+    if (callObject) {
+      callObject.setLocalVideo(!localParticipant?.video);
+    }
   };
 
   const toggleMic = () => {
-    callObject?.setLocalAudio(!localParticipant?.audio);
+    if (callObject) {
+      callObject.setLocalAudio(!localParticipant?.audio);
+    }
   };
 
   const formatTime = (seconds: number) => {
@@ -167,10 +197,10 @@ function InterviewRoom() {
         <div className="lg:col-span-3 space-y-4">
           <Card className="overflow-hidden">
             <div className="aspect-video bg-black rounded-t-lg relative">
-              {/* Audio pour tous les participants distants */}
+              {/* Audio for all remote participants */}
               <DailyAudio />
               
-              {/* Vidéos des participants distants */}
+              {/* Videos of remote participants */}
               {participantIds
                 .filter(id => id !== localParticipant?.session_id)
                 .map(participantId => (
@@ -185,7 +215,7 @@ function InterviewRoom() {
                   />
                 ))}
               
-              {/* Vidéo locale (participant) */}
+              {/* Local video (participant) */}
               {localParticipant && (
                 <div className="absolute bottom-4 right-4 w-48 aspect-video bg-black rounded-lg overflow-hidden">
                   <DailyVideo
@@ -268,10 +298,7 @@ function InterviewRoom() {
         
         <div className="lg:col-span-2 space-y-4">
           <Card>
-            <CardHeader>
-              <CardTitle>Interview Details</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-4 pt-6">
               <div>
                 <h4 className="text-sm font-medium text-muted-foreground">Position</h4>
                 <p>{interview?.job_title}</p>
@@ -296,11 +323,8 @@ function InterviewRoom() {
           </Card>
           
           <Card>
-            <CardHeader>
-              <CardTitle>Tips</CardTitle>
-              <CardDescription>Remember these points during your interview</CardDescription>
-            </CardHeader>
-            <CardContent>
+            <CardContent className="pt-6">
+              <h3 className="font-medium mb-4">Tips</h3>
               <ul className="space-y-2 text-sm">
                 <li className="flex items-start gap-2">
                   <div className="rounded-full bg-primary/10 p-1 mt-0.5">
@@ -329,9 +353,31 @@ function InterviewRoom() {
   );
 }
 
-// Composant wrapper avec DailyProvider
+// Wrapper component with DailyProvider
 export default function InterviewRoomPage() {
-  const callObject = useCallObject();
+  const [callObject, setCallObject] = useState(null);
+  
+  useEffect(() => {
+    // Create the call object only once when the component mounts
+    const co = createCallObject();
+    setCallObject(co);
+    
+    // Clean up when component unmounts
+    return () => {
+      if (co) {
+        co.destroy();
+      }
+    };
+  }, []);
+
+  // Only render the DailyProvider when callObject is available
+  if (!callObject) {
+    return (
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   return (
     <DailyProvider callObject={callObject}>

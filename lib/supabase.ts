@@ -7,14 +7,14 @@ const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 function getSupabaseClient() {
   if (!supabaseUrl || !supabaseAnonKey) {
     console.error('Supabase credentials not configured. Please check your environment variables.');
-    return null;
+    throw new Error('Supabase credentials not configured. Please check your environment variables.');
   }
 
   try {
     return createBrowserClient<Database>(supabaseUrl, supabaseAnonKey);
   } catch (error) {
     console.error('Failed to create Supabase client:', error);
-    return null;
+    throw new Error('Failed to create Supabase client. Please check your environment variables.');
   }
 }
 
