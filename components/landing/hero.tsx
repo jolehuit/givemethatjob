@@ -21,7 +21,7 @@ export function Hero() {
 
   useEffect(() => {
     let timeout: NodeJS.Timeout;
-    
+
     const startSequence = async () => {
       // Start with first company after a brief delay
       timeout = setTimeout(() => {
@@ -44,22 +44,22 @@ export function Hero() {
 
         // Type out the text
         for (let i = 0; i <= company.name.length; i++) {
-          await new Promise(resolve => setTimeout(resolve, 100));
+          await new Promise((resolve) => setTimeout(resolve, 100));
           setDisplayText(company.name.slice(0, i));
         }
 
         setIsTyping(false);
 
         // Show tooltip after typing
-        await new Promise(resolve => setTimeout(resolve, 500));
+        await new Promise((resolve) => setTimeout(resolve, 500));
         setShowTooltip(true);
 
         // Move to next company
         timeout = setTimeout(() => {
-          setCurrentIndex(prev => {
+          setCurrentIndex((prev) => {
             if (prev === companies.length - 1) {
               setShowFinal(true);
-              return prev;
+              return prev; // Keep current index to avoid out of bounds
             }
             return prev + 1;
           });
@@ -75,14 +75,16 @@ export function Hero() {
     <div className="relative overflow-hidden bg-background pt-16 md:pt-20 lg:pt-24">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
         <div className="mx-auto max-w-3xl text-center">
-          <motion.h1 
+          <motion.h1
             className="text-4xl font-bold tracking-tight text-foreground sm:text-6xl"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
           >
             Master Your Job Interviews with{" "}
-            <span className="relative inline-flex items-center">
+            <span className="relative inline-flex items-center min-h-10 sm:min-h-15">
+              {" "}
+              {/* Added min-h-10 sm:min-h-15 here */}
               <AnimatePresence mode="wait">
                 {!showFinal ? (
                   <motion.span
@@ -100,7 +102,7 @@ export function Hero() {
                         transition={{ duration: 0.5, repeat: Infinity }}
                       />
                     )}
-                    {showTooltip && (
+                    {showTooltip && currentIndex < companies.length && ( // Ensure currentIndex is valid
                       <>
                         <motion.div
                           className="absolute left-0 right-0 top-1/2 h-[3px] bg-destructive"
@@ -122,46 +124,38 @@ export function Hero() {
                 ) : (
                   <motion.span
                     key="ai"
-                    className="relative inline-block px-1"
+                    className="relative inline-block px-1" // px-1 gives a little space
                     initial={{ scale: 0.8, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
-                    transition={{ 
+                    transition={{
                       type: "spring",
                       stiffness: 200,
-                      damping: 15
+                      damping: 15,
                     }}
                   >
                     <span className="bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-purple-400">
                       AI
-                      <motion.div
-                        className="absolute inset-0"
-                        animate={{ 
-                          boxShadow: ["0 0 0px rgba(147, 51, 234, 0)", "0 0 20px rgba(147, 51, 234, 0.3)", "0 0 0px rgba(147, 51, 234, 0)"]
-                        }}
-                        transition={{ 
-                          duration: 2,
-                          repeat: Infinity,
-                          ease: "easeInOut"
-                        }}
-                      />
+                      {/* Removed the motion.div for boxShadow here */}
                     </span>
                   </motion.span>
                 )}
               </AnimatePresence>
-            </span>
-            {" "}Recruiters
+            </span>{" "}
+            Recruiters
           </motion.h1>
-          
-          <motion.p 
+
+          <motion.p
             className="mt-16 text-lg leading-8 text-muted-foreground"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
           >
-            Practice with ultra-realistic AI interviewers that give you personalized feedback based on real job descriptions and your CV. Land your dream job faster.
+            Practice with ultra-realistic AI interviewers that give you
+            personalized feedback based on real job descriptions and your CV.
+            Land your dream job faster.
           </motion.p>
-          
-          <motion.div 
+
+          <motion.div
             className="mt-10 flex items-center justify-center gap-x-6"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -172,13 +166,16 @@ export function Hero() {
                 Try for free
               </Button>
             </Link>
-            <Link href="#features" className="text-sm font-semibold leading-6 text-foreground">
+            <Link
+              href="#features"
+              className="text-sm font-semibold leading-6 text-foreground"
+            >
               Learn more <span aria-hidden="true">→</span>
             </Link>
           </motion.div>
         </div>
-        
-        <motion.div 
+
+        <motion.div
           className="mt-16 flow-root sm:mt-24"
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
