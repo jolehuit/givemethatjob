@@ -228,46 +228,36 @@ export default function InterviewRoomPage() {
     
     try {
       console.log("Finishing interview...");
-      // End Tavus conversation
+      
+      // End Tavus conversation if it exists
       if (tavusConversation) {
         await fetch(`/api/tavus/conversations/${tavusConversation.conversation_id}/end`, {
           method: 'POST',
         });
       }
 
-      // Create default feedback
-      const { error: feedbackError } = await supabase
+      // Delete any existing feedback
+      const { error: deleteError } = await supabase
         .from('feedback')
-        .insert([
-          {
-            interview_id: id,
-            overall_score: 70, // Default score
-            strengths: ["Good communication skills", "Professional demeanor"],
-            weaknesses: ["Could improve answer structure", "Room for more specific examples"],
-            verbal_communication: 70,
-            non_verbal_communication: 70,
-            content_quality: 70,
-            question_understanding: 70,
-            improvement_suggestions: "Focus on using the STAR method for behavioral questions and provide more specific examples from your experience."
-          }
-        ]);
+        .delete()
+        .eq('interview_id', id);
 
-      if (feedbackError) throw feedbackError;
+      if (deleteError) throw deleteError;
 
-      // Update interview status
-      const { error } = await supabase
+      // Reset interview status
+      const { error: updateError } = await supabase
         .from('interviews')
         .update({
-          status: 'completed',
-          completed_at: new Date().toISOString(),
-          score: 70, // Default score
+          status: 'in_progress',
+          score: 0,
+          completed_at: null
         })
         .eq('id', id);
         
-      if (error) throw error;
+      if (updateError) throw updateError;
       
-      console.log("Interview completed successfully");
-      toast.success("Interview completed! Redirecting to feedback...");
+      console.log("Interview reset successfully");
+      toast.success("Interview cancelled. You can try again when ready.");
       
       // Clear timer
       if (timerRef.current) {
@@ -279,12 +269,11 @@ export default function InterviewRoomPage() {
         streamRef.current.getTracks().forEach(track => track.stop());
       }
 
-      setTimeout(() => {
-        router.push(`/interview/${id}/feedback`);
-      }, 1500);
+      // Redirect to dashboard
+      router.push('/dashboard');
     } catch (error: any) {
-      console.error("Failed to complete interview:", error);
-      toast.error(error.message || "Failed to complete interview");
+      console.error("Failed to reset interview:", error);
+      toast.error(error.message || "Failed to reset interview");
     } finally {
       setIsFinishing(false);
     }
@@ -401,10 +390,10 @@ export default function InterviewRoomPage() {
                   {isFinishing ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Ending...
+                      Cancelling...
                     </>
                   ) : (
-                    "End Interview"
+                    "Cancel Interview"
                   )}
                 </Button>
               )}
