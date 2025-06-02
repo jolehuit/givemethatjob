@@ -37,12 +37,10 @@ export function Hero() {
 
     const animateText = async () => {
       if (currentIndex >= 0 && currentIndex < companies.length && !showFinal) {
-        // Added !showFinal here to prevent re-typing if already on final state
         const company = companies[currentIndex];
         setIsTyping(true);
-        setShowTooltip(false); // Hide tooltip when new text starts typing
+        setShowTooltip(false);
 
-        // Type out the text
         for (let i = 0; i <= company.name.length; i++) {
           await new Promise((resolve) => setTimeout(resolve, 100));
           setDisplayText(company.name.slice(0, i));
@@ -50,22 +48,18 @@ export function Hero() {
 
         setIsTyping(false);
 
-        // Show tooltip after typing
         await new Promise((resolve) => setTimeout(resolve, 500));
-        // Ensure we are still on the same company before showing tooltip
-        // and not about to show the final "AI"
         if (currentIndex < companies.length && !showFinal) {
           setShowTooltip(true);
         }
 
-        // Move to next company or show final
         timeout = setTimeout(() => {
-          setShowTooltip(false); // Hide tooltip before changing text
+          setShowTooltip(false);
           setCurrentIndex((prev) => {
             if (prev === companies.length - 1) {
               setShowFinal(true);
-              setDisplayText(""); // Clear display text for "AI" to appear cleanly
-              return prev; // Keep current index, showFinal will trigger "AI"
+              setDisplayText("");
+              return prev;
             }
             return prev + 1;
           });
@@ -74,12 +68,11 @@ export function Hero() {
     };
 
     if (!showFinal) {
-      // Only run animation if not in final state
       animateText();
     }
 
     return () => clearTimeout(timeout);
-  }, [currentIndex, showFinal]); // Added showFinal to dependencies
+  }, [currentIndex, showFinal]);
 
   return (
     <div className="relative overflow-hidden bg-background pt-16 md:pt-20 lg:pt-24">
@@ -92,18 +85,18 @@ export function Hero() {
             transition={{ duration: 0.5 }}
           >
             Master Your Job Interviews with{" "}
-            <span className="relative inline-flex items-center min-h-10 sm:min-h-15 align-bottom">
+            {/* MODIFICATION ICI: align-bottom supprimé */}
+            <span className="relative inline-flex items-center min-h-10 sm:min-h-15">
               <AnimatePresence mode="wait">
                 {!showFinal ? (
                   <motion.span
-                    key={currentIndex} // Use currentIndex for a more reliable key
+                    key={currentIndex}
                     className="relative inline-block"
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
-                    transition={{ duration: 0.2 }} // Faster exit
+                    transition={{ duration: 0.2 }}
                   >
-                    {/* Use &nbsp; if displayText is empty to maintain height */}
                     {displayText || <>&nbsp;</>}
                     {isTyping && (
                       <motion.span
