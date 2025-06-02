@@ -8,8 +8,8 @@ import { useEffect, useState } from "react";
 const companies = [
   { name: "Amazon", tooltip: "Wrong..." },
   { name: "Meta", tooltip: "Another time..." },
-  { name: "Google", tooltip: "Still not that..." },
-  { name: "OpenAI", tooltip: "It's getting embarrassing..." },
+  { name: "Google", tooltip: "It's getting embarrassing..." },
+  { name: "Microsoft", tooltip: "Still not it..." },
 ];
 
 export function Hero() {
@@ -79,82 +79,91 @@ export function Hero() {
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
         <div className="mx-auto max-w-3xl text-center">
           <motion.h1
-            className="text-4xl font-bold tracking-tight text-foreground sm:text-6xl flex flex-wrap justify-center items-center gap-x-3"
+            className="text-4xl font-bold tracking-tight text-foreground sm:text-6xl 
+                       min-h-[5rem] sm:min-h-[7.5rem] 
+                       grid place-items-center" // MODIFIED: min-height for 2 lines, grid for centering
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
           >
-            <span>Master Your Job Interviews with</span>
-            <span className="relative inline-flex items-center justify-center h-[1.1em]">
-              <AnimatePresence mode="wait">
-                {!showFinal ? (
-                  <motion.span
-                    key={currentIndex}
-                    className="relative inline-flex items-center justify-center h-full"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    transition={{ duration: 0.2 }}
-                  >
-                    <span className="inline-flex items-center">
-                      {displayText || <>&nbsp;</>}
-                      {isTyping && (
-                        <motion.span
-                          className="inline-block w-[2px] h-[1em] bg-primary ml-[2px] align-baseline"
-                          animate={{ opacity: [1, 0] }}
-                          transition={{
-                            duration: 0.5,
-                            repeat: Infinity,
-                            ease: "easeInOut",
-                          }}
-                        />
-                      )}
-                    </span>
-                    {showTooltip &&
-                      currentIndex >= 0 &&
-                      currentIndex < companies.length &&
-                      companies[currentIndex]?.tooltip && (
-                        <>
-                          <motion.div
-                            className="absolute left-0 right-0 top-1/2 h-[3px] bg-destructive"
-                            initial={{ scaleX: 0 }}
-                            animate={{ scaleX: 1 }}
+            {/* This span will be centered by place-items-center. text-center from parent applies here. */}
+            <span>
+              Master Your Job Interviews with{" "}
+              <span className="relative inline-block align-middle">
+                {" "}
+                {/* MODIFIED: Wrapper for AnimatePresence */}
+                <AnimatePresence mode="wait">
+                  {!showFinal ? (
+                    <motion.span
+                      key={currentIndex}
+                      className="relative inline-flex items-center justify-center h-10 sm:h-15" // Fixed height
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      transition={{ duration: 0.2 }}
+                    >
+                      <span>
+                        {" "}
+                        {/* Group text and cursor */}
+                        {displayText || <>&nbsp;</>}
+                        {isTyping && (
+                          <motion.span
+                            className="inline-block w-[2px] h-[1em] bg-primary ml-[2px] align-baseline"
+                            animate={{ opacity: [1, 0] }}
                             transition={{
-                              duration: 0.3,
+                              duration: 0.5,
+                              repeat: Infinity,
                               ease: "easeInOut",
                             }}
                           />
-                          <motion.div
-                            className="absolute whitespace-nowrap top-[calc(100%+0.5em)] left-1/2 -translate-x-1/2 px-3 py-1 bg-popover text-popover-foreground text-sm rounded-md shadow-lg z-10"
-                            initial={{ opacity: 0, y: -5 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.3 }}
-                          >
-                            {companies[currentIndex]?.tooltip}
-                          </motion.div>
-                        </>
-                      )}
-                  </motion.span>
-                ) : (
-                  <motion.span
-                    key="ai"
-                    className="relative inline-flex items-center justify-center h-full"
-                    initial={{ scale: 0.8, opacity: 0 }}
-                    animate={{ scale: 1, opacity: 1 }}
-                    transition={{
-                      type: "spring",
-                      stiffness: 200,
-                      damping: 15,
-                    }}
-                  >
-                    <span className="bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-purple-400">
-                      AI
-                    </span>
-                  </motion.span>
-                )}
-              </AnimatePresence>
+                        )}
+                      </span>
+                      {showTooltip &&
+                        currentIndex >= 0 &&
+                        currentIndex < companies.length &&
+                        companies[currentIndex]?.tooltip && (
+                          <>
+                            <motion.div
+                              className="absolute left-0 right-0 top-1/2 h-[3px] bg-destructive"
+                              initial={{ scaleX: 0 }}
+                              animate={{ scaleX: 1 }}
+                              transition={{
+                                duration: 0.3,
+                                ease: "easeInOut",
+                              }}
+                            />
+                            <motion.div
+                              className="absolute whitespace-nowrap top-[calc(100%+1rem)] left-1/2 -translate-x-1/2 px-3 py-1 bg-popover text-popover-foreground text-sm rounded-md shadow-lg z-10"
+                              initial={{ opacity: 0, y: -5 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              transition={{ duration: 0.3 }}
+                            >
+                              {companies[currentIndex]?.tooltip}
+                            </motion.div>
+                          </>
+                        )}
+                    </motion.span>
+                  ) : (
+                    <motion.span
+                      key="ai"
+                      className="relative inline-flex items-center justify-center h-10 sm:h-15 px-1" // Fixed height
+                      initial={{ scale: 0.8, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      transition={{
+                        type: "spring",
+                        stiffness: 200,
+                        damping: 15,
+                      }}
+                    >
+                      <span className="bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-purple-400">
+                        AI
+                      </span>
+                    </motion.span>
+                  )}
+                </AnimatePresence>
+              </span>{" "}
+              Recruiters
             </span>
-            <span>Recruiters</span>
           </motion.h1>
 
           <motion.p
