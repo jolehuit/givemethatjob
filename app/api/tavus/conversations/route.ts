@@ -5,15 +5,25 @@ const TAVUS_RECRUITER_REPLICA_ID = process.env.TAVUS_RECRUITER_REPLICA_ID;
 
 export async function POST(request: Request) {
   try {
+    // Validate environment variables
+    if (!TAVUS_API_KEY || !TAVUS_RECRUITER_REPLICA_ID) {
+      throw new Error('Missing required Tavus configuration');
+    }
+
     const body = await request.json();
     const { interview_id, job_title, company, cv_path } = body;
+
+    // Validate required request data
+    if (!job_title || !company) {
+      throw new Error('Missing required interview information');
+    }
 
     // Create a Tavus conversation with the recruiter persona
     const response = await fetch('https://api.tavus.io/v2/conversations', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': TAVUS_API_KEY!,
+        'x-api-key': TAVUS_API_KEY,
       },
       body: JSON.stringify({
         replica_id: TAVUS_RECRUITER_REPLICA_ID,
@@ -30,14 +40,33 @@ export async function POST(request: Request) {
     });
 
     if (!response.ok) {
-      throw new Error('Failed to create Tavus conversation');
+      // Get detailed error information
+      const errorText = await response.text();
+      console.error('Tavus API Error:', {
+        status: response.status,
+        statusText: response.statusText,
+        body: errorText,
+      });
+
+      throw new Error(`Tavus API error: ${response.status} ${response.statusText}`);
     }
 
     const data = await response.json();
+    
+    // Validate response data
+    if (!data.conversation_id || !data.conversation_url) {
+      throw new Error('Invalid response from Tavus API');
+    }
+
     return NextResponse.json(data);
   } catch (error: any) {
+    console.error('Tavus conversation creation error:', error);
+    
     return NextResponse.json(
-      { error: error.message || 'Internal server error' },
+      { 
+        error: error.message || 'Failed to create Tavus conversation',
+        details: error.stack
+      },
       { status: 500 }
     );
   }
