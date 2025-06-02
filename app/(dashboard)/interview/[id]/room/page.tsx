@@ -91,6 +91,8 @@ export default function InterviewRoomPage() {
       
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
+        // Remove muted attribute to hear yourself during setup
+        videoRef.current.muted = false;
       }
       
       setIsCameraReady(true);
@@ -301,7 +303,7 @@ export default function InterviewRoomPage() {
                     <video
                       ref={videoRef}
                       autoPlay
-                      muted
+                      playsInline
                       className={`w-full h-full object-cover ${!isCameraEnabled ? 'hidden' : ''}`}
                     />
                     {!isCameraEnabled && (
