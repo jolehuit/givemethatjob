@@ -1,21 +1,29 @@
 import { Purchases } from '@revenuecat/purchases-js';
 
-const WEB_BILLING_API_KEY = process.env.NEXT_PUBLIC_REVENUECAT_API_KEY;
+const WEB_BILLING_API_KEY = process.env.REVENUECAT_API_KEY;
 
-if (!WEB_BILLING_API_KEY) {
-  throw new Error('RevenueCat API key is not configured');
-}
+export const initializeRevenueCat = async (userId: string) => {
+  try {
+    if (!WEB_BILLING_API_KEY) {
+      console.error('RevenueCat API key not configured');
+      return null;
+    }
 
-export const initializeRevenueCat = (userId: string) => {
-  if (!Purchases.isConfigured()) {
-    return Purchases.configure(WEB_BILLING_API_KEY, userId);
+    if (!Purchases.isConfigured()) {
+      return Purchases.configure(WEB_BILLING_API_KEY, userId);
+    }
+    return Purchases.getSharedInstance();
+  } catch (error) {
+    console.error('Failed to initialize RevenueCat:', error);
+    return null;
   }
-  return Purchases.getSharedInstance();
 };
 
 export const checkEntitlement = async (entitlementId: string) => {
   try {
-    return await Purchases.getSharedInstance().isEntitledTo(entitlementId);
+    const purchases = await initializeRevenueCat(entitlementId);
+    if (!purchases) return false;
+    return await purchases.isEntitledTo(entitlementId);
   } catch (error) {
     console.error('Failed to check entitlement:', error);
     return false;
@@ -24,18 +32,20 @@ export const checkEntitlement = async (entitlementId: string) => {
 
 export const getCustomerInfo = async () => {
   try {
-    return await Purchases.getSharedInstance().getCustomerInfo();
+    const purchases = await Purchases.getSharedInstance();
+    return await purchases.getCustomerInfo();
   } catch (error) {
     console.error('Failed to get customer info:', error);
-    throw error;
+    return null;
   }
 };
 
 export const getOfferings = async () => {
   try {
-    return await Purchases.getSharedInstance().getOfferings();
+    const purchases = await Purchases.getSharedInstance();
+    return await purchases.getOfferings();
   } catch (error) {
     console.error('Failed to get offerings:', error);
-    throw error;
+    return null;
   }
 };
