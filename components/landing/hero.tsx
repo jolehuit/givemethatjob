@@ -2,9 +2,75 @@
 
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
+import { useEffect, useState } from "react";
+
+const companies = [
+  { name: "Amazon", tooltip: "Wrong..." },
+  { name: "Meta", tooltip: "Another time..." },
+  { name: "Google", tooltip: "It's getting embarrassing..." },
+  { name: "Microsoft", tooltip: "Still not it..." },
+];
 
 export function Hero() {
+  const [currentIndex, setCurrentIndex] = useState(-1);
+  const [displayText, setDisplayText] = useState("");
+  const [showTooltip, setShowTooltip] = useState(false);
+  const [isTyping, setIsTyping] = useState(false);
+  const [showFinal, setShowFinal] = useState(false);
+
+  useEffect(() => {
+    let timeout: NodeJS.Timeout;
+    
+    const startSequence = async () => {
+      // Start with first company after a brief delay
+      timeout = setTimeout(() => {
+        setCurrentIndex(0);
+      }, 1000);
+    };
+
+    startSequence();
+    return () => clearTimeout(timeout);
+  }, []);
+
+  useEffect(() => {
+    let timeout: NodeJS.Timeout;
+
+    const animateText = async () => {
+      if (currentIndex >= 0 && currentIndex < companies.length) {
+        const company = companies[currentIndex];
+        setIsTyping(true);
+        setShowTooltip(false);
+
+        // Type out the text
+        for (let i = 0; i <= company.name.length; i++) {
+          await new Promise(resolve => setTimeout(resolve, 100));
+          setDisplayText(company.name.slice(0, i));
+        }
+
+        setIsTyping(false);
+
+        // Show tooltip after typing
+        await new Promise(resolve => setTimeout(resolve, 500));
+        setShowTooltip(true);
+
+        // Move to next company
+        timeout = setTimeout(() => {
+          setCurrentIndex(prev => {
+            if (prev === companies.length - 1) {
+              setShowFinal(true);
+              return prev;
+            }
+            return prev + 1;
+          });
+        }, 2000);
+      }
+    };
+
+    animateText();
+    return () => clearTimeout(timeout);
+  }, [currentIndex]);
+
   return (
     <div className="relative overflow-hidden bg-background pt-16 md:pt-20 lg:pt-24">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
@@ -15,7 +81,75 @@ export function Hero() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
           >
-            Master Your Job Interviews with AI Recruiters
+            Master Your Job Interviews with{" "}
+            <span className="relative inline-block min-w-[120px]">
+              <AnimatePresence mode="wait">
+                {!showFinal ? (
+                  <motion.span
+                    key="company"
+                    className="relative inline-block"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                  >
+                    {displayText}
+                    {isTyping && (
+                      <motion.span
+                        className="inline-block w-[2px] h-[1.2em] bg-primary ml-[2px] align-middle"
+                        animate={{ opacity: [1, 0] }}
+                        transition={{ duration: 0.5, repeat: Infinity }}
+                      />
+                    )}
+                    {showTooltip && (
+                      <>
+                        <motion.div
+                          className="absolute left-0 right-0 top-1/2 h-[3px] bg-destructive"
+                          initial={{ scaleX: 0 }}
+                          animate={{ scaleX: 1 }}
+                          transition={{ duration: 0.3, ease: "easeInOut" }}
+                        />
+                        <motion.div
+                          className="absolute top-full left-1/2 -translate-x-1/2 mt-2 px-3 py-1 bg-popover text-popover-foreground text-sm rounded-md shadow-lg"
+                          initial={{ opacity: 0, y: -5 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ duration: 0.3 }}
+                        >
+                          {companies[currentIndex]?.tooltip}
+                        </motion.div>
+                      </>
+                    )}
+                  </motion.span>
+                ) : (
+                  <motion.span
+                    key="ai"
+                    className="relative inline-block"
+                    initial={{ scale: 0.8, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    transition={{ 
+                      type: "spring",
+                      stiffness: 200,
+                      damping: 15
+                    }}
+                  >
+                    <span className="bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-purple-400 relative">
+                      AI
+                      <motion.div
+                        className="absolute inset-0 rounded-lg"
+                        animate={{ 
+                          boxShadow: ["0 0 0px rgba(147, 51, 234, 0)", "0 0 20px rgba(147, 51, 234, 0.3)", "0 0 0px rgba(147, 51, 234, 0)"]
+                        }}
+                        transition={{ 
+                          duration: 2,
+                          repeat: Infinity,
+                          ease: "easeInOut"
+                        }}
+                      />
+                    </span>
+                  </motion.span>
+                )}
+              </AnimatePresence>
+            </span>
+            {" "}Recruiters
           </motion.h1>
           
           <motion.p 
