@@ -23,6 +23,7 @@ export function Hero() {
     let timeout: NodeJS.Timeout;
     
     const startSequence = async () => {
+      // Start with first company after a brief delay
       timeout = setTimeout(() => {
         setCurrentIndex(0);
       }, 1000);
@@ -41,6 +42,7 @@ export function Hero() {
         setIsTyping(true);
         setShowTooltip(false);
 
+        // Type out the text
         for (let i = 0; i <= company.name.length; i++) {
           await new Promise(resolve => setTimeout(resolve, 100));
           setDisplayText(company.name.slice(0, i));
@@ -48,9 +50,11 @@ export function Hero() {
 
         setIsTyping(false);
 
+        // Show tooltip after typing
         await new Promise(resolve => setTimeout(resolve, 500));
         setShowTooltip(true);
 
+        // Move to next company
         timeout = setTimeout(() => {
           setCurrentIndex(prev => {
             if (prev === companies.length - 1) {
@@ -78,12 +82,12 @@ export function Hero() {
             transition={{ duration: 0.5 }}
           >
             Master Your Job Interviews with{" "}
-            <span className="relative inline-flex items-center justify-center" style={{ minWidth: '200px' }}>
+            <span className="relative inline-flex items-center min-h-[1.1em]">
               <AnimatePresence mode="wait">
                 {!showFinal ? (
                   <motion.span
                     key="company"
-                    className="absolute"
+                    className="absolute left-0 right-0"
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
@@ -105,8 +109,7 @@ export function Hero() {
                           transition={{ duration: 0.3, ease: "easeInOut" }}
                         />
                         <motion.div
-                          className="absolute whitespace-nowrap left-1/2 -translate-x-1/2 px-3 py-1 bg-popover text-popover-foreground text-sm rounded-md shadow-lg"
-                          style={{ top: 'calc(100% + 1em)' }}
+                          className="absolute whitespace-nowrap top-[calc(100%+0.5rem)] left-1/2 -translate-x-1/2 px-3 py-1 bg-popover text-popover-foreground text-sm rounded-md shadow-lg"
                           initial={{ opacity: 0, y: -5 }}
                           animate={{ opacity: 1, y: 0 }}
                           transition={{ duration: 0.3 }}
@@ -119,7 +122,7 @@ export function Hero() {
                 ) : (
                   <motion.span
                     key="ai"
-                    className="absolute"
+                    className="absolute left-0 right-0"
                     initial={{ scale: 0.8, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
                     transition={{ 
@@ -130,6 +133,17 @@ export function Hero() {
                   >
                     <span className="bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-purple-400">
                       AI
+                      <motion.div
+                        className="absolute inset-0"
+                        animate={{ 
+                          boxShadow: ["0 0 0px rgba(147, 51, 234, 0)", "0 0 20px rgba(147, 51, 234, 0.3)", "0 0 0px rgba(147, 51, 234, 0)"]
+                        }}
+                        transition={{ 
+                          duration: 2,
+                          repeat: Infinity,
+                          ease: "easeInOut"
+                        }}
+                      />
                     </span>
                   </motion.span>
                 )}
@@ -163,6 +177,26 @@ export function Hero() {
             </Link>
           </motion.div>
         </div>
+        
+        <motion.div 
+          className="mt-16 flow-root sm:mt-24"
+          initial={{ opacity: 0, y: 40 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.7, delay: 0.4 }}
+        >
+          <div className="relative rounded-xl bg-gray-900 p-2 ring-1 ring-white/10 lg:-m-4 lg:rounded-2xl lg:p-4">
+            <div className="relative aspect-video rounded-md bg-gray-800 shadow-2xl ring-1 ring-white/10">
+              <div className="absolute inset-0 flex items-center justify-center text-white/80 text-lg">
+                <div className="max-w-sm text-center">
+                  <p>Interactive interview simulation preview</p>
+                  <Button variant="secondary" size="sm" className="mt-4">
+                    Watch Demo
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </motion.div>
       </div>
     </div>
   );
