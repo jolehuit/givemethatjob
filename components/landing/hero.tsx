@@ -12,30 +12,6 @@ const companies = [
   { name: "OpenAI", color: "#74AA9C" },
 ];
 
-// Chemins de gribouillage pour chaque entreprise (comme tracé à la main)
-const scribblePaths = {
-  Amazon: [
-    "M8 12 Q25 8, 45 15 T85 12 Q110 18, 135 14 T175 16 Q190 20, 200 18",
-    "M5 16 Q30 22, 50 18 T90 16 Q115 12, 140 19 T180 15 Q195 13, 205 17",
-    "M10 14 Q35 10, 55 17 T95 14 Q120 20, 145 16 T185 18",
-  ],
-  Meta: [
-    "M5 14 Q20 10, 35 16 T65 13 Q80 18, 95 15 T125 17",
-    "M8 17 Q25 22, 40 18 T70 16 Q85 12, 100 19 T130 15",
-    "M6 15 Q22 8, 38 14 T68 17 Q83 21, 98 16 T128 19",
-  ],
-  Google: [
-    "M5 15 Q25 11, 45 17 T85 14 Q110 19, 135 15 T175 18 Q190 12, 205 16",
-    "M8 18 Q30 24, 50 20 T90 17 Q115 13, 140 20 T180 16 Q195 14, 210 18",
-    "M7 16 Q28 9, 48 15 T88 18 Q113 22, 138 17 T178 14 Q193 19, 208 17",
-  ],
-  OpenAI: [
-    "M5 16 Q30 12, 55 18 T105 15 Q135 20, 165 16 T205 19 Q220 15, 235 17",
-    "M8 19 Q35 25, 60 21 T110 18 Q140 14, 170 20 T210 17 Q225 13, 240 16",
-    "M6 17 Q32 10, 57 16 T107 19 Q137 23, 167 18 T207 15 Q222 20, 237 18",
-  ],
-};
-
 export function Hero() {
   const [currentCompanyIndex, setCurrentCompanyIndex] = useState(-1);
   const [currentText, setCurrentText] = useState("");
@@ -219,7 +195,8 @@ export function Hero() {
           >
             <span className="block mb-4">Master Your Job</span>
             <span className="block mb-4">Interviews with</span>
-            <span className="relative inline-block h-[1.2em]">
+            {/* CONTENEUR FIXE pour éviter les changements de hauteur */}
+            <span className="relative inline-block h-[1.2em] min-w-[8ch]">
               <AnimatePresence mode="wait">
                 {showAI ? (
                   <motion.span
@@ -313,78 +290,66 @@ export function Hero() {
                       >
                         {currentText}
 
-                        {/* Animation de gribouillage au feutre rouge */}
+                        {/* Animation de gribouillage au feutre rouge - VERSION SIMPLE QUI MARCHE */}
                         {showScribble && (
-                          <div className="absolute inset-0 pointer-events-none">
-                            <svg
-                              className="absolute inset-0 w-full h-full"
+                          <motion.div
+                            className="absolute top-1/2 left-0 right-0 pointer-events-none"
+                            initial={{ scaleX: 0, opacity: 0 }}
+                            animate={{ scaleX: 1, opacity: 1 }}
+                            transition={{ duration: 0.6, ease: "easeOut" }}
+                            style={{ transformOrigin: "left center" }}
+                          >
+                            {/* Trait principal de gribouillage */}
+                            <motion.div
+                              className="h-1 bg-red-500 rounded-full relative"
                               style={{
-                                left: "-10%",
-                                right: "-10%",
-                                top: "-20%",
-                                bottom: "-20%",
-                                width: "120%",
-                                height: "140%",
+                                background: "linear-gradient(90deg, #ef4444, #dc2626, #ef4444)",
+                                filter: "drop-shadow(0 0 4px rgba(239, 68, 68, 0.5))",
+                                transform: "rotate(-2deg) scaleY(0.8)",
                               }}
-                              viewBox="0 0 250 40"
-                            >
-                              {scribblePaths[
-                                companies[currentCompanyIndex]
-                                  .name as keyof typeof scribblePaths
-                              ].map((path, index) => (
-                                <motion.path
-                                  key={index}
-                                  d={path}
-                                  stroke="#ef4444"
-                                  strokeWidth={index === 0 ? "3" : "2"}
-                                  fill="none"
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  opacity={index === 0 ? 0.9 : 0.6}
-                                  style={{
-                                    filter: `drop-shadow(0 0 8px #ef444440)`,
-                                    strokeDasharray: 1000,
-                                    strokeDashoffset: 1000,
-                                  }}
-                                  animate={{
-                                    strokeDashoffset: 0,
-                                  }}
-                                  transition={{
-                                    duration: 0.8,
-                                    delay: index * 0.1,
-                                    ease: "easeOut",
-                                  }}
-                                />
-                              ))}
+                              animate={{
+                                rotate: [-2, 1, -1, 2, -2],
+                              }}
+                              transition={{
+                                duration: 0.8,
+                                ease: "easeInOut",
+                                repeat: 1,
+                              }}
+                            />
+                            
+                            {/* Trait secondaire pour effet plus réaliste */}
+                            <motion.div
+                              className="absolute top-0.5 left-2 right-4 h-0.5 bg-red-400/70 rounded-full"
+                              style={{
+                                transform: "rotate(1deg)",
+                                filter: "blur(0.5px)",
+                              }}
+                              initial={{ scaleX: 0 }}
+                              animate={{ scaleX: 1 }}
+                              transition={{ duration: 0.7, delay: 0.1 }}
+                            />
 
-                              {/* Effet de particules de feutre */}
-                              {Array.from({ length: 6 }).map((_, i) => (
-                                <motion.circle
-                                  key={`particle-${i}`}
-                                  r="1"
-                                  fill="#ef4444"
-                                  opacity="0.6"
-                                  initial={{
-                                    cx: 20 + Math.random() * 200,
-                                    cy: 15 + Math.random() * 10,
-                                    scale: 0,
-                                  }}
-                                  animate={{
-                                    scale: [0, 1, 0],
-                                    cy: [
-                                      15 + Math.random() * 10,
-                                      15 + Math.random() * 10 + 5,
-                                    ],
-                                  }}
-                                  transition={{
-                                    duration: 1,
-                                    delay: 0.3 + i * 0.1,
-                                    ease: "easeOut",
-                                  }}
-                                />
-                              ))}
-                            </svg>
-                          </div>
+                            {/* Petites particules de feutre */}
+                            {Array.from({ length: 4 }).map((_, i) => (
+                              <motion.div
+                                key={`dot-${i}`}
+                                className="absolute w-1 h-1 bg-red-500 rounded-full"
+                                style={{
+                                  left: `${20 + i * 25}%`,
+                                  top: Math.random() > 0.5 ? "-2px" : "4px",
+                                }}
+                                initial={{ scale: 0, opacity: 0 }}
+                                animate={{ 
+                                  scale: [0, 1.2, 0.8], 
+                                  opacity: [0, 0.8, 0.4] 
+                                }}
+                                transition={{
+                                  duration: 0.5,
+                                  delay: 0.2 + i * 0.1,
+                                }}
+                              />
+                            ))}
+                          </motion.div>
                         )}
                       </span>
 
