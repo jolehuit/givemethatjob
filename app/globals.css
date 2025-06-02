@@ -44,6 +44,7 @@
     --chart-5: 27 87% 67%;
     --radius: 0.5rem;
   }
+
   .dark {
     --background: 0 0% 3.9%;
     --foreground: 0 0% 98%;
@@ -77,6 +78,126 @@
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground antialiased;
   }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-muted rounded-full;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-muted-foreground/30 rounded-full hover:bg-muted-foreground/50 transition-colors;
+}
+
+/* Responsive typography */
+@layer utilities {
+  .h1 {
+    @apply text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl;
+  }
+  
+  .h2 {
+    @apply text-3xl font-bold tracking-tight sm:text-4xl;
+  }
+  
+  .h3 {
+    @apply text-2xl font-bold tracking-tight sm:text-3xl;
+  }
+  
+  .h4 {
+    @apply text-xl font-semibold tracking-tight sm:text-2xl;
+  }
+}
+
+/* Smooth transitions */
+.page-transition {
+  @apply transition-all duration-300 ease-in-out;
+}
+
+/* Card hover effects */
+.card-hover {
+  @apply transition-transform duration-300 ease-in-out hover:scale-[1.02] hover:shadow-lg;
+}
+
+/* Button animations */
+.button-hover {
+  @apply transition-all duration-200 ease-in-out hover:scale-[1.02] active:scale-[0.98];
+}
+
+/* Glass morphism effect */
+.glass {
+  @apply bg-background/80 backdrop-blur-lg border border-border/50;
+}
+
+/* Responsive container padding */
+.container {
+  @apply px-4 sm:px-6 lg:px-8 mx-auto max-w-7xl;
+}
+
+/* Responsive grid layouts */
+.grid-responsive {
+  @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6;
+}
+
+/* Responsive flex layouts */
+.flex-responsive {
+  @apply flex flex-col sm:flex-row items-start sm:items-center gap-4;
+}
+
+/* Form elements */
+.form-input {
+  @apply w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2;
+}
+
+.form-select {
+  @apply w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2;
+}
+
+.form-checkbox {
+  @apply h-4 w-4 rounded border border-input bg-background text-primary ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2;
+}
+
+/* Loading states */
+.loading-skeleton {
+  @apply animate-pulse bg-muted rounded;
+}
+
+/* Responsive video container */
+.video-container {
+  @apply relative w-full overflow-hidden rounded-lg;
+  padding-top: 56.25%; /* 16:9 Aspect Ratio */
+}
+
+.video-container > * {
+  @apply absolute top-0 left-0 w-full h-full object-cover;
+}
+
+/* Responsive tables */
+.table-container {
+  @apply w-full overflow-x-auto rounded-lg border;
+}
+
+.table-responsive {
+  @apply min-w-full divide-y divide-border;
+}
+
+/* Mobile navigation */
+.mobile-nav {
+  @apply fixed inset-0 z-50 bg-background/95 backdrop-blur-sm;
+}
+
+/* Responsive images */
+.img-responsive {
+  @apply w-full h-auto object-cover rounded-lg;
+}
+
+/* Responsive charts */
+.chart-container {
+  @apply w-full h-[300px] sm:h-[400px] lg:h-[500px];
 }
