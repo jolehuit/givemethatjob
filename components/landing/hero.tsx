@@ -25,7 +25,7 @@ export function Hero() {
     const startSequence = async () => {
       timeout = setTimeout(() => {
         setCurrentIndex(0);
-      }, 1000);
+      }, 500);
     };
 
     startSequence();
@@ -41,14 +41,15 @@ export function Hero() {
         setIsTyping(true);
         setShowTooltip(false);
 
+        // Faster typing animation
         for (let i = 0; i <= company.name.length; i++) {
-          await new Promise((resolve) => setTimeout(resolve, 100));
+          await new Promise((resolve) => setTimeout(resolve, 50));
           setDisplayText(company.name.slice(0, i));
         }
 
         setIsTyping(false);
 
-        await new Promise((resolve) => setTimeout(resolve, 500));
+        await new Promise((resolve) => setTimeout(resolve, 300));
         if (currentIndex < companies.length && !showFinal) {
           setShowTooltip(true);
         }
@@ -59,11 +60,18 @@ export function Hero() {
             if (prev === companies.length - 1) {
               setShowFinal(true);
               setDisplayText("");
+              
+              // Reset after showing AI for 5 seconds
+              setTimeout(() => {
+                setShowFinal(false);
+                setCurrentIndex(0);
+              }, 5000);
+              
               return prev;
             }
             return prev + 1;
           });
-        }, 2000);
+        }, 1000);
       }
     };
 
@@ -105,7 +113,7 @@ export function Hero() {
                             className="inline-block w-[2px] h-[1em] bg-primary ml-[2px] align-baseline"
                             animate={{ opacity: [1, 0] }}
                             transition={{
-                              duration: 0.5,
+                              duration: 0.3,
                               repeat: Infinity,
                               ease: "easeInOut",
                             }}
@@ -122,7 +130,7 @@ export function Hero() {
                               initial={{ scaleX: 0 }}
                               animate={{ scaleX: 1 }}
                               transition={{
-                                duration: 0.3,
+                                duration: 0.2,
                                 ease: "easeInOut",
                               }}
                             />
@@ -130,7 +138,7 @@ export function Hero() {
                               className="absolute whitespace-nowrap top-[calc(100%+0.5em)] left-1/2 -translate-x-1/2 px-3 py-1 bg-popover text-popover-foreground text-sm rounded-md shadow-lg z-10"
                               initial={{ opacity: 0, y: -5 }}
                               animate={{ opacity: 1, y: 0 }}
-                              transition={{ duration: 0.3 }}
+                              transition={{ duration: 0.2 }}
                             >
                               {companies[currentIndex]?.tooltip}
                             </motion.div>
