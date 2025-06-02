@@ -44,7 +44,7 @@ export async function POST(
     }
 
     const response = await fetchWithRetry(
-      `https://api.tavus.io/v2/conversations/${params.id}/end`,
+      `https://tavusapi.com/v2/conversations/${params.id}/end`,
       {
         method: 'POST',
         headers: {

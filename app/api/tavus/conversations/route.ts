@@ -76,7 +76,7 @@ export async function POST(request: Request) {
 
     // Create a Tavus conversation
     const response = await fetchWithRetry(
-      'https://api.tavus.io/v2/conversations',
+      'https://tavusapi.com/v2/conversations',
       {
         method: 'POST',
         headers: {
