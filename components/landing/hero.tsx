@@ -6,10 +6,10 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useEffect, useState } from "react";
 
 const companies = [
-  { name: "Amazon", color: "#8B5CF6" },
-  { name: "Meta", color: "#7C3AED" },
-  { name: "Google", color: "#6D28D9" },
-  { name: "OpenAI", color: "#5B21B6" },
+  { name: "Amazon", color: "#FF9900" },
+  { name: "Meta", color: "#0668E1" },
+  { name: "Google", color: "#4285F4" },
+  { name: "OpenAI", color: "#74AA9C" },
 ];
 
 export function Hero() {
@@ -17,8 +17,10 @@ export function Hero() {
   const [displayText, setDisplayText] = useState("");
   const [isTyping, setIsTyping] = useState(false);
   const [showFinal, setShowFinal] = useState(false);
+  const [showStrike, setShowStrike] = useState(false);
   const [particles, setParticles] = useState([]);
 
+  // Générer des particules flottantes
   useEffect(() => {
     const newParticles = Array.from({ length: 30 }, (_, i) => ({
       id: i,
@@ -51,7 +53,9 @@ export function Hero() {
       if (currentIndex >= 0 && currentIndex < companies.length && !showFinal) {
         const company = companies[currentIndex];
         setIsTyping(true);
+        setShowStrike(false);
 
+        // Animation de frappe
         for (let i = 0; i <= company.name.length; i++) {
           await new Promise((resolve) => setTimeout(resolve, 40));
           setDisplayText(company.name.slice(0, i));
@@ -59,19 +63,22 @@ export function Hero() {
 
         setIsTyping(false);
 
-        await new Promise((resolve) => setTimeout(resolve, 200));
+        // Montrer le barrage après la frappe
+        await new Promise((resolve) => setTimeout(resolve, 300));
+        setShowStrike(true);
 
-        // Add barrage effect after typing
+        // Attendre avant de passer au suivant
         timeout = setTimeout(() => {
-          setCurrentIndex((prev) => {
-            if (prev === companies.length - 1) {
-              setShowFinal(true);
-              setDisplayText("");
-              return prev;
-            }
-            return prev + 1;
-          });
-        }, 800);
+          if (currentIndex === companies.length - 1) {
+            setShowFinal(true);
+            setTimeout(() => {
+              setShowFinal(false);
+              setCurrentIndex(0);
+            }, 6000);
+          } else {
+            setCurrentIndex(currentIndex + 1);
+          }
+        }, 1200);
       }
     };
 
@@ -84,10 +91,11 @@ export function Hero() {
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-background">
+      {/* Gradient animé de fond - violet électrique */}
       <div className="absolute inset-0">
-        <div className="absolute inset-0 bg-gradient-to-br from-violet-600/5 via-violet-800/5 to-violet-900/5 dark:from-violet-600/10 dark:via-violet-800/10 dark:to-violet-900/10" />
+        <div className="absolute inset-0 bg-gradient-to-br from-violet-600/10 via-violet-500/10 to-violet-700/10 dark:from-violet-600/20 dark:via-violet-500/20 dark:to-violet-700/20" />
         <motion.div
-          className="absolute inset-0 bg-gradient-to-tr from-violet-700/5 via-violet-800/5 to-violet-900/5 dark:from-violet-700/10 dark:via-violet-800/10 dark:to-violet-900/10"
+          className="absolute inset-0 bg-gradient-to-tr from-violet-500/10 via-violet-600/10 to-violet-400/10 dark:from-violet-500/20 dark:via-violet-600/20 dark:to-violet-400/20"
           animate={{
             opacity: [0.3, 0.6, 0.3],
             scale: [1, 1.1, 1],
@@ -100,11 +108,12 @@ export function Hero() {
         />
       </div>
 
+      {/* Particules flottantes */}
       <div className="absolute inset-0 overflow-hidden">
         {particles.map((particle) => (
           <motion.div
             key={particle.id}
-            className="absolute rounded-full bg-violet-600/20 dark:bg-violet-600/30"
+            className="absolute rounded-full bg-violet-500/30 dark:bg-violet-500/40"
             initial={{
               x: `${particle.x}%`,
               y: `${particle.y}%`,
@@ -128,6 +137,7 @@ export function Hero() {
         ))}
       </div>
 
+      {/* Lignes de grille animées */}
       <div className="absolute inset-0 overflow-hidden opacity-[0.03] dark:opacity-[0.05]">
         <motion.div
           className="absolute inset-0"
@@ -157,8 +167,9 @@ export function Hero() {
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.8 }}
           >
+            {/* Badge lumineux */}
             <motion.div
-              className="absolute -inset-4 bg-gradient-to-r from-violet-600/20 to-violet-800/20 blur-3xl"
+              className="absolute -inset-4 bg-violet-600/20 blur-3xl"
               animate={{
                 opacity: [0.5, 0.8, 0.5],
                 scale: [1, 1.2, 1],
@@ -169,8 +180,8 @@ export function Hero() {
                 ease: "easeInOut",
               }}
             />
-            <div className="relative px-6 py-2 bg-card/50 backdrop-blur-sm border border-border rounded-full">
-              <span className="text-sm font-medium bg-gradient-to-r from-violet-600 to-violet-800 bg-clip-text text-transparent">
+            <div className="relative px-6 py-2 bg-card/50 backdrop-blur-sm border border-violet-500/20 rounded-full">
+              <span className="text-sm font-medium bg-gradient-to-r from-violet-400 to-violet-600 bg-clip-text text-transparent">
                 ✨ Next-Gen Interview Preparation
               </span>
             </div>
@@ -188,13 +199,18 @@ export function Hero() {
               <AnimatePresence mode="wait">
                 {!showFinal ? (
                   <motion.span
-                    key={currentIndex}
+                    key={`company-${currentIndex}`}
                     className="relative inline-flex items-center justify-center"
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -20 }}
-                    transition={{ duration: 0.3 }}
+                    initial={{ opacity: 0, scale: 0.8, rotate: -5 }}
+                    animate={{ opacity: 1, scale: 1, rotate: 0 }}
+                    exit={{ opacity: 0, scale: 0.8, rotate: 5 }}
+                    transition={{ 
+                      duration: 0.3,
+                      type: "spring",
+                      stiffness: 200
+                    }}
                   >
+                    {/* Glow effect pour le texte actuel */}
                     {currentIndex >= 0 && currentIndex < companies.length && (
                       <motion.div
                         className="absolute -inset-8 blur-2xl opacity-60"
@@ -225,22 +241,32 @@ export function Hero() {
                       >
                         {displayText || <>&nbsp;</>}
                         
-                        {!isTyping && currentIndex >= 0 && currentIndex < companies.length && (
-                          <motion.div
-                            className="absolute left-0 right-0 top-1/2 h-[3px] bg-violet-600"
-                            initial={{ scaleX: 0 }}
-                            animate={{ scaleX: 1 }}
-                            transition={{
-                              duration: 0.3,
-                              ease: "easeOut",
-                            }}
-                          />
-                        )}
+                        {/* Ligne de barrage */}
+                        <AnimatePresence>
+                          {showStrike && (
+                            <motion.div
+                              className="absolute left-0 right-0 top-1/2 h-[3px] bg-destructive"
+                              initial={{ scaleX: 0 }}
+                              animate={{ scaleX: 1 }}
+                              exit={{ scaleX: 0 }}
+                              transition={{
+                                duration: 0.2,
+                                ease: "easeOut",
+                              }}
+                            />
+                          )}
+                        </AnimatePresence>
                       </span>
                       
                       {isTyping && (
                         <motion.span
-                          className="inline-block w-1 h-[1.2em] ml-1 rounded-full bg-violet-600"
+                          className="inline-block w-1 h-[1.2em] ml-1 rounded-full"
+                          style={{
+                            backgroundColor: currentIndex >= 0 && currentIndex < companies.length 
+                              ? companies[currentIndex].color 
+                              : "currentColor",
+                            boxShadow: `0 0 20px ${currentIndex >= 0 && currentIndex < companies.length ? companies[currentIndex].color : "currentColor"}`,
+                          }}
                           animate={{ opacity: [1, 0.2] }}
                           transition={{
                             duration: 0.5,
@@ -255,19 +281,38 @@ export function Hero() {
                   <motion.span
                     key="ai"
                     className="relative inline-flex items-center justify-center"
-                    initial={{ scale: 0.8, opacity: 0 }}
-                    animate={{ scale: 1, opacity: 1 }}
+                    initial={{ scale: 0, rotate: -180 }}
+                    animate={{ scale: 1, rotate: 0 }}
                     transition={{
                       type: "spring",
-                      stiffness: 200,
-                      damping: 15,
+                      stiffness: 150,
+                      damping: 12,
+                      duration: 0.8,
                     }}
                   >
+                    {/* Effet de particules explosives */}
+                    {Array.from({ length: 12 }).map((_, i) => (
+                      <motion.div
+                        key={i}
+                        className="absolute w-2 h-2 bg-gradient-to-r from-violet-400 to-violet-600 rounded-full"
+                        initial={{ scale: 0, x: 0, y: 0 }}
+                        animate={{
+                          scale: [0, 1, 0],
+                          x: Math.cos((i * Math.PI * 2) / 12) * 100,
+                          y: Math.sin((i * Math.PI * 2) / 12) * 100,
+                          opacity: [1, 0],
+                        }}
+                        transition={{
+                          duration: 1,
+                          delay: i * 0.05,
+                          ease: "easeOut",
+                        }}
+                      />
+                    ))}
+
+                    {/* Effet de halo pulsant */}
                     <motion.div
-                      className="absolute -inset-16 rounded-full"
-                      style={{
-                        background: "radial-gradient(circle, rgba(124, 58, 237, 0.3) 0%, transparent 70%)",
-                      }}
+                      className="absolute -inset-16 rounded-full bg-violet-600/30"
                       animate={{
                         scale: [1, 1.5, 1],
                         opacity: [0.5, 0.8, 0.5],
@@ -279,9 +324,10 @@ export function Hero() {
                       }}
                     />
 
+                    {/* Texte AI avec effet néon */}
                     <span className="relative font-black text-8xl">
                       <motion.span
-                        className="absolute inset-0 bg-gradient-to-r from-violet-600 to-violet-800 bg-clip-text text-transparent blur-sm"
+                        className="absolute inset-0 bg-gradient-to-r from-violet-500 to-violet-700 bg-clip-text text-transparent blur-sm"
                         animate={{
                           opacity: [0.7, 1, 0.7],
                         }}
@@ -293,11 +339,12 @@ export function Hero() {
                       >
                         AI
                       </motion.span>
-                      <span className="relative bg-gradient-to-r from-violet-600 via-violet-700 to-violet-800 bg-clip-text text-transparent">
+                      <span className="relative bg-gradient-to-r from-violet-400 via-violet-600 to-violet-400 bg-clip-text text-transparent">
                         AI
                       </span>
                     </span>
 
+                    {/* Effet de lumière tournante */}
                     <motion.div
                       className="absolute inset-0 pointer-events-none"
                       animate={{
@@ -309,7 +356,7 @@ export function Hero() {
                         ease: "linear",
                       }}
                     >
-                      <div className="absolute top-1/2 left-1/2 w-40 h-1 bg-gradient-to-r from-transparent via-violet-600 to-transparent transform -translate-x-1/2 -translate-y-1/2 opacity-50" />
+                      <div className="absolute top-1/2 left-1/2 w-40 h-1 bg-gradient-to-r from-transparent via-violet-500 to-transparent transform -translate-x-1/2 -translate-y-1/2 opacity-50" />
                       <div className="absolute top-1/2 left-1/2 w-1 h-40 bg-gradient-to-b from-transparent via-violet-600 to-transparent transform -translate-x-1/2 -translate-y-1/2 opacity-50" />
                     </motion.div>
                   </motion.span>
@@ -342,7 +389,7 @@ export function Hero() {
                 className="group relative px-8 py-6 text-lg font-semibold rounded-full overflow-hidden"
               >
                 <motion.div
-                  className="absolute inset-0 bg-gradient-to-r from-violet-600/20 to-violet-800/20"
+                  className="absolute inset-0 bg-gradient-to-r from-violet-600/20 to-violet-400/20"
                   animate={{
                     x: ["-100%", "100%"],
                   }}
@@ -379,6 +426,7 @@ export function Hero() {
           </motion.div>
         </div>
 
+        {/* Section vidéo avec effet de profondeur */}
         <motion.div
           className="mt-20 flow-root"
           initial={{ opacity: 0, y: 60 }}
@@ -386,8 +434,9 @@ export function Hero() {
           transition={{ duration: 0.8, delay: 0.4 }}
         >
           <div className="relative">
+            {/* Effet de lumière derrière la vidéo */}
             <motion.div
-              className="absolute -inset-20 bg-gradient-to-r from-violet-600/20 via-violet-800/20 to-violet-600/20 blur-3xl"
+              className="absolute -inset-20 bg-gradient-to-r from-violet-600/20 via-violet-500/20 to-violet-600/20 blur-3xl"
               animate={{
                 opacity: [0.3, 0.6, 0.3],
                 scale: [0.9, 1.1, 0.9],
@@ -401,6 +450,7 @@ export function Hero() {
 
             <div className="relative rounded-2xl bg-gradient-to-b from-muted/80 to-muted/40 p-1 backdrop-blur-xl">
               <div className="relative aspect-video rounded-xl bg-card shadow-2xl overflow-hidden border border-border">
+                {/* Effet de scanlines */}
                 <div className="absolute inset-0 pointer-events-none opacity-[0.02] dark:opacity-[0.05]">
                   <motion.div
                     className="h-full w-full"
@@ -421,7 +471,7 @@ export function Hero() {
                 <div className="relative h-full flex items-center justify-center">
                   <div className="text-center">
                     <motion.div
-                      className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-r from-violet-600 to-violet-800 mb-6"
+                      className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-r from-violet-500 to-violet-700 mb-6"
                       animate={{
                         scale: [1, 1.1, 1],
                       }}
