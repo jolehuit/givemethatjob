@@ -153,7 +153,7 @@ export function Hero() {
           </motion.h1>
           
           <motion.p 
-            className="mt-6 text-lg leading-8 text-muted-foreground"
+            className="mt-16 text-lg leading-8 text-muted-foreground"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
