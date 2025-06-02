@@ -85,30 +85,32 @@ export function Hero() {
             transition={{ duration: 0.5 }}
           >
             Master Your Job Interviews with{" "}
-            {/* MODIFICATION ICI: align-bottom supprimé */}
             <span className="relative inline-flex items-center min-h-10 sm:min-h-15">
               <AnimatePresence mode="wait">
                 {!showFinal ? (
                   <motion.span
                     key={currentIndex}
-                    className="relative inline-block"
+                    className="relative inline-flex items-center h-10 sm:h-15" // MODIFIED: Added fixed height and flex alignment
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
                     transition={{ duration: 0.2 }}
                   >
-                    {displayText || <>&nbsp;</>}
-                    {isTyping && (
-                      <motion.span
-                        className="inline-block w-[2px] h-[1em] bg-primary ml-[2px] align-baseline"
-                        animate={{ opacity: [1, 0] }}
-                        transition={{
-                          duration: 0.5,
-                          repeat: Infinity,
-                          ease: "easeInOut",
-                        }}
-                      />
-                    )}
+                    {/* This inner span helps group text and cursor for alignment within the flex container */}
+                    <span>
+                      {displayText || <>&nbsp;</>}
+                      {isTyping && (
+                        <motion.span
+                          className="inline-block w-[2px] h-[1em] bg-primary ml-[2px] align-baseline"
+                          animate={{ opacity: [1, 0] }}
+                          transition={{
+                            duration: 0.5,
+                            repeat: Infinity,
+                            ease: "easeInOut",
+                          }}
+                        />
+                      )}
+                    </span>
                     {showTooltip &&
                       currentIndex >= 0 &&
                       currentIndex < companies.length &&
@@ -137,7 +139,7 @@ export function Hero() {
                 ) : (
                   <motion.span
                     key="ai"
-                    className="relative inline-block px-1"
+                    className="relative inline-flex items-center justify-center h-10 sm:h-15 px-1" // MODIFIED: Added fixed height and flex alignment
                     initial={{ scale: 0.8, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
                     transition={{
