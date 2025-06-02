@@ -1,5 +1,3 @@
-'use client';
-
 import {
   BadgeCheck,
   Brain,
@@ -10,7 +8,6 @@ import {
   Clock,
   Sparkles,
 } from "lucide-react";
-import { motion } from "framer-motion";
 
 const features = [
   {
@@ -51,75 +48,36 @@ const features = [
   },
 ];
 
-const containerVariants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.1,
-    },
-  },
-};
-
-const itemVariants = {
-  hidden: { opacity: 0, y: 20 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: {
-      duration: 0.5,
-    },
-  },
-};
-
-export default function Features() {
+export function Features() {
   return (
     <div id="features" className="py-24 bg-background sm:py-32">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
         <div className="mx-auto max-w-2xl lg:text-center">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5 }}
-          >
-            <h2 className="text-base font-semibold leading-7 text-primary">Better Preparation</h2>
-            <p className="mt-2 text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
-              Everything you need to ace your next interview
-            </p>
-            <p className="mt-6 text-lg leading-8 text-muted-foreground">
-              Our AI-powered platform helps you prepare for interviews with realistic practice sessions, personalized feedback, and targeted improvement suggestions.
-            </p>
-          </motion.div>
+          <h2 className="text-base font-semibold leading-7 text-primary">Better Preparation</h2>
+          <p className="mt-2 text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
+            Everything you need to ace your next interview
+          </p>
+          <p className="mt-6 text-lg leading-8 text-muted-foreground">
+            Our AI-powered platform helps you prepare for interviews with realistic practice sessions, personalized feedback, and targeted improvement suggestions.
+          </p>
         </div>
-        
-        <motion.div
-          className="mx-auto mt-16 max-w-2xl sm:mt-20 lg:mt-24 lg:max-w-none"
-          variants={containerVariants}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true }}
-        >
-          <dl className="grid max-w-xl grid-cols-1 gap-x-8 gap-y-10 lg:max-w-none lg:grid-cols-3">
+        <div className="mx-auto mt-16 max-w-2xl sm:mt-20 lg:mt-24 lg:max-w-4xl">
+          <dl className="grid max-w-xl grid-cols-1 gap-x-8 gap-y-10 lg:max-w-none lg:grid-cols-2 lg:gap-y-16">
             {features.map((feature) => (
-              <motion.div
-                key={feature.name}
-                className="relative bg-card/50 backdrop-blur-sm rounded-2xl p-8 hover:bg-card/80 transition-colors"
-                variants={itemVariants}
-              >
+              <div key={feature.name} className="relative pl-16">
                 <dt className="text-base font-semibold leading-7 text-foreground">
-                  <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10">
-                    <feature.icon className="h-6 w-6 text-primary" aria-hidden="true" />
+                  <div className="absolute left-0 top-0 flex h-10 w-10 items-center justify-center rounded-lg bg-primary">
+                    <feature.icon className="h-6 w-6 text-white" aria-hidden="true" />
                   </div>
                   {feature.name}
                 </dt>
                 <dd className="mt-2 text-base leading-7 text-muted-foreground">
                   {feature.description}
                 </dd>
-              </motion.div>
+              </div>
             ))}
           </dl>
-        </motion.div>
+        </div>
       </div>
     </div>
   );
