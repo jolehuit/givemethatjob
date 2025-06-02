@@ -8,8 +8,8 @@ import { useEffect, useState } from "react";
 const companies = [
   { name: "Amazon", tooltip: "Wrong..." },
   { name: "Meta", tooltip: "Another time..." },
-  { name: "Google", tooltip: "It's getting embarrassing..." },
-  { name: "Microsoft", tooltip: "Still not it..." },
+  { name: "Google", tooltip: "Still not that..." },
+  { name: "Microsoft", tooltip: "It's getting embarrassing..." },
 ];
 
 export function Hero() {
