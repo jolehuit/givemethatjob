@@ -3,7 +3,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
@@ -20,15 +19,25 @@ import {
 } from "lucide-react";
 import DailyIframe from '@daily-co/daily-js';
 
-interface UserProfile {
+interface InterviewData {
   id: string;
-  name: string;
-  email: string;
+  job_title: string;
+  company: string;
+  interview_type: string;
+  cv_path: string | null;
+  language: string;
+  status: string;
 }
 
 interface TavusConversation {
   conversation_id: string;
   conversation_url: string;
+}
+
+declare global {
+  interface Window {
+    _dailyCallObject?: any;
+  }
 }
 
 const getOrCreateCallObject = () => {
@@ -79,7 +88,6 @@ export default function InterviewRoomPage() {
         if (error) throw error;
         
         setInterview(data);
-        console.log("Interview data loaded:", data);
       } catch (error: any) {
         console.error("Failed to load interview:", error);
         toast.error(error.message || "Failed to load interview");
@@ -108,8 +116,6 @@ export default function InterviewRoomPage() {
 
   const setupCamera = async () => {
     try {
-      console.log("Setting up camera...");
-      
       if (streamRef.current) {
         streamRef.current.getTracks().forEach(track => track.stop());
       }
@@ -134,7 +140,6 @@ export default function InterviewRoomPage() {
       setIsCameraReady(true);
       setIsCameraEnabled(true);
       setIsMicEnabled(true);
-      console.log("Camera setup successful");
       toast.success("Camera and microphone are ready");
     } catch (error: any) {
       console.error("Camera setup error:", error);
@@ -171,7 +176,6 @@ export default function InterviewRoomPage() {
     if (isStarting) return;
 
     setIsStarting(true);
-    console.log("Starting interview...");
 
     try {
       const response = await fetch('/api/tavus/conversations', {
@@ -194,7 +198,6 @@ export default function InterviewRoomPage() {
         throw new Error(data.error || 'Failed to create Tavus conversation');
       }
 
-      console.log("Tavus conversation created:", data);
       setTavusConversation(data);
 
       // Initialize Daily call
@@ -249,7 +252,6 @@ export default function InterviewRoomPage() {
 
   const saveInterviewProgress = async () => {
     try {
-      console.log("Saving interview progress...");
       const { error } = await supabase
         .from('interviews')
         .update({
@@ -259,7 +261,6 @@ export default function InterviewRoomPage() {
         .eq('id', id);
 
       if (error) throw error;
-      console.log("Progress saved successfully");
     } catch (error: any) {
       console.error('Failed to save progress:', error);
     }
@@ -269,8 +270,6 @@ export default function InterviewRoomPage() {
     setIsFinishing(true);
     
     try {
-      console.log("Finishing interview...");
-      
       if (tavusConversation) {
         await fetch(`/api/tavus/conversations/${tavusConversation.conversation_id}/end`, {
           method: 'POST',
@@ -297,7 +296,6 @@ export default function InterviewRoomPage() {
         
       if (updateError) throw updateError;
       
-      console.log("Interview reset successfully");
       toast.success("Interview cancelled. You can try again when ready.");
       
       if (timerRef.current) {
