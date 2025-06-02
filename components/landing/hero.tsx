@@ -72,18 +72,18 @@ export function Hero() {
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
         <div className="mx-auto max-w-3xl text-center">
           <motion.h1 
-            className="text-4xl font-bold tracking-tight text-foreground sm:text-6xl relative"
+            className="text-4xl font-bold tracking-tight text-foreground sm:text-6xl"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
           >
             Master Your Job Interviews with{" "}
-            <span className="relative inline-block" style={{ minWidth: '200px', height: '1.1em' }}>
+            <span className="relative inline-flex items-center justify-center" style={{ minWidth: '200px' }}>
               <AnimatePresence mode="wait">
                 {!showFinal ? (
                   <motion.span
                     key="company"
-                    className="absolute left-1/2 -translate-x-1/2"
+                    className="absolute"
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
@@ -105,8 +105,8 @@ export function Hero() {
                           transition={{ duration: 0.3, ease: "easeInOut" }}
                         />
                         <motion.div
-                          className="absolute left-1/2 -translate-x-1/2 px-3 py-1 bg-popover text-popover-foreground text-sm rounded-md shadow-lg"
-                          style={{ top: 'calc(100% + 0.75em)' }}
+                          className="absolute whitespace-nowrap left-1/2 -translate-x-1/2 px-3 py-1 bg-popover text-popover-foreground text-sm rounded-md shadow-lg"
+                          style={{ top: 'calc(100% + 1em)' }}
                           initial={{ opacity: 0, y: -5 }}
                           animate={{ opacity: 1, y: 0 }}
                           transition={{ duration: 0.3 }}
@@ -119,7 +119,7 @@ export function Hero() {
                 ) : (
                   <motion.span
                     key="ai"
-                    className="absolute left-1/2 -translate-x-1/2"
+                    className="absolute"
                     initial={{ scale: 0.8, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
                     transition={{ 
@@ -139,7 +139,7 @@ export function Hero() {
           </motion.h1>
           
           <motion.p 
-            className="mt-24 text-lg leading-8 text-muted-foreground"
+            className="mt-16 text-lg leading-8 text-muted-foreground"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
@@ -163,26 +163,6 @@ export function Hero() {
             </Link>
           </motion.div>
         </div>
-        
-        <motion.div 
-          className="mt-16 flow-root sm:mt-24"
-          initial={{ opacity: 0, y: 40 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, delay: 0.4 }}
-        >
-          <div className="relative rounded-xl bg-gray-900 p-2 ring-1 ring-white/10 lg:-m-4 lg:rounded-2xl lg:p-4">
-            <div className="relative aspect-video rounded-md bg-gray-800 shadow-2xl ring-1 ring-white/10">
-              <div className="absolute inset-0 flex items-center justify-center text-white/80 text-lg">
-                <div className="max-w-sm text-center">
-                  <p>Interactive interview simulation preview</p>
-                  <Button variant="secondary" size="sm" className="mt-4">
-                    Watch Demo
-                  </Button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </motion.div>
       </div>
     </div>
   );
