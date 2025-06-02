@@ -313,8 +313,10 @@ function InterviewRoom() {
                 <div className="flex gap-2 mt-1">
                   <Button variant="outline" size="sm">1 min</Button>
                   <Button variant="outline" size="sm">5 min</Button>
+                  <Button variant="outline" size="sm">10 min</Button>
                   <Button variant="outline" size="sm">15 min</Button>
                   <Button variant="outline" size="sm">30 min</Button>
+                  <Button variant="outline" size="sm">45 min</Button>
                 </div>
               </div>
             </CardContent>
