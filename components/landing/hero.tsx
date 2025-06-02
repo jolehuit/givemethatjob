@@ -22,11 +22,11 @@ export function Hero() {
 
   // Générer des particules flottantes
   useEffect(() => {
-    const newParticles = Array.from({ length: 50 }, (_, i) => ({
+    const newParticles = Array.from({ length: 30 }, (_, i) => ({
       id: i,
       x: Math.random() * 100,
       y: Math.random() * 100,
-      size: Math.random() * 3 + 1,
+      size: Math.random() * 2 + 1,
       duration: Math.random() * 20 + 20,
       delay: Math.random() * 5,
     }));
@@ -96,12 +96,12 @@ export function Hero() {
   }, [currentIndex, showFinal]);
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-black">
+    <div className="relative min-h-screen overflow-hidden bg-background">
       {/* Gradient animé de fond */}
       <div className="absolute inset-0">
-        <div className="absolute inset-0 bg-gradient-to-br from-purple-900/20 via-blue-900/20 to-pink-900/20" />
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-purple-500/5 to-pink-500/5 dark:from-primary/10 dark:via-purple-500/10 dark:to-pink-500/10" />
         <motion.div
-          className="absolute inset-0 bg-gradient-to-tr from-blue-600/10 via-purple-600/10 to-pink-600/10"
+          className="absolute inset-0 bg-gradient-to-tr from-blue-500/5 via-purple-500/5 to-pink-500/5 dark:from-blue-500/10 dark:via-purple-500/10 dark:to-pink-500/10"
           animate={{
             opacity: [0.3, 0.6, 0.3],
             scale: [1, 1.1, 1],
@@ -119,14 +119,14 @@ export function Hero() {
         {particles.map((particle) => (
           <motion.div
             key={particle.id}
-            className="absolute w-1 h-1 bg-white/20 rounded-full"
+            className="absolute rounded-full bg-primary/20 dark:bg-primary/30"
             initial={{
               x: `${particle.x}%`,
               y: `${particle.y}%`,
             }}
             animate={{
               y: [`${particle.y}%`, `${particle.y - 100}%`],
-              opacity: [0, 1, 0],
+              opacity: [0, 0.8, 0],
             }}
             transition={{
               duration: particle.duration,
@@ -144,13 +144,13 @@ export function Hero() {
       </div>
 
       {/* Lignes de grille animées */}
-      <div className="absolute inset-0 overflow-hidden opacity-10">
+      <div className="absolute inset-0 overflow-hidden opacity-[0.03] dark:opacity-[0.05]">
         <motion.div
           className="absolute inset-0"
           style={{
             backgroundImage: `
-              linear-gradient(90deg, transparent 49%, rgba(255,255,255,0.1) 50%, transparent 51%),
-              linear-gradient(0deg, transparent 49%, rgba(255,255,255,0.1) 50%, transparent 51%)
+              linear-gradient(90deg, transparent 49%, currentColor 50%, transparent 51%),
+              linear-gradient(0deg, transparent 49%, currentColor 50%, transparent 51%)
             `,
             backgroundSize: "50px 50px",
           }}
@@ -175,7 +175,7 @@ export function Hero() {
           >
             {/* Badge lumineux */}
             <motion.div
-              className="absolute -inset-4 bg-gradient-to-r from-purple-600/20 to-pink-600/20 blur-3xl"
+              className="absolute -inset-4 bg-gradient-to-r from-primary/20 to-pink-500/20 blur-3xl"
               animate={{
                 opacity: [0.5, 0.8, 0.5],
                 scale: [1, 1.2, 1],
@@ -186,22 +186,22 @@ export function Hero() {
                 ease: "easeInOut",
               }}
             />
-            <div className="relative px-6 py-2 bg-white/5 backdrop-blur-sm border border-white/10 rounded-full">
-              <span className="text-sm font-medium bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+            <div className="relative px-6 py-2 bg-card/50 backdrop-blur-sm border border-border rounded-full">
+              <span className="text-sm font-medium bg-gradient-to-r from-primary to-pink-500 bg-clip-text text-transparent">
                 ✨ Next-Gen Interview Preparation
               </span>
             </div>
           </motion.div>
 
           <motion.h1
-            className="text-5xl font-bold tracking-tight text-white sm:text-7xl lg:text-8xl"
+            className="text-5xl font-bold tracking-tight text-foreground sm:text-7xl lg:text-8xl"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
           >
             <span className="block mb-4">Master Your Job</span>
             <span className="block mb-4">Interviews with</span>
-            <span className="relative inline-flex items-center justify-center">
+            <span className="relative inline-block">
               <AnimatePresence mode="wait">
                 {!showFinal ? (
                   <motion.span
@@ -221,7 +221,7 @@ export function Hero() {
                       <motion.div
                         className="absolute -inset-8 blur-2xl opacity-60"
                         style={{
-                          background: `radial-gradient(circle, ${companies[currentIndex].color}40 0%, transparent 70%)`,
+                          background: `radial-gradient(circle, ${companies[currentIndex].color}30 0%, transparent 70%)`,
                         }}
                         animate={{
                           scale: [1, 1.3, 1],
@@ -237,15 +237,28 @@ export function Hero() {
                     
                     <span className="relative inline-flex items-center">
                       <span
-                        className="font-bold"
+                        className="font-bold relative"
                         style={{
                           color: currentIndex >= 0 && currentIndex < companies.length 
                             ? companies[currentIndex].color 
-                            : "#ffffff",
-                          textShadow: `0 0 30px ${currentIndex >= 0 && currentIndex < companies.length ? companies[currentIndex].color : "#ffffff"}40`,
+                            : "currentColor",
+                          textShadow: `0 0 30px ${currentIndex >= 0 && currentIndex < companies.length ? companies[currentIndex].color : "currentColor"}40`,
                         }}
                       >
                         {displayText || <>&nbsp;</>}
+                        
+                        {/* Ligne de barrage directement sur le texte */}
+                        {showTooltip && currentIndex >= 0 && currentIndex < companies.length && (
+                          <motion.div
+                            className="absolute left-0 right-0 top-1/2 h-[3px] bg-destructive"
+                            initial={{ scaleX: 0 }}
+                            animate={{ scaleX: 1 }}
+                            transition={{
+                              duration: 0.2,
+                              ease: "easeOut",
+                            }}
+                          />
+                        )}
                       </span>
                       
                       {isTyping && (
@@ -254,8 +267,8 @@ export function Hero() {
                           style={{
                             backgroundColor: currentIndex >= 0 && currentIndex < companies.length 
                               ? companies[currentIndex].color 
-                              : "#ffffff",
-                            boxShadow: `0 0 20px ${currentIndex >= 0 && currentIndex < companies.length ? companies[currentIndex].color : "#ffffff"}`,
+                              : "currentColor",
+                            boxShadow: `0 0 20px ${currentIndex >= 0 && currentIndex < companies.length ? companies[currentIndex].color : "currentColor"}`,
                           }}
                           animate={{ opacity: [1, 0.2] }}
                           transition={{
@@ -267,48 +280,20 @@ export function Hero() {
                       )}
                     </span>
 
+                    {/* Tooltip repositionné */}
                     {showTooltip && currentIndex >= 0 && currentIndex < companies.length && (
                       <motion.div
-                        className="absolute top-full mt-4 left-1/2 -translate-x-1/2"
-                        initial={{ opacity: 0, y: -10, scale: 0.9 }}
-                        animate={{ opacity: 1, y: 0, scale: 1 }}
-                        exit={{ opacity: 0, y: -10, scale: 0.9 }}
+                        className="absolute left-1/2 -translate-x-1/2 top-[calc(100%+0.5rem)] z-50"
+                        initial={{ opacity: 0, y: -5 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -5 }}
                         transition={{ duration: 0.2 }}
                       >
-                        {/* Ligne de barrage animée */}
-                        <motion.div
-                          className="absolute -top-8 left-0 right-0 h-1 bg-red-500 rounded-full"
-                          style={{
-                            width: displayText.length * 14,
-                            left: "50%",
-                            transform: "translateX(-50%)",
-                          }}
-                          initial={{ scaleX: 0, opacity: 0 }}
-                          animate={{ scaleX: 1, opacity: 1 }}
-                          transition={{
-                            duration: 0.3,
-                            ease: "easeOut",
-                          }}
-                        >
-                          <motion.div
-                            className="absolute inset-0 bg-red-400 rounded-full"
-                            animate={{
-                              opacity: [0.5, 1, 0.5],
-                            }}
-                            transition={{
-                              duration: 1,
-                              repeat: Infinity,
-                              ease: "easeInOut",
-                            }}
-                          />
-                        </motion.div>
-
-                        {/* Tooltip avec effet de glitch */}
                         <div className="relative">
                           <motion.div
-                            className="absolute inset-0 bg-red-500/20 blur-xl"
+                            className="absolute inset-0 bg-destructive/20 blur-xl"
                             animate={{
-                              scale: [1, 1.5, 1],
+                              scale: [1, 1.3, 1],
                               opacity: [0.5, 0.8, 0.5],
                             }}
                             transition={{
@@ -317,9 +302,9 @@ export function Hero() {
                               ease: "easeInOut",
                             }}
                           />
-                          <div className="relative px-4 py-2 bg-red-950/80 backdrop-blur-sm border border-red-500/50 rounded-lg">
+                          <div className="relative px-4 py-2 bg-destructive/10 dark:bg-destructive/20 backdrop-blur-sm border border-destructive/50 rounded-lg">
                             <motion.p
-                              className="text-sm font-medium text-red-400"
+                              className="text-sm font-medium text-destructive-foreground dark:text-destructive whitespace-nowrap"
                               animate={{
                                 x: [0, -1, 1, -1, 0],
                               }}
@@ -352,7 +337,7 @@ export function Hero() {
                     {Array.from({ length: 12 }).map((_, i) => (
                       <motion.div
                         key={i}
-                        className="absolute w-2 h-2 bg-gradient-to-r from-purple-400 to-pink-400 rounded-full"
+                        className="absolute w-2 h-2 bg-gradient-to-r from-primary to-pink-500 rounded-full"
                         initial={{ scale: 0, x: 0, y: 0 }}
                         animate={{
                           scale: [0, 1, 0],
@@ -372,7 +357,7 @@ export function Hero() {
                     <motion.div
                       className="absolute -inset-16 rounded-full"
                       style={{
-                        background: "radial-gradient(circle, rgba(168, 85, 247, 0.4) 0%, transparent 70%)",
+                        background: "radial-gradient(circle, rgba(147, 51, 234, 0.3) 0%, transparent 70%)",
                       }}
                       animate={{
                         scale: [1, 1.5, 1],
@@ -388,7 +373,7 @@ export function Hero() {
                     {/* Texte AI avec effet néon */}
                     <span className="relative font-black text-8xl">
                       <motion.span
-                        className="absolute inset-0 bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent blur-sm"
+                        className="absolute inset-0 bg-gradient-to-r from-primary to-pink-500 bg-clip-text text-transparent blur-sm"
                         animate={{
                           opacity: [0.7, 1, 0.7],
                         }}
@@ -400,7 +385,7 @@ export function Hero() {
                       >
                         AI
                       </motion.span>
-                      <span className="relative bg-gradient-to-r from-purple-400 via-pink-400 to-purple-400 bg-clip-text text-transparent">
+                      <span className="relative bg-gradient-to-r from-primary via-pink-500 to-primary bg-clip-text text-transparent">
                         AI
                       </span>
                     </span>
@@ -417,8 +402,8 @@ export function Hero() {
                         ease: "linear",
                       }}
                     >
-                      <div className="absolute top-1/2 left-1/2 w-40 h-1 bg-gradient-to-r from-transparent via-purple-400 to-transparent transform -translate-x-1/2 -translate-y-1/2" />
-                      <div className="absolute top-1/2 left-1/2 w-1 h-40 bg-gradient-to-b from-transparent via-pink-400 to-transparent transform -translate-x-1/2 -translate-y-1/2" />
+                      <div className="absolute top-1/2 left-1/2 w-40 h-1 bg-gradient-to-r from-transparent via-primary to-transparent transform -translate-x-1/2 -translate-y-1/2 opacity-50" />
+                      <div className="absolute top-1/2 left-1/2 w-1 h-40 bg-gradient-to-b from-transparent via-pink-500 to-transparent transform -translate-x-1/2 -translate-y-1/2 opacity-50" />
                     </motion.div>
                   </motion.span>
                 )}
@@ -428,7 +413,7 @@ export function Hero() {
           </motion.h1>
 
           <motion.p
-            className="mt-12 text-xl leading-8 text-gray-300 max-w-2xl mx-auto"
+            className="mt-12 text-xl leading-8 text-muted-foreground max-w-2xl mx-auto"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
@@ -447,10 +432,10 @@ export function Hero() {
             <Link href="/register">
               <Button 
                 size="lg" 
-                className="group relative px-8 py-6 text-lg font-semibold rounded-full overflow-hidden bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 transition-all duration-300 transform hover:scale-105"
+                className="group relative px-8 py-6 text-lg font-semibold rounded-full overflow-hidden"
               >
                 <motion.div
-                  className="absolute inset-0 bg-white/20"
+                  className="absolute inset-0 bg-gradient-to-r from-primary/20 to-pink-500/20"
                   animate={{
                     x: ["-100%", "100%"],
                   }}
@@ -467,7 +452,7 @@ export function Hero() {
             
             <Link
               href="#features"
-              className="group text-lg font-semibold text-gray-300 hover:text-white transition-colors duration-300 flex items-center gap-2"
+              className="group text-lg font-semibold text-muted-foreground hover:text-foreground transition-colors duration-300 flex items-center gap-2"
             >
               Learn more 
               <motion.span 
@@ -497,7 +482,7 @@ export function Hero() {
           <div className="relative">
             {/* Effet de lumière derrière la vidéo */}
             <motion.div
-              className="absolute -inset-20 bg-gradient-to-r from-purple-600/30 via-pink-600/30 to-purple-600/30 blur-3xl"
+              className="absolute -inset-20 bg-gradient-to-r from-primary/20 via-pink-500/20 to-primary/20 blur-3xl"
               animate={{
                 opacity: [0.3, 0.6, 0.3],
                 scale: [0.9, 1.1, 0.9],
@@ -509,14 +494,14 @@ export function Hero() {
               }}
             />
 
-            <div className="relative rounded-2xl bg-gradient-to-b from-gray-900/80 to-gray-900/40 p-1 backdrop-blur-xl">
-              <div className="relative aspect-video rounded-xl bg-gray-950 shadow-2xl overflow-hidden">
+            <div className="relative rounded-2xl bg-gradient-to-b from-muted/80 to-muted/40 p-1 backdrop-blur-xl">
+              <div className="relative aspect-video rounded-xl bg-card shadow-2xl overflow-hidden border border-border">
                 {/* Effet de scanlines */}
-                <div className="absolute inset-0 pointer-events-none opacity-10">
+                <div className="absolute inset-0 pointer-events-none opacity-[0.02] dark:opacity-[0.05]">
                   <motion.div
                     className="h-full w-full"
                     style={{
-                      backgroundImage: "repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(255,255,255,0.03) 2px, rgba(255,255,255,0.03) 4px)",
+                      backgroundImage: "repeating-linear-gradient(0deg, transparent, transparent 2px, currentColor 2px, currentColor 4px)",
                     }}
                     animate={{
                       backgroundPosition: ["0px 0px", "0px 4px"],
@@ -532,7 +517,7 @@ export function Hero() {
                 <div className="relative h-full flex items-center justify-center">
                   <div className="text-center">
                     <motion.div
-                      className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-r from-purple-600 to-pink-600 mb-6"
+                      className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-r from-primary to-pink-500 mb-6"
                       animate={{
                         scale: [1, 1.1, 1],
                       }}
@@ -546,11 +531,10 @@ export function Hero() {
                         <path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z" />
                       </svg>
                     </motion.div>
-                    <p className="text-xl text-gray-300 mb-4">Interactive interview simulation</p>
+                    <p className="text-xl text-muted-foreground mb-4">Interactive interview simulation</p>
                     <Button 
                       variant="secondary" 
                       size="lg"
-                      className="bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/20"
                     >
                       Watch Demo
                     </Button>
