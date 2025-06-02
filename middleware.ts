@@ -1,10 +1,10 @@
 import { type NextRequest } from 'next/server'
-import { updateSession } from '@supabase/ssr'
+import { createServerClient } from '@supabase/ssr'
 import { createClient } from '@/lib/supabase'
 
 export async function middleware(request: NextRequest) {
   const supabase = createClient()
-  return await updateSession(request, {
+  return await createServerClient(request, {
     supabaseClient: supabase,
   })
 }
