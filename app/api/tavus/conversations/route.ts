@@ -49,7 +49,7 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json();
-    const { interview_id, job_title, company, cv_path } = body;
+    const { interview_id, job_title, company, cv_path, language } = body;
 
     // Validate required request data
     if (!job_title || !company) {
@@ -66,7 +66,7 @@ export async function POST(request: Request) {
       properties: {
         max_call_duration: 3600, // 1 hour
         enable_recording: true,
-        language: 'en',
+        language: language || "English",
         participant_absent_timeout: 300, // 5 minutes
         participant_left_timeout: 60, // 1 minute
       },

@@ -43,7 +43,7 @@ const formSchema = z.object({
   difficulty: z.enum(["easy", "medium", "hard"], {
     required_error: "Please select a difficulty level",
   }),
-  language: z.enum(["fr", "en"], {
+  language: z.enum(["English", "French"], {
     required_error: "Please select a language",
   }),
 });
@@ -65,7 +65,7 @@ export default function NewInterviewPage() {
       interviewType: "hr",
       duration: "30",
       difficulty: "medium",
-      language: "en",
+      language: "English",
     },
   });
 
@@ -200,6 +200,7 @@ export default function NewInterviewPage() {
             interview_type: values.interviewType,
             status: "in_progress",
             score: 0,
+            language: values.language,
           },
         ])
         .select()
@@ -502,8 +503,8 @@ export default function NewInterviewPage() {
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            <SelectItem value="en">English</SelectItem>
-                            <SelectItem value="fr">French</SelectItem>
+                            <SelectItem value="English">English</SelectItem>
+                            <SelectItem value="French">French</SelectItem>
                           </SelectContent>
                         </Select>
                         <FormMessage />
@@ -548,7 +549,7 @@ export default function NewInterviewPage() {
                       </div>
                       <div>
                         <h3 className="text-sm font-medium text-muted-foreground">Language</h3>
-                        <p className="mt-1">{form.getValues("language") === "en" ? "English" : "French"}</p>
+                        <p className="mt-1">{form.getValues("language")}</p>
                       </div>
                     </div>
 
