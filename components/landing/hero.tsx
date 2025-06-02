@@ -82,12 +82,12 @@ export function Hero() {
             transition={{ duration: 0.5 }}
           >
             Master Your Job Interviews with{" "}
-            <span className="relative inline-flex items-center min-h-[1.1em]">
+            <span className="relative inline-flex items-center">
               <AnimatePresence mode="wait">
                 {!showFinal ? (
                   <motion.span
                     key="company"
-                    className="absolute left-0 right-0"
+                    className="relative inline-block"
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
@@ -109,7 +109,7 @@ export function Hero() {
                           transition={{ duration: 0.3, ease: "easeInOut" }}
                         />
                         <motion.div
-                          className="absolute whitespace-nowrap top-[calc(100%+0.5rem)] left-1/2 -translate-x-1/2 px-3 py-1 bg-popover text-popover-foreground text-sm rounded-md shadow-lg"
+                          className="absolute whitespace-nowrap top-[calc(100%+1rem)] left-1/2 -translate-x-1/2 px-3 py-1 bg-popover text-popover-foreground text-sm rounded-md shadow-lg z-10"
                           initial={{ opacity: 0, y: -5 }}
                           animate={{ opacity: 1, y: 0 }}
                           transition={{ duration: 0.3 }}
@@ -122,7 +122,7 @@ export function Hero() {
                 ) : (
                   <motion.span
                     key="ai"
-                    className="absolute left-0 right-0"
+                    className="relative inline-block px-1"
                     initial={{ scale: 0.8, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
                     transition={{ 
