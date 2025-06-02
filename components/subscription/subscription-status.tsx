@@ -3,9 +3,11 @@
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { getCustomerInfo } from "@/lib/revenuecat";
+import { getCustomerInfo, getOfferings, initializeRevenueCat } from "@/lib/revenuecat";
 import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+import { supabase } from "@/lib/supabase";
 
 interface CustomerInfo {
   entitlements: {
@@ -29,10 +31,17 @@ export function SubscriptionStatus() {
   useEffect(() => {
     const fetchCustomerInfo = async () => {
       try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) {
+          throw new Error('User not authenticated');
+        }
+
+        await initializeRevenueCat(user.id);
         const info = await getCustomerInfo();
         setCustomerInfo(info);
       } catch (error) {
         console.error("Failed to fetch subscription status:", error);
+        toast.error("Failed to load subscription information");
       } finally {
         setIsLoading(false);
       }
@@ -44,9 +53,29 @@ export function SubscriptionStatus() {
   const handleUpgrade = async () => {
     setIsUpgrading(true);
     try {
-      router.push("/settings/billing#pricing");
-    } catch (error) {
-      console.error("Failed to initiate upgrade:", error);
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        throw new Error('User not authenticated');
+      }
+
+      await initializeRevenueCat(user.id);
+      const offerings = await getOfferings();
+      
+      if (!offerings || !offerings.current) {
+        throw new Error('No subscription offerings available');
+      }
+
+      const monthlyPackage = offerings.current.monthly;
+      if (!monthlyPackage) {
+        throw new Error('Monthly subscription package not found');
+      }
+
+      await monthlyPackage.purchase();
+      toast.success("Successfully upgraded to Pro!");
+      router.refresh();
+    } catch (error: any) {
+      console.error("Failed to upgrade subscription:", error);
+      toast.error(error.message || "Failed to upgrade subscription");
     } finally {
       setIsUpgrading(false);
     }
@@ -74,34 +103,36 @@ export function SubscriptionStatus() {
       <CardContent className="space-y-4">
         <div className="flex items-center justify-between">
           <div>
-            <p className="font-medium">{isPremium ? "Premium" : "Free"} Plan</p>
+            <p className="font-medium">{isPremium ? "Pro" : "Free"} Plan</p>
             {isPremium && expirationDate && (
               <p className="text-sm text-muted-foreground">
                 Renews on {new Date(expirationDate).toLocaleDateString()}
               </p>
             )}
           </div>
-          <Button 
-            variant="outline" 
-            size="sm"
-            onClick={handleUpgrade}
-            disabled={isUpgrading}
-          >
-            {isUpgrading ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Processing...
-              </>
-            ) : (
-              "Upgrade Plan"
-            )}
-          </Button>
+          {!isPremium && (
+            <Button 
+              variant="default"
+              size="sm"
+              onClick={handleUpgrade}
+              disabled={isUpgrading}
+            >
+              {isUpgrading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Processing...
+                </>
+              ) : (
+                "Upgrade to Pro"
+              )}
+            </Button>
+          )}
         </div>
 
         {!isPremium && (
           <div className="rounded-md bg-primary/10 p-4">
             <p className="text-sm">
-              Upgrade to Premium to unlock unlimited interviews and advanced features.
+              Upgrade to Pro to unlock unlimited interviews and advanced features.
             </p>
           </div>
         )}
