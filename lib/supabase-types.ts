@@ -56,6 +56,7 @@ export interface Database {
           interview_type: string
           status: "in_progress" | "completed" | "cancelled"
           score: number
+          language: string
         }
         Insert: {
           id?: string
@@ -68,6 +69,7 @@ export interface Database {
           interview_type: string
           status?: "in_progress" | "completed" | "cancelled"
           score?: number
+          language: string
         }
         Update: {
           id?: string
@@ -80,6 +82,7 @@ export interface Database {
           interview_type?: string
           status?: "in_progress" | "completed" | "cancelled"
           score?: number
+          language?: string
         }
       }
       questions: {
