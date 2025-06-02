@@ -1,7 +1,8 @@
 import { NextResponse } from 'next/server';
 
 const TAVUS_API_KEY = process.env.TAVUS_API_KEY;
-const TAVUS_RECRUITER_REPLICA_ID = process.env.TAVUS_RECRUITER_REPLICA_ID;
+const TAVUS_STOCK_REPLICA_ID = "re8e740a42"; // Nathan stock replica
+const TAVUS_STOCK_PERSONA_ID = "pd43ffef"; // Technical Co-Pilot persona
 
 // Retry configuration
 const MAX_RETRIES = 3;
@@ -38,7 +39,7 @@ async function fetchWithRetry(url: string, options: RequestInit, retryCount = 0)
 export async function POST(request: Request) {
   try {
     // Validate environment variables
-    if (!TAVUS_API_KEY || !TAVUS_RECRUITER_REPLICA_ID) {
+    if (!TAVUS_API_KEY) {
       throw new Error('Missing required Tavus configuration');
     }
 
@@ -50,7 +51,7 @@ export async function POST(request: Request) {
       throw new Error('Missing required interview information');
     }
 
-    // Create a Tavus conversation with the recruiter persona
+    // Create a Tavus conversation with the stock replica and persona
     const response = await fetchWithRetry(
       'https://api.tavus.io/v2/conversations',
       {
@@ -60,15 +61,18 @@ export async function POST(request: Request) {
           'x-api-key': TAVUS_API_KEY,
         },
         body: JSON.stringify({
-          replica_id: TAVUS_RECRUITER_REPLICA_ID,
+          replica_id: TAVUS_STOCK_REPLICA_ID,
+          persona_id: TAVUS_STOCK_PERSONA_ID,
           conversation_name: `Interview for ${job_title} at ${company}`,
-          conversational_context: `This is an interview for the ${job_title} position at ${company}. ${
-            cv_path ? 'The candidate has provided their CV.' : ''
-          }`,
+          conversational_context: `This is a technical interview for the ${job_title} position at ${company}. ${
+            cv_path ? 'The candidate has provided their CV for review.' : ''
+          } Focus on assessing the candidate's technical skills, problem-solving abilities, and experience relevant to the role.`,
           properties: {
             max_call_duration: 3600, // 1 hour
             enable_recording: true,
             language: 'en',
+            participant_absent_timeout: 300, // 5 minutes
+            participant_left_timeout: 60, // 1 minute
           },
         }),
       }
