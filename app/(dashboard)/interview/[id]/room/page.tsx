@@ -2,21 +2,28 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
+import Link from "next/link";
+import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { supabase } from "@/lib/supabase";
-import { toast } from "sonner";
-import { Camera, CameraOff, Loader2, Mic, MicOff, User } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
+import { Skeleton } from "@/components/ui/skeleton";
+import { toast } from "sonner";
+import { supabase } from "@/lib/supabase";
+import { 
+  Camera, 
+  CameraOff, 
+  Loader2, 
+  Mic, 
+  MicOff, 
+  User 
+} from "lucide-react";
 import DailyIframe from '@daily-co/daily-js';
 
-interface InterviewData {
+interface UserProfile {
   id: string;
-  job_title: string;
-  company: string;
-  interview_type: string;
-  cv_path: string | null;
-  language: string;
+  name: string;
+  email: string;
 }
 
 interface TavusConversation {
