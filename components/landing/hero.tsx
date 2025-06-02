@@ -80,16 +80,13 @@ export function Hero() {
         <div className="mx-auto max-w-3xl text-center">
           <motion.h1
             className="text-4xl font-bold tracking-tight text-foreground sm:text-6xl
-                       min-h-[5rem] sm:min-h-[7.5rem]
-                       flex flex-col items-center justify-center text-center" // MODIFIED: flex-col, items-center, justify-center, text-center
+                       min-h-[10rem] sm:min-h-[7.5rem] {/* MODIFIED: min-h-[10rem] for mobile */}
+                       flex flex-col items-center justify-center text-center"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
           >
-            {/* Première ligne conceptuelle */}
             <span>Master Your Job Interviews</span>
-
-            {/* Deuxième ligne conceptuelle */}
             <span className="flex flex-wrap justify-center items-baseline gap-x-2">
               <span>with</span>
               <span className="relative inline-flex items-center justify-center h-10 sm:h-15">
