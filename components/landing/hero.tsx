@@ -10,6 +10,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { ArrowRight, Sparkles } from "lucide-react";
 
 const companies = ["Amazon", "Meta", "Google"];
 const tooltips = [
@@ -34,7 +35,7 @@ export function Hero() {
       const company = companies[currentCompany];
       for (let i = 0; i <= company.length; i++) {
         setText(company.slice(0, i));
-        await new Promise(resolve => setTimeout(resolve, 50)); // Faster typing
+        await new Promise(resolve => setTimeout(resolve, 50));
       }
       
       await new Promise(resolve => setTimeout(resolve, 400));
@@ -67,11 +68,51 @@ export function Hero() {
   }, [currentCompany, isTyping, showAI]);
 
   return (
-    <div className="relative overflow-hidden bg-background pt-16 md:pt-20 lg:pt-24">
-      <div className="mx-auto max-w-7xl px-6 lg:px-8">
-        <div className="mx-auto max-w-3xl text-center">
+    <div className="relative min-h-[90vh] flex items-center justify-center overflow-hidden bg-background">
+      {/* Background gradient */}
+      <div className="absolute inset-0 bg-gradient-to-b from-primary/5 via-background to-background" />
+      
+      {/* Animated shapes */}
+      <div className="absolute inset-0 overflow-hidden">
+        <motion.div
+          className="absolute -top-1/2 -right-1/2 w-full h-full rounded-full bg-gradient-to-br from-primary/20 to-transparent blur-3xl"
+          animate={{
+            scale: [1, 1.2, 1],
+            rotate: [0, 45, 0],
+          }}
+          transition={{
+            duration: 10,
+            repeat: Infinity,
+            ease: "linear",
+          }}
+        />
+        <motion.div
+          className="absolute -bottom-1/2 -left-1/2 w-full h-full rounded-full bg-gradient-to-tr from-secondary/20 to-transparent blur-3xl"
+          animate={{
+            scale: [1.2, 1, 1.2],
+            rotate: [0, -45, 0],
+          }}
+          transition={{
+            duration: 10,
+            repeat: Infinity,
+            ease: "linear",
+          }}
+        />
+      </div>
+
+      <div className="container relative z-10 mx-auto px-6 py-32 md:py-40 lg:py-48">
+        <div className="mx-auto max-w-4xl text-center">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="relative mb-8 inline-block"
+          >
+            <Sparkles className="h-8 w-8 text-primary" />
+          </motion.div>
+
           <motion.h1 
-            className="text-4xl font-bold tracking-tight text-foreground sm:text-6xl"
+            className="text-4xl font-bold tracking-tight text-foreground sm:text-6xl lg:text-7xl"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
@@ -109,7 +150,7 @@ export function Hero() {
                         animate={{ opacity: 1, scale: 1 }}
                         transition={{ duration: 0.3, ease: "easeOut" }}
                       >
-                        <span className="bg-gradient-to-r from-purple-600 to-purple-400 bg-clip-text text-transparent">
+                        <span className="bg-gradient-to-r from-purple-600 to-purple-400 bg-clip-text text-transparent font-bold">
                           AI
                         </span>
                         <motion.div
@@ -138,7 +179,7 @@ export function Hero() {
           </motion.h1>
           
           <motion.p 
-            className="mt-6 text-lg leading-8 text-muted-foreground"
+            className="mt-6 text-lg leading-8 text-muted-foreground md:text-xl"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
@@ -153,11 +194,11 @@ export function Hero() {
             transition={{ duration: 0.5, delay: 0.3 }}
           >
             <Link href="/register">
-              <Button size="lg" className="rounded-full px-8">
-                Try for free
+              <Button size="lg" className="rounded-full px-8 h-12 text-lg">
+                Try for free <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
             </Link>
-            <Link href="#features" className="text-sm font-semibold leading-6 text-foreground">
+            <Link href="#features" className="text-sm font-semibold leading-6 text-foreground hover:text-primary transition-colors">
               Learn more <span aria-hidden="true">→</span>
             </Link>
           </motion.div>
@@ -169,13 +210,13 @@ export function Hero() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, delay: 0.4 }}
         >
-          <div className="relative rounded-xl bg-gray-900 p-2 ring-1 ring-white/10 lg:-m-4 lg:rounded-2xl lg:p-4">
-            <div className="relative aspect-video rounded-md bg-gray-800 shadow-2xl ring-1 ring-white/10">
-              <div className="absolute inset-0 flex items-center justify-center text-white/80 text-lg">
+          <div className="relative rounded-xl bg-card/50 backdrop-blur-sm p-2 ring-1 ring-white/10 lg:-m-4 lg:rounded-2xl lg:p-4">
+            <div className="relative aspect-video rounded-md bg-muted/50 shadow-2xl ring-1 ring-white/10">
+              <div className="absolute inset-0 flex items-center justify-center">
                 <div className="max-w-sm text-center">
-                  <p>Interactive interview simulation preview</p>
-                  <Button variant="secondary" size="sm" className="mt-4">
-                    Watch Demo
+                  <h3 className="text-xl font-semibold mb-4">Watch Demo</h3>
+                  <Button variant="secondary" size="lg" className="rounded-full">
+                    Play Video
                   </Button>
                 </div>
               </div>
