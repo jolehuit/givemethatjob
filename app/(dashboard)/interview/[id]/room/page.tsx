@@ -16,9 +16,8 @@ import {
   DailyVideo,
   useDevices,
   useDaily,
-  createCallObject,
 } from '@daily-co/daily-react';
-import { DailyCall } from "@daily-co/daily-js";
+import { DailyCall, createCallObject as createDailyCallObject } from "@daily-co/daily-js";
 
 interface InterviewData {
   id: string;
@@ -359,7 +358,7 @@ export default function InterviewRoomPage() {
   
   useEffect(() => {
     // Create the call object only once
-    const co = createCallObject();
+    const co = createDailyCallObject();
     setCallObject(co);
     
     // Clean up function
