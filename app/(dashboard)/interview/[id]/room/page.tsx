@@ -1,23 +1,22 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
-import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
 import { supabase } from "@/lib/supabase";
+import { Camera, CameraOff, Loader2, Mic, MicOff } from "lucide-react";
 import { 
-  Camera, 
-  CameraOff, 
-  Loader2, 
-  Mic, 
-  MicOff, 
-  User 
-} from "lucide-react";
-import DailyIframe from '@daily-co/daily-js';
+  DailyProvider, 
+  useCallObject, 
+  useLocalParticipant,
+  useParticipantIds,
+  useMeetingState,
+  DailyAudio,
+  DailyVideo,
+  useDevices
+} from '@daily-co/daily-react';
 
 interface InterviewData {
   id: string;
@@ -29,52 +28,23 @@ interface InterviewData {
   status: string;
 }
 
-interface TavusConversation {
-  conversation_id: string;
-  conversation_url: string;
-}
-
-declare global {
-  interface Window {
-    _dailyCallObject?: any;
-  }
-}
-
-const getOrCreateCallObject = () => {
-  if (typeof window === 'undefined') return null;
-  if (!window._dailyCallObject) {
-    window._dailyCallObject = DailyIframe.createCallObject({
-      audioSource: true,
-      videoSource: true,
-      dailyConfig: {
-        experimentalChromeVideoOptimization: true,
-      },
-    });
-  }
-  return window._dailyCallObject;
-};
-
-export default function InterviewRoomPage() {
+// Composant principal qui utilise les hooks Daily
+function InterviewRoom() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
   
   const [interview, setInterview] = useState<InterviewData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [isCameraReady, setIsCameraReady] = useState(false);
-  const [isCameraEnabled, setIsCameraEnabled] = useState(false);
-  const [isMicEnabled, setIsMicEnabled] = useState(false);
-  const [isInterviewStarted, setIsInterviewStarted] = useState(false);
-  const [interviewProgress, setInterviewProgress] = useState(0);
-  const [isFinishing, setIsFinishing] = useState(false);
-  const [tavusConversation, setTavusConversation] = useState<TavusConversation | null>(null);
-  const [elapsedTime, setElapsedTime] = useState(0);
   const [isStarting, setIsStarting] = useState(false);
-  const [remoteParticipants, setRemoteParticipants] = useState<Record<string, any>>({});
+  const [isFinishing, setIsFinishing] = useState(false);
+  const [elapsedTime, setElapsedTime] = useState(0);
   
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const callRef = useRef<any>(null);
-  const streamRef = useRef<MediaStream | null>(null);
-  const timerRef = useRef<NodeJS.Timeout>();
+  // Hooks Daily React
+  const callObject = useCallObject();
+  const localParticipant = useLocalParticipant();
+  const participantIds = useParticipantIds();
+  const meetingState = useMeetingState();
+  const { microphones, cameras } = useDevices();
 
   useEffect(() => {
     const fetchInterview = async () => {
@@ -86,7 +56,6 @@ export default function InterviewRoomPage() {
           .single();
           
         if (error) throw error;
-        
         setInterview(data);
       } catch (error: any) {
         console.error("Failed to load interview:", error);
@@ -98,91 +67,30 @@ export default function InterviewRoomPage() {
     };
     
     fetchInterview();
-
-    return () => {
-      if (timerRef.current) {
-        clearInterval(timerRef.current);
-      }
-      
-      if (streamRef.current) {
-        streamRef.current.getTracks().forEach(track => track.stop());
-      }
-
-      if (callRef.current) {
-        callRef.current.leave();
-      }
-    };
   }, [id, router]);
 
-  const setupCamera = async () => {
-    try {
-      if (streamRef.current) {
-        streamRef.current.getTracks().forEach(track => track.stop());
-      }
-
-      const stream = await navigator.mediaDevices.getUserMedia({ 
-        video: {
-          width: { ideal: 1280 },
-          height: { ideal: 720 },
-          facingMode: "user"
-        },
-        audio: true
-      });
-      
-      streamRef.current = stream;
-      
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream;
-        videoRef.current.muted = true;
-        await videoRef.current.play();
-      }
-      
-      setIsCameraReady(true);
-      setIsCameraEnabled(true);
-      setIsMicEnabled(true);
-      toast.success("Camera and microphone are ready");
-    } catch (error: any) {
-      console.error("Camera setup error:", error);
-      toast.error("Failed to access camera and microphone. Please ensure you've granted permission.");
+  // Timer pour le temps écoulé
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (meetingState === 'joined-meeting') {
+      interval = setInterval(() => {
+        setElapsedTime(prev => prev + 1);
+      }, 1000);
     }
-  };
-
-  const toggleCamera = () => {
-    if (!isCameraReady || !streamRef.current) return;
-    
-    streamRef.current.getVideoTracks().forEach(track => {
-      track.enabled = !isCameraEnabled;
-    });
-    
-    setIsCameraEnabled(!isCameraEnabled);
-  };
-
-  const toggleMic = () => {
-    if (!isCameraReady || !streamRef.current) return;
-    
-    streamRef.current.getAudioTracks().forEach(track => {
-      track.enabled = !isMicEnabled;
-    });
-    
-    setIsMicEnabled(!isMicEnabled);
-  };
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [meetingState]);
 
   const startInterview = async () => {
-    if (!isCameraReady) {
-      toast.error("Please enable your camera and microphone first");
-      return;
-    }
-
     if (isStarting) return;
-
     setIsStarting(true);
 
     try {
+      // Créer la conversation Tavus
       const response = await fetch('/api/tavus/conversations', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           interview_id: id,
           job_title: interview?.job_title,
@@ -193,53 +101,13 @@ export default function InterviewRoomPage() {
       });
 
       const data = await response.json();
+      if (!response.ok) throw new Error(data.error);
 
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to create Tavus conversation');
-      }
-
-      setTavusConversation(data);
-
-      // Initialize Daily call
-      const call = getOrCreateCallObject();
-      if (!call) throw new Error("Failed to initialize video call");
-      
-      callRef.current = call;
-
-      // Handle remote participants
-      const updateRemoteParticipants = () => {
-        const participants = call.participants();
-        const remotes = {};
-        Object.entries(participants).forEach(([id, p]) => {
-          if (id !== 'local') remotes[id] = p;
-        });
-        setRemoteParticipants(remotes);
-      };
-
-      call.on('participant-joined', updateRemoteParticipants);
-      call.on('participant-updated', updateRemoteParticipants);
-      call.on('participant-left', updateRemoteParticipants);
-
-      // Join the call
-      await call.join({ url: data.conversation_url });
-
-      // Enable noise cancellation
-      await call.updateInputSettings({
-        audio: {
-          processor: {
-            type: 'noise-cancellation',
-          },
-        },
+      // Rejoindre avec Daily
+      await callObject?.join({ 
+        url: data.conversation_url,
+        userName: 'Candidate'
       });
-      
-      setIsInterviewStarted(true);
-      timerRef.current = setInterval(() => {
-        setElapsedTime(prev => prev + 1);
-      }, 1000);
-
-      setInterval(async () => {
-        await saveInterviewProgress();
-      }, 5 * 60 * 1000);
 
       toast.success("Interview started successfully!");
     } catch (error: any) {
@@ -250,73 +118,26 @@ export default function InterviewRoomPage() {
     }
   };
 
-  const saveInterviewProgress = async () => {
-    try {
-      const { error } = await supabase
-        .from('interviews')
-        .update({
-          status: 'in_progress',
-          last_saved_at: new Date().toISOString(),
-        })
-        .eq('id', id);
-
-      if (error) throw error;
-    } catch (error: any) {
-      console.error('Failed to save progress:', error);
-    }
-  };
-
   const finishInterview = async () => {
     setIsFinishing(true);
-    
     try {
-      if (tavusConversation) {
-        await fetch(`/api/tavus/conversations/${tavusConversation.conversation_id}/end`, {
-          method: 'POST',
-        });
-      }
-
-      // Delete any existing feedback
-      const { error: deleteError } = await supabase
-        .from('feedback')
-        .delete()
-        .eq('interview_id', id);
-
-      if (deleteError) throw deleteError;
-
-      // Reset interview status
-      const { error: updateError } = await supabase
-        .from('interviews')
-        .update({
-          status: 'in_progress',
-          score: 0,
-          completed_at: null
-        })
-        .eq('id', id);
-        
-      if (updateError) throw updateError;
-      
-      toast.success("Interview cancelled. You can try again when ready.");
-      
-      if (timerRef.current) {
-        clearInterval(timerRef.current);
-      }
-
-      if (streamRef.current) {
-        streamRef.current.getTracks().forEach(track => track.stop());
-      }
-
-      if (callRef.current) {
-        callRef.current.leave();
-      }
-
+      await callObject?.leave();
       router.push('/dashboard');
+      toast.success("Interview ended successfully");
     } catch (error: any) {
-      console.error("Failed to reset interview:", error);
-      toast.error(error.message || "Failed to reset interview");
+      console.error("Failed to end interview:", error);
+      toast.error("Failed to end interview");
     } finally {
       setIsFinishing(false);
     }
+  };
+
+  const toggleCamera = () => {
+    callObject?.setLocalVideo(!localParticipant?.video);
+  };
+
+  const toggleMic = () => {
+    callObject?.setLocalAudio(!localParticipant?.audio);
   };
 
   const formatTime = (seconds: number) => {
@@ -324,7 +145,7 @@ export default function InterviewRoomPage() {
     const secs = seconds % 60;
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
-  
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
@@ -332,7 +153,7 @@ export default function InterviewRoomPage() {
       </div>
     );
   }
-  
+
   return (
     <div className="max-w-6xl mx-auto space-y-8">
       <div>
@@ -346,44 +167,38 @@ export default function InterviewRoomPage() {
         <div className="lg:col-span-3 space-y-4">
           <Card className="overflow-hidden">
             <div className="aspect-video bg-black rounded-t-lg relative">
-              {/* Remote Participants */}
-              {isInterviewStarted && Object.entries(remoteParticipants).map(([id, participant]) => (
-                <div key={id} className="absolute inset-0">
-                  <video
-                    id={`remote-video-${id}`}
-                    autoPlay
-                    playsInline
-                    className="w-full h-full object-cover"
-                  />
-                  <audio id={`remote-audio-${id}`} autoPlay playsInline />
-                </div>
-              ))}
+              {/* Audio pour tous les participants distants */}
+              <DailyAudio />
               
-              {/* User's Camera */}
-              <div className="absolute bottom-4 right-4 w-48 aspect-video bg-black rounded-lg overflow-hidden">
-                {!isCameraReady ? (
-                  <div className="absolute inset-0 flex flex-col items-center justify-center text-white gap-4">
-                    <User className="h-8 w-8" />
-                    <Button onClick={setupCamera} size="sm">
-                      Enable Camera
-                    </Button>
-                  </div>
-                ) : (
-                  <>
-                    <video
-                      ref={videoRef}
-                      autoPlay
-                      playsInline
-                      className={`w-full h-full object-cover ${!isCameraEnabled ? 'hidden' : ''}`}
-                    />
-                    {!isCameraEnabled && (
-                      <div className="absolute inset-0 flex items-center justify-center bg-muted">
-                        <User className="h-8 w-8 text-muted-foreground" />
-                      </div>
-                    )}
-                  </>
-                )}
-              </div>
+              {/* Vidéos des participants distants */}
+              {participantIds
+                .filter(id => id !== localParticipant?.session_id)
+                .map(participantId => (
+                  <DailyVideo
+                    key={participantId}
+                    sessionId={participantId}
+                    style={{
+                      width: '100%',
+                      height: '100%',
+                      objectFit: 'cover'
+                    }}
+                  />
+                ))}
+              
+              {/* Vidéo locale (participant) */}
+              {localParticipant && (
+                <div className="absolute bottom-4 right-4 w-48 aspect-video bg-black rounded-lg overflow-hidden">
+                  <DailyVideo
+                    sessionId={localParticipant.session_id}
+                    automirror
+                    style={{
+                      width: '100%',
+                      height: '100%',
+                      objectFit: 'cover'
+                    }}
+                  />
+                </div>
+              )}
             </div>
             
             <div className="p-4 flex justify-between items-center">
@@ -392,29 +207,35 @@ export default function InterviewRoomPage() {
                   variant="outline"
                   size="icon"
                   onClick={toggleCamera}
-                  disabled={!isCameraReady}
+                  disabled={!callObject}
                 >
-                  {isCameraEnabled ? <Camera className="h-4 w-4" /> : <CameraOff className="h-4 w-4" />}
+                  {localParticipant?.video ? 
+                    <Camera className="h-4 w-4" /> : 
+                    <CameraOff className="h-4 w-4" />
+                  }
                 </Button>
                 <Button
                   variant="outline"
                   size="icon"
                   onClick={toggleMic}
-                  disabled={!isCameraReady}
+                  disabled={!callObject}
                 >
-                  {isMicEnabled ? <Mic className="h-4 w-4" /> : <MicOff className="h-4 w-4" />}
+                  {localParticipant?.audio ? 
+                    <Mic className="h-4 w-4" /> : 
+                    <MicOff className="h-4 w-4" />
+                  }
                 </Button>
-                {isInterviewStarted && (
+                {meetingState === 'joined-meeting' && (
                   <span className="text-sm font-medium ml-2">
                     {formatTime(elapsedTime)}
                   </span>
                 )}
               </div>
               
-              {!isInterviewStarted ? (
+              {meetingState !== 'joined-meeting' ? (
                 <Button 
                   onClick={startInterview} 
-                  disabled={!isCameraReady || isStarting}
+                  disabled={isStarting}
                 >
                   {isStarting ? (
                     <>
@@ -434,10 +255,10 @@ export default function InterviewRoomPage() {
                   {isFinishing ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Cancelling...
+                      Ending...
                     </>
                   ) : (
-                    "Cancel Interview"
+                    "End Interview"
                   )}
                 </Button>
               )}
@@ -460,35 +281,24 @@ export default function InterviewRoomPage() {
                 <p>{interview?.company}</p>
               </div>
               <div>
-                <h4 className="text-sm font-medium text-muted-foreground">Interview Type</h4>
+                <h4 className="text-sm font-medium text-muted-foreground">Type</h4>
                 <p className="capitalize">{interview?.interview_type?.replace("_", " ")}</p>
               </div>
               <div>
                 <h4 className="text-sm font-medium text-muted-foreground">Language</h4>
                 <p>{interview?.language}</p>
               </div>
-              
-              {isInterviewStarted && (
-                <>
-                  <div className="border-t my-4" />
-                  <div className="space-y-2">
-                    <div className="flex justify-between">
-                      <h4 className="text-sm font-medium">Auto-save</h4>
-                      <span className="text-sm text-muted-foreground">Every 5 minutes</span>
-                    </div>
-                    <Progress value={interviewProgress} />
-                  </div>
-                </>
-              )}
+              <div>
+                <h4 className="text-sm font-medium text-muted-foreground">Status</h4>
+                <p className="capitalize">{meetingState?.replace("-", " ")}</p>
+              </div>
             </CardContent>
           </Card>
           
           <Card>
             <CardHeader>
               <CardTitle>Tips</CardTitle>
-              <CardDescription>
-                Remember these points during your interview
-              </CardDescription>
+              <CardDescription>Remember these points during your interview</CardDescription>
             </CardHeader>
             <CardContent>
               <ul className="space-y-2 text-sm">
@@ -510,17 +320,22 @@ export default function InterviewRoomPage() {
                   </div>
                   <span>Use the STAR method for behavioral questions</span>
                 </li>
-                <li className="flex items-start gap-2">
-                  <div className="rounded-full bg-primary/10 p-1 mt-0.5">
-                    <span className="block h-2 w-2 rounded-full bg-primary" />
-                  </div>
-                  <span>Take a moment to think before answering</span>
-                </li>
               </ul>
             </CardContent>
           </Card>
         </div>
       </div>
     </div>
+  );
+}
+
+// Composant wrapper avec DailyProvider
+export default function InterviewRoomPage() {
+  const callObject = useCallObject();
+
+  return (
+    <DailyProvider callObject={callObject}>
+      <InterviewRoom />
+    </DailyProvider>
   );
 }
