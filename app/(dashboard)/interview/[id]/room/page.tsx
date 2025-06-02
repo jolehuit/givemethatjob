@@ -54,6 +54,8 @@ export default function InterviewRoomPage() {
         if (error) throw error;
         
         setInterview(data);
+        // Automatically setup camera after fetching interview data
+        setupCamera();
       } catch (error: any) {
         toast.error(error.message || "Failed to load interview");
         router.push('/dashboard');
@@ -64,16 +66,23 @@ export default function InterviewRoomPage() {
     
     fetchInterview();
 
-    // Cleanup timer on unmount
+    // Cleanup timer and media streams on unmount
     return () => {
       if (timerRef.current) {
         clearInterval(timerRef.current);
+      }
+      
+      // Stop all media tracks
+      const stream = videoRef.current?.srcObject as MediaStream;
+      if (stream) {
+        stream.getTracks().forEach(track => track.stop());
       }
     };
   }, [id, router]);
 
   const setupCamera = async () => {
     try {
+      console.log("Setting up camera...");
       const stream = await navigator.mediaDevices.getUserMedia({ 
         video: true,
         audio: true
@@ -86,8 +95,10 @@ export default function InterviewRoomPage() {
       setIsCameraReady(true);
       setIsCameraEnabled(true);
       setIsMicEnabled(true);
+      console.log("Camera setup successful");
       toast.success("Camera and microphone are ready");
-    } catch (error) {
+    } catch (error: any) {
+      console.error("Camera setup error:", error);
       toast.error("Failed to access camera and microphone. Please ensure you've granted permission.");
     }
   };
@@ -125,6 +136,7 @@ export default function InterviewRoomPage() {
     }
 
     try {
+      console.log("Starting interview...");
       // Create Tavus conversation
       const response = await fetch('/api/tavus/conversations', {
         method: 'POST',
@@ -144,6 +156,7 @@ export default function InterviewRoomPage() {
       }
 
       const conversationData = await response.json();
+      console.log("Tavus conversation created:", conversationData);
       setTavusConversation(conversationData);
       setIsInterviewStarted(true);
       
@@ -158,12 +171,14 @@ export default function InterviewRoomPage() {
       }, 5 * 60 * 1000);
 
     } catch (error: any) {
+      console.error("Failed to start interview:", error);
       toast.error(error.message || "Failed to start interview");
     }
   };
 
   const saveInterviewProgress = async () => {
     try {
+      console.log("Saving interview progress...");
       const { error } = await supabase
         .from('interviews')
         .update({
@@ -173,6 +188,7 @@ export default function InterviewRoomPage() {
         .eq('id', id);
 
       if (error) throw error;
+      console.log("Progress saved successfully");
     } catch (error: any) {
       console.error('Failed to save progress:', error);
     }
@@ -182,6 +198,7 @@ export default function InterviewRoomPage() {
     setIsFinishing(true);
     
     try {
+      console.log("Finishing interview...");
       // End Tavus conversation
       if (tavusConversation) {
         await fetch(`/api/tavus/conversations/${tavusConversation.conversation_id}/end`, {
@@ -200,6 +217,7 @@ export default function InterviewRoomPage() {
         
       if (error) throw error;
       
+      console.log("Interview completed successfully");
       toast.success("Interview completed! Redirecting to feedback...");
       
       // Clear timer
@@ -211,6 +229,7 @@ export default function InterviewRoomPage() {
         router.push(`/interview/${id}/feedback`);
       }, 1500);
     } catch (error: any) {
+      console.error("Failed to complete interview:", error);
       toast.error(error.message || "Failed to complete interview");
     } finally {
       setIsFinishing(false);
