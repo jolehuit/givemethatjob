@@ -79,25 +79,24 @@ export function Hero() {
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
         <div className="mx-auto max-w-3xl text-center">
           <motion.h1
-            className="text-4xl font-bold tracking-tight text-foreground sm:text-6xl"
+            className="text-4xl font-bold tracking-tight text-foreground sm:text-6xl flex flex-wrap justify-center items-center gap-x-3"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
           >
-            Master Your Job Interviews with{" "}
-            <span className="relative inline-flex items-center min-h-10 sm:min-h-15">
+            <span>Master Your Job Interviews with</span>
+            <span className="relative inline-flex items-center justify-center h-[1.1em]">
               <AnimatePresence mode="wait">
                 {!showFinal ? (
                   <motion.span
                     key={currentIndex}
-                    className="relative inline-flex items-center h-10 sm:h-15" // MODIFIED: Added fixed height and flex alignment
+                    className="relative inline-flex items-center justify-center h-full"
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
                     transition={{ duration: 0.2 }}
                   >
-                    {/* This inner span helps group text and cursor for alignment within the flex container */}
-                    <span>
+                    <span className="inline-flex items-center">
                       {displayText || <>&nbsp;</>}
                       {isTyping && (
                         <motion.span
@@ -126,7 +125,7 @@ export function Hero() {
                             }}
                           />
                           <motion.div
-                            className="absolute whitespace-nowrap top-[calc(100%+1rem)] left-1/2 -translate-x-1/2 px-3 py-1 bg-popover text-popover-foreground text-sm rounded-md shadow-lg z-10"
+                            className="absolute whitespace-nowrap top-[calc(100%+0.5em)] left-1/2 -translate-x-1/2 px-3 py-1 bg-popover text-popover-foreground text-sm rounded-md shadow-lg z-10"
                             initial={{ opacity: 0, y: -5 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.3 }}
@@ -139,7 +138,7 @@ export function Hero() {
                 ) : (
                   <motion.span
                     key="ai"
-                    className="relative inline-flex items-center justify-center h-10 sm:h-15 px-1" // MODIFIED: Added fixed height and flex alignment
+                    className="relative inline-flex items-center justify-center h-full"
                     initial={{ scale: 0.8, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
                     transition={{
@@ -154,8 +153,8 @@ export function Hero() {
                   </motion.span>
                 )}
               </AnimatePresence>
-            </span>{" "}
-            Recruiters
+            </span>
+            <span>Recruiters</span>
           </motion.h1>
 
           <motion.p
