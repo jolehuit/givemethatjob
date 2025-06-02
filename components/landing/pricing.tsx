@@ -1,5 +1,3 @@
-"use client";
-
 import { Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -10,20 +8,22 @@ const tiers = [
   {
     name: "Free",
     id: "tier-free",
-    price: "0€",
+    monthlyPrice: "0€",
+    annualPrice: "0€",
     description: "Basic interview practice to get started.",
     features: [
-      "3 practice interviews per month",
+      "2 practice interviews per month",
       "Basic interview feedback",
       "General AI avatars",
-      "Standard question library"
+      "Standard question library",
     ],
     mostPopular: false,
   },
   {
     name: "Pro",
     id: "tier-pro",
-    price: "9.99€",
+    monthlyPrice: "9.99€",
+    annualPrice: "95.88€",
     description: "For serious job seekers who want to stand out.",
     features: [
       "Unlimited interviews",
@@ -38,7 +38,8 @@ const tiers = [
   {
     name: "Team",
     id: "tier-team",
-    price: "99€",
+    monthlyPrice: "99€",
+    annualPrice: "950.40€",
     description: "For career coaches and HR teams.",
     features: [
       "Everything in Pro",
@@ -113,9 +114,18 @@ export function PricingSection() {
                 <CardTitle>{tier.name}</CardTitle>
                 <CardDescription>{tier.description}</CardDescription>
                 <div className="mt-4 flex items-baseline">
-                  <span className="text-3xl font-bold tracking-tight">{tier.price}</span>
-                  <span className="ml-1 text-muted-foreground">{annualBilling ? '/year' : '/month'}</span>
+                  <span className="text-3xl font-bold tracking-tight">
+                    {annualBilling ? tier.annualPrice : tier.monthlyPrice}
+                  </span>
+                  <span className="ml-1 text-muted-foreground">
+                    {annualBilling ? '/year' : '/month'}
+                  </span>
                 </div>
+                {annualBilling && tier.id !== 'tier-free' && (
+                  <p className="text-sm text-muted-foreground mt-2">
+                    {`${tier.monthlyPrice} monthly when billed annually`}
+                  </p>
+                )}
               </CardHeader>
               <CardContent>
                 <ul className="space-y-3">
@@ -128,7 +138,7 @@ export function PricingSection() {
                 </ul>
               </CardContent>
               <CardFooter>
-                <Link href="/register" className="w-full">
+                <Link href={tier.id === "tier-free" ? "/register" : "/settings/billing"} className="w-full">
                   <Button 
                     variant={tier.mostPopular ? "default" : "outline"}
                     className="w-full"

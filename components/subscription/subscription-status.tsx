@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { getCustomerInfo } from "@/lib/revenuecat";
 import { Loader2 } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 interface CustomerInfo {
   entitlements: {
@@ -20,8 +21,10 @@ interface CustomerInfo {
 }
 
 export function SubscriptionStatus() {
+  const router = useRouter();
   const [customerInfo, setCustomerInfo] = useState<CustomerInfo | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isUpgrading, setIsUpgrading] = useState(false);
 
   useEffect(() => {
     const fetchCustomerInfo = async () => {
@@ -37,6 +40,17 @@ export function SubscriptionStatus() {
 
     fetchCustomerInfo();
   }, []);
+
+  const handleUpgrade = async () => {
+    setIsUpgrading(true);
+    try {
+      router.push("/settings/billing#pricing");
+    } catch (error) {
+      console.error("Failed to initiate upgrade:", error);
+    } finally {
+      setIsUpgrading(false);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -67,8 +81,20 @@ export function SubscriptionStatus() {
               </p>
             )}
           </div>
-          <Button variant="outline" size="sm">
-            Manage Subscription
+          <Button 
+            variant="outline" 
+            size="sm"
+            onClick={handleUpgrade}
+            disabled={isUpgrading}
+          >
+            {isUpgrading ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Processing...
+              </>
+            ) : (
+              "Upgrade Plan"
+            )}
           </Button>
         </div>
 
