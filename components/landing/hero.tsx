@@ -21,38 +21,29 @@ export function Hero() {
 
   useEffect(() => {
     let timeout: NodeJS.Timeout;
-
-    const startSequence = async () => {
-      timeout = setTimeout(() => {
-        setCurrentIndex(0);
-      }, 1000);
+    const startSequence = () => {
+      timeout = setTimeout(() => setCurrentIndex(0), 1000);
     };
-
     startSequence();
     return () => clearTimeout(timeout);
   }, []);
 
   useEffect(() => {
     let timeout: NodeJS.Timeout;
-
     const animateText = async () => {
       if (currentIndex >= 0 && currentIndex < companies.length && !showFinal) {
         const company = companies[currentIndex];
         setIsTyping(true);
         setShowTooltip(false);
-
         for (let i = 0; i <= company.name.length; i++) {
           await new Promise((resolve) => setTimeout(resolve, 100));
           setDisplayText(company.name.slice(0, i));
         }
-
         setIsTyping(false);
-
         await new Promise((resolve) => setTimeout(resolve, 500));
         if (currentIndex < companies.length && !showFinal) {
           setShowTooltip(true);
         }
-
         timeout = setTimeout(() => {
           setShowTooltip(false);
           setCurrentIndex((prev) => {
@@ -66,11 +57,7 @@ export function Hero() {
         }, 2000);
       }
     };
-
-    if (!showFinal) {
-      animateText();
-    }
-
+    if (!showFinal) animateText();
     return () => clearTimeout(timeout);
   }, [currentIndex, showFinal]);
 
@@ -80,85 +67,93 @@ export function Hero() {
         <div className="mx-auto max-w-3xl text-center">
           <motion.h1
             className="text-4xl font-bold tracking-tight text-foreground sm:text-6xl
-                       min-h-[10rem] sm:min-h-[7.5rem] {/* MODIFIED: min-h-[10rem] for mobile */}
-                       flex flex-col items-center justify-center text-center"
+                       flex flex-col items-center text-center" // MODIFIED: Simpler H1 container
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
           >
-            <span>Master Your Job Interviews</span>
-            <span className="flex flex-wrap justify-center items-baseline gap-x-2">
-              <span>with</span>
-              <span className="relative inline-flex items-center justify-center h-10 sm:h-15">
-                <AnimatePresence mode="wait">
-                  {!showFinal ? (
-                    <motion.span
-                      key={currentIndex}
-                      className="relative inline-flex items-center justify-center h-full"
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      exit={{ opacity: 0 }}
-                      transition={{ duration: 0.2 }}
-                    >
-                      <span className="inline-flex items-center">
-                        {displayText || <>&nbsp;</>}
-                        {isTyping && (
-                          <motion.span
-                            className="inline-block w-[2px] h-[1em] bg-primary ml-[2px] align-baseline"
-                            animate={{ opacity: [1, 0] }}
-                            transition={{
-                              duration: 0.5,
-                              repeat: Infinity,
-                              ease: "easeInOut",
-                            }}
-                          />
-                        )}
-                      </span>
-                      {showTooltip &&
-                        currentIndex >= 0 &&
-                        currentIndex < companies.length &&
-                        companies[currentIndex]?.tooltip && (
-                          <>
-                            <motion.div
-                              className="absolute left-0 right-0 top-1/2 h-[3px] bg-destructive"
-                              initial={{ scaleX: 0 }}
-                              animate={{ scaleX: 1 }}
+            {/* Line 1 Wrapper: Fixed height, content centered */}
+            <span className="grid min-h-[5rem] w-full place-items-center sm:min-h-15">
+              <span>Master Your Job Interviews</span>
+            </span>
+
+            {/* Line 2 Wrapper: Fixed height, content centered */}
+            <span className="grid min-h-[5rem] w-full place-items-center sm:min-h-15">
+              {/* Content of Line 2, allows wrapping */}
+              <span className="flex flex-wrap items-baseline justify-center gap-x-2">
+                <span>with</span>
+                {/* Animated part: has fixed height of 1 line */}
+                <span className="relative inline-flex h-10 items-center justify-center sm:h-15">
+                  <AnimatePresence mode="wait">
+                    {!showFinal ? (
+                      <motion.span
+                        key={currentIndex}
+                        className="relative inline-flex h-full items-center justify-center"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.2 }}
+                      >
+                        <span className="inline-flex items-center">
+                          {displayText || <>&nbsp;</>}
+                          {isTyping && (
+                            <motion.span
+                              className="ml-[2px] inline-block h-[1em] w-[2px] animate-pulse bg-primary align-baseline"
+                              animate={{ opacity: [1, 0] }}
                               transition={{
-                                duration: 0.3,
+                                duration: 0.5,
+                                repeat: Infinity,
                                 ease: "easeInOut",
                               }}
                             />
-                            <motion.div
-                              className="absolute whitespace-nowrap top-[calc(100%+0.5em)] left-1/2 -translate-x-1/2 px-3 py-1 bg-popover text-popover-foreground text-sm rounded-md shadow-lg z-10"
-                              initial={{ opacity: 0, y: -5 }}
-                              animate={{ opacity: 1, y: 0 }}
-                              transition={{ duration: 0.3 }}
-                            >
-                              {companies[currentIndex]?.tooltip}
-                            </motion.div>
-                          </>
-                        )}
-                    </motion.span>
-                  ) : (
-                    <motion.span
-                      key="ai"
-                      className="relative inline-flex items-center justify-center h-full"
-                      initial={{ scale: 0.8, opacity: 0 }}
-                      animate={{ scale: 1, opacity: 1 }}
-                      transition={{
-                        type: "spring",
-                        stiffness: 200,
-                        damping: 15,
-                      }}
-                    >
-                      <span className="bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-purple-400">
-                        AI
-                      </span>
-                    </motion.span>
-                  )}
-                </AnimatePresence>
+                          )}
+                        </span>
+                        {showTooltip &&
+                          currentIndex >= 0 &&
+                          currentIndex < companies.length &&
+                          companies[currentIndex]?.tooltip && (
+                            <>
+                              <motion.div
+                                className="absolute left-0 right-0 top-1/2 h-[3px] bg-destructive"
+                                initial={{ scaleX: 0 }}
+                                animate={{ scaleX: 1 }}
+                                transition={{
+                                  duration: 0.3,
+                                  ease: "easeInOut",
+                                }}
+                              />
+                              <motion.div
+                                className="absolute left-1/2 top-[calc(100%+0.5em)] z-10 -translate-x-1/2 whitespace-nowrap rounded-md bg-popover px-3 py-1 text-sm text-popover-foreground shadow-lg"
+                                initial={{ opacity: 0, y: -5 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ duration: 0.3 }}
+                              >
+                                {companies[currentIndex]?.tooltip}
+                              </motion.div>
+                            </>
+                          )}
+                      </motion.span>
+                    ) : (
+                      <motion.span
+                        key="ai"
+                        className="relative inline-flex h-full items-center justify-center"
+                        initial={{ scale: 0.8, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        transition={{
+                          type: "spring",
+                          stiffness: 200,
+                          damping: 15,
+                        }}
+                      >
+                        <span className="bg-gradient-to-r from-purple-600 to-purple-400 bg-clip-text text-transparent">
+                          AI
+                        </span>
+                      </motion.span>
+                    )}
+                  </AnimatePresence>
+                </span>
+                <span>Recruiters</span>
               </span>
-              <span>Recruiters</span>
             </span>
           </motion.h1>
 
@@ -199,9 +194,9 @@ export function Hero() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, delay: 0.4 }}
         >
-          <div className="relative rounded-xl bg-gray-900 p-2 ring-1 ring-white/10 lg:-m-4 lg:rounded-2xl lg:p-4">
+          <div className="relative -m-4 rounded-xl bg-gray-900 p-2 ring-1 ring-white/10 lg:rounded-2xl lg:p-4">
             <div className="relative aspect-video rounded-md bg-gray-800 shadow-2xl ring-1 ring-white/10">
-              <div className="absolute inset-0 flex items-center justify-center text-white/80 text-lg">
+              <div className="absolute inset-0 flex items-center justify-center text-lg text-white/80">
                 <div className="max-w-sm text-center">
                   <p>Interactive interview simulation preview</p>
                   <Button variant="secondary" size="sm" className="mt-4">
