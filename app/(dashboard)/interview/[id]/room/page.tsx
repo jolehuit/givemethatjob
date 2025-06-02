@@ -92,7 +92,11 @@ export default function InterviewRoomPage() {
       }
 
       const stream = await navigator.mediaDevices.getUserMedia({ 
-        video: true,
+        video: {
+          width: { ideal: 1280 },
+          height: { ideal: 720 },
+          facingMode: "user"
+        },
         audio: true
       });
       
@@ -100,7 +104,11 @@ export default function InterviewRoomPage() {
       
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
-        await videoRef.current.play();
+        videoRef.current.muted = true; // Mute to prevent feedback
+        await videoRef.current.play().catch(e => {
+          console.error("Error playing video:", e);
+          throw new Error("Failed to start video playback");
+        });
       }
       
       setIsCameraReady(true);
