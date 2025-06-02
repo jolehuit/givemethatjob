@@ -23,7 +23,6 @@ export function Hero() {
     let timeout: NodeJS.Timeout;
 
     const startSequence = async () => {
-      // Start with first company after a brief delay
       timeout = setTimeout(() => {
         setCurrentIndex(0);
       }, 1000);
@@ -40,7 +39,7 @@ export function Hero() {
       if (currentIndex >= 0 && currentIndex < companies.length) {
         const company = companies[currentIndex];
         setIsTyping(true);
-        setShowTooltip(false);
+        setShowTooltip(false); // Hide tooltip when new text starts typing
 
         // Type out the text
         for (let i = 0; i <= company.name.length; i++) {
@@ -52,14 +51,19 @@ export function Hero() {
 
         // Show tooltip after typing
         await new Promise((resolve) => setTimeout(resolve, 500));
-        setShowTooltip(true);
+        // Ensure we are still on the same company before showing tooltip
+        if (!showFinal) { // Only show tooltip if not transitioning to "AI"
+            setShowTooltip(true);
+        }
 
-        // Move to next company
+
+        // Move to next company or show final
         timeout = setTimeout(() => {
+          setShowTooltip(false); // Hide tooltip before changing text
           setCurrentIndex((prev) => {
             if (prev === companies.length - 1) {
               setShowFinal(true);
-              return prev; // Keep current index to avoid out of bounds
+              return prev;
             }
             return prev + 1;
           });
@@ -69,7 +73,7 @@ export function Hero() {
 
     animateText();
     return () => clearTimeout(timeout);
-  }, [currentIndex]);
+  }, [currentIndex, showFinal]); // Added showFinal to dependencies to handle tooltip correctly
 
   return (
     <div className="relative overflow-hidden bg-background pt-16 md:pt-20 lg:pt-24">
@@ -82,49 +86,59 @@ export function Hero() {
             transition={{ duration: 0.5 }}
           >
             Master Your Job Interviews with{" "}
-            <span className="relative inline-flex items-center min-h-10 sm:min-h-15">
-              {" "}
-              {/* Added min-h-10 sm:min-h-15 here */}
+            <span className="relative inline-flex items-center min-h-10 sm:min-h-15 align-bottom">
               <AnimatePresence mode="wait">
                 {!showFinal ? (
                   <motion.span
-                    key="company"
+                    key={currentIndex} // Use currentIndex for a more reliable key
                     className="relative inline-block"
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
+                    transition={{ duration: 0.2 }} // Faster exit
                   >
-                    {displayText}
+                    {/* Use &nbsp; if displayText is empty to maintain height */}
+                    {displayText || <>&nbsp;</>}
                     {isTyping && (
                       <motion.span
-                        className="inline-block w-[2px] h-[1.2em] bg-primary ml-[2px] align-middle"
+                        className="inline-block w-[2px] h-[1em] bg-primary ml-[2px] align-baseline" // MODIFIED: h-[1em] and align-baseline
                         animate={{ opacity: [1, 0] }}
-                        transition={{ duration: 0.5, repeat: Infinity }}
+                        transition={{
+                          duration: 0.5,
+                          repeat: Infinity,
+                          ease: "easeInOut",
+                        }}
                       />
                     )}
-                    {showTooltip && currentIndex < companies.length && ( // Ensure currentIndex is valid
-                      <>
-                        <motion.div
-                          className="absolute left-0 right-0 top-1/2 h-[3px] bg-destructive"
-                          initial={{ scaleX: 0 }}
-                          animate={{ scaleX: 1 }}
-                          transition={{ duration: 0.3, ease: "easeInOut" }}
-                        />
-                        <motion.div
-                          className="absolute whitespace-nowrap top-[calc(100%+1rem)] left-1/2 -translate-x-1/2 px-3 py-1 bg-popover text-popover-foreground text-sm rounded-md shadow-lg z-10"
-                          initial={{ opacity: 0, y: -5 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ duration: 0.3 }}
-                        >
-                          {companies[currentIndex]?.tooltip}
-                        </motion.div>
-                      </>
-                    )}
+                    {showTooltip &&
+                      currentIndex >= 0 && // Check currentIndex validity
+                      currentIndex < companies.length &&
+                      companies[currentIndex]?.tooltip && ( // Check tooltip existence
+                        <>
+                          <motion.div
+                            className="absolute left-0 right-0 top-1/2 h-[3px] bg-destructive"
+                            initial={{ scaleX: 0 }}
+                            animate={{ scaleX: 1 }}
+                            transition={{
+                              duration: 0.3,
+                              ease: "easeInOut",
+                            }}
+                          />
+                          <motion.div
+                            className="absolute whitespace-nowrap top-[calc(100%+1rem)] left-1/2 -translate-x-1/2 px-3 py-1 bg-popover text-popover-foreground text-sm rounded-md shadow-lg z-10"
+                            initial={{ opacity: 0, y: -5 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.3 }}
+                          >
+                            {companies[currentIndex]?.tooltip}
+                          </motion.div>
+                        </>
+                      )}
                   </motion.span>
                 ) : (
                   <motion.span
                     key="ai"
-                    className="relative inline-block px-1" // px-1 gives a little space
+                    className="relative inline-block px-1"
                     initial={{ scale: 0.8, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
                     transition={{
@@ -135,7 +149,6 @@ export function Hero() {
                   >
                     <span className="bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-purple-400">
                       AI
-                      {/* Removed the motion.div for boxShadow here */}
                     </span>
                   </motion.span>
                 )}
