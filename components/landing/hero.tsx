@@ -9,7 +9,7 @@ const companies = [
   { name: "Amazon", tooltip: "Wrong..." },
   { name: "Meta", tooltip: "Another time..." },
   { name: "Google", tooltip: "Still not that..." },
-  { name: "Microsoft", tooltip: "It's getting embarrassing..." },
+  { name: "OpenAI", tooltip: "It's getting embarrassing..." },
 ];
 
 export function Hero() {
