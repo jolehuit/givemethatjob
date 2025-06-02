@@ -36,7 +36,8 @@ export function Hero() {
     let timeout: NodeJS.Timeout;
 
     const animateText = async () => {
-      if (currentIndex >= 0 && currentIndex < companies.length) {
+      if (currentIndex >= 0 && currentIndex < companies.length && !showFinal) {
+        // Added !showFinal here to prevent re-typing if already on final state
         const company = companies[currentIndex];
         setIsTyping(true);
         setShowTooltip(false); // Hide tooltip when new text starts typing
@@ -52,10 +53,10 @@ export function Hero() {
         // Show tooltip after typing
         await new Promise((resolve) => setTimeout(resolve, 500));
         // Ensure we are still on the same company before showing tooltip
-        if (!showFinal) { // Only show tooltip if not transitioning to "AI"
-            setShowTooltip(true);
+        // and not about to show the final "AI"
+        if (currentIndex < companies.length && !showFinal) {
+          setShowTooltip(true);
         }
-
 
         // Move to next company or show final
         timeout = setTimeout(() => {
@@ -63,7 +64,8 @@ export function Hero() {
           setCurrentIndex((prev) => {
             if (prev === companies.length - 1) {
               setShowFinal(true);
-              return prev;
+              setDisplayText(""); // Clear display text for "AI" to appear cleanly
+              return prev; // Keep current index, showFinal will trigger "AI"
             }
             return prev + 1;
           });
@@ -71,9 +73,13 @@ export function Hero() {
       }
     };
 
-    animateText();
+    if (!showFinal) {
+      // Only run animation if not in final state
+      animateText();
+    }
+
     return () => clearTimeout(timeout);
-  }, [currentIndex, showFinal]); // Added showFinal to dependencies to handle tooltip correctly
+  }, [currentIndex, showFinal]); // Added showFinal to dependencies
 
   return (
     <div className="relative overflow-hidden bg-background pt-16 md:pt-20 lg:pt-24">
@@ -101,7 +107,7 @@ export function Hero() {
                     {displayText || <>&nbsp;</>}
                     {isTyping && (
                       <motion.span
-                        className="inline-block w-[2px] h-[1em] bg-primary ml-[2px] align-baseline" // MODIFIED: h-[1em] and align-baseline
+                        className="inline-block w-[2px] h-[1em] bg-primary ml-[2px] align-baseline"
                         animate={{ opacity: [1, 0] }}
                         transition={{
                           duration: 0.5,
@@ -111,9 +117,9 @@ export function Hero() {
                       />
                     )}
                     {showTooltip &&
-                      currentIndex >= 0 && // Check currentIndex validity
+                      currentIndex >= 0 &&
                       currentIndex < companies.length &&
-                      companies[currentIndex]?.tooltip && ( // Check tooltip existence
+                      companies[currentIndex]?.tooltip && (
                         <>
                           <motion.div
                             className="absolute left-0 right-0 top-1/2 h-[3px] bg-destructive"
