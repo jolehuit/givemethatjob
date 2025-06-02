@@ -9,7 +9,7 @@ const INITIAL_RETRY_DELAY = 1000; // 1 second
 async function fetchWithRetry(url: string, options: RequestInit, retryCount = 0): Promise<Response> {
   try {
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+    const timeoutId = setTimeout(() => controller.abort(), 60000); // 60 second timeout
 
     const response = await fetch(url, {
       ...options,
