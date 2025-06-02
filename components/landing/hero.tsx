@@ -19,7 +19,7 @@ const tooltips = [
   "It's getting long...",
 ];
 
-export function Hero() {
+export default function Hero() {
   const [currentCompany, setCurrentCompany] = useState(0);
   const [isTyping, setIsTyping] = useState(true);
   const [text, setText] = useState("");

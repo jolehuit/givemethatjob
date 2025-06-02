@@ -72,7 +72,7 @@ const itemVariants = {
   },
 };
 
-export function Features() {
+export default function Features() {
   return (
     <div id="features" className="py-24 bg-background sm:py-32">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
