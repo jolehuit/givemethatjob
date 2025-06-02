@@ -6,10 +6,9 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { supabase } from "@/lib/supabase";
 import { toast } from "sonner";
-import { Camera, CameraOff, Loader2, Mic, MicOff, User, Video } from "lucide-react";
+import { Camera, CameraOff, Loader2, Mic, MicOff, User } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Separator } from "@/components/ui/separator";
+import DailyIframe from '@daily-co/daily-js';
 
 interface InterviewData {
   id: string;
@@ -24,6 +23,20 @@ interface TavusConversation {
   conversation_id: string;
   conversation_url: string;
 }
+
+const getOrCreateCallObject = () => {
+  if (typeof window === 'undefined') return null;
+  if (!window._dailyCallObject) {
+    window._dailyCallObject = DailyIframe.createCallObject({
+      audioSource: true,
+      videoSource: true,
+      dailyConfig: {
+        experimentalChromeVideoOptimization: true,
+      },
+    });
+  }
+  return window._dailyCallObject;
+};
 
 export default function InterviewRoomPage() {
   const { id } = useParams<{ id: string }>();
@@ -40,8 +53,10 @@ export default function InterviewRoomPage() {
   const [tavusConversation, setTavusConversation] = useState<TavusConversation | null>(null);
   const [elapsedTime, setElapsedTime] = useState(0);
   const [isStarting, setIsStarting] = useState(false);
+  const [remoteParticipants, setRemoteParticipants] = useState<Record<string, any>>({});
   
   const videoRef = useRef<HTMLVideoElement>(null);
+  const callRef = useRef<any>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const timerRef = useRef<NodeJS.Timeout>();
 
@@ -69,16 +84,17 @@ export default function InterviewRoomPage() {
     
     fetchInterview();
 
-    // Cleanup on unmount
     return () => {
-      // Clear timer
       if (timerRef.current) {
         clearInterval(timerRef.current);
       }
       
-      // Stop all media tracks
       if (streamRef.current) {
         streamRef.current.getTracks().forEach(track => track.stop());
+      }
+
+      if (callRef.current) {
+        callRef.current.leave();
       }
     };
   }, [id, router]);
@@ -87,7 +103,6 @@ export default function InterviewRoomPage() {
     try {
       console.log("Setting up camera...");
       
-      // Stop any existing streams
       if (streamRef.current) {
         streamRef.current.getTracks().forEach(track => track.stop());
       }
@@ -105,11 +120,8 @@ export default function InterviewRoomPage() {
       
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
-        videoRef.current.muted = true; // Mute to prevent feedback
-        await videoRef.current.play().catch(e => {
-          console.error("Error playing video:", e);
-          throw new Error("Failed to start video playback");
-        });
+        videoRef.current.muted = true;
+        await videoRef.current.play();
       }
       
       setIsCameraReady(true);
@@ -149,17 +161,12 @@ export default function InterviewRoomPage() {
       return;
     }
 
-    if (isStarting) {
-      console.log("Interview start already in progress");
-      return;
-    }
+    if (isStarting) return;
 
     setIsStarting(true);
     console.log("Starting interview...");
 
     try {
-      // Create Tavus conversation
-      console.log("Creating Tavus conversation...");
       const response = await fetch('/api/tavus/conversations', {
         method: 'POST',
         headers: {
@@ -181,22 +188,50 @@ export default function InterviewRoomPage() {
       }
 
       console.log("Tavus conversation created:", data);
-      
       setTavusConversation(data);
-      setIsInterviewStarted(true);
+
+      // Initialize Daily call
+      const call = getOrCreateCallObject();
+      if (!call) throw new Error("Failed to initialize video call");
       
-      // Start timer
+      callRef.current = call;
+
+      // Handle remote participants
+      const updateRemoteParticipants = () => {
+        const participants = call.participants();
+        const remotes = {};
+        Object.entries(participants).forEach(([id, p]) => {
+          if (id !== 'local') remotes[id] = p;
+        });
+        setRemoteParticipants(remotes);
+      };
+
+      call.on('participant-joined', updateRemoteParticipants);
+      call.on('participant-updated', updateRemoteParticipants);
+      call.on('participant-left', updateRemoteParticipants);
+
+      // Join the call
+      await call.join({ url: data.conversation_url });
+
+      // Enable noise cancellation
+      await call.updateInputSettings({
+        audio: {
+          processor: {
+            type: 'noise-cancellation',
+          },
+        },
+      });
+      
+      setIsInterviewStarted(true);
       timerRef.current = setInterval(() => {
         setElapsedTime(prev => prev + 1);
       }, 1000);
 
-      // Auto-save every 5 minutes
       setInterval(async () => {
         await saveInterviewProgress();
       }, 5 * 60 * 1000);
 
       toast.success("Interview started successfully!");
-
     } catch (error: any) {
       console.error("Failed to start interview:", error);
       toast.error(error.message);
@@ -229,7 +264,6 @@ export default function InterviewRoomPage() {
     try {
       console.log("Finishing interview...");
       
-      // End Tavus conversation if it exists
       if (tavusConversation) {
         await fetch(`/api/tavus/conversations/${tavusConversation.conversation_id}/end`, {
           method: 'POST',
@@ -259,17 +293,18 @@ export default function InterviewRoomPage() {
       console.log("Interview reset successfully");
       toast.success("Interview cancelled. You can try again when ready.");
       
-      // Clear timer
       if (timerRef.current) {
         clearInterval(timerRef.current);
       }
 
-      // Stop all tracks
       if (streamRef.current) {
         streamRef.current.getTracks().forEach(track => track.stop());
       }
 
-      // Redirect to dashboard
+      if (callRef.current) {
+        callRef.current.leave();
+      }
+
       router.push('/dashboard');
     } catch (error: any) {
       console.error("Failed to reset interview:", error);
@@ -306,20 +341,24 @@ export default function InterviewRoomPage() {
         <div className="lg:col-span-3 space-y-4">
           <Card className="overflow-hidden">
             <div className="aspect-video bg-black rounded-t-lg relative">
-              {/* Tavus Avatar Video */}
-              {isInterviewStarted && tavusConversation && (
-                <iframe
-                  src={tavusConversation.conversation_url}
-                  className="absolute inset-0 w-full h-full"
-                  allow="camera; microphone"
-                />
-              )}
+              {/* Remote Participants */}
+              {isInterviewStarted && Object.entries(remoteParticipants).map(([id, participant]) => (
+                <div key={id} className="absolute inset-0">
+                  <video
+                    id={`remote-video-${id}`}
+                    autoPlay
+                    playsInline
+                    className="w-full h-full object-cover"
+                  />
+                  <audio id={`remote-audio-${id}`} autoPlay playsInline />
+                </div>
+              ))}
               
               {/* User's Camera */}
               <div className="absolute bottom-4 right-4 w-48 aspect-video bg-black rounded-lg overflow-hidden">
                 {!isCameraReady ? (
                   <div className="absolute inset-0 flex flex-col items-center justify-center text-white gap-4">
-                    <Video className="h-8 w-8" />
+                    <User className="h-8 w-8" />
                     <Button onClick={setupCamera} size="sm">
                       Enable Camera
                     </Button>
@@ -426,7 +465,7 @@ export default function InterviewRoomPage() {
               
               {isInterviewStarted && (
                 <>
-                  <Separator />
+                  <div className="border-t my-4" />
                   <div className="space-y-2">
                     <div className="flex justify-between">
                       <h4 className="text-sm font-medium">Auto-save</h4>
