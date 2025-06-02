@@ -41,6 +41,7 @@ export default function InterviewRoomPage() {
   const [isStarting, setIsStarting] = useState(false);
   
   const videoRef = useRef<HTMLVideoElement>(null);
+  const streamRef = useRef<MediaStream | null>(null);
   const timerRef = useRef<NodeJS.Timeout>();
 
   useEffect(() => {
@@ -67,16 +68,16 @@ export default function InterviewRoomPage() {
     
     fetchInterview();
 
-    // Cleanup timer and media streams on unmount
+    // Cleanup on unmount
     return () => {
+      // Clear timer
       if (timerRef.current) {
         clearInterval(timerRef.current);
       }
       
       // Stop all media tracks
-      const stream = videoRef.current?.srcObject as MediaStream;
-      if (stream) {
-        stream.getTracks().forEach(track => track.stop());
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach(track => track.stop());
       }
     };
   }, [id, router]);
@@ -84,15 +85,22 @@ export default function InterviewRoomPage() {
   const setupCamera = async () => {
     try {
       console.log("Setting up camera...");
+      
+      // Stop any existing streams
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach(track => track.stop());
+      }
+
       const stream = await navigator.mediaDevices.getUserMedia({ 
         video: true,
         audio: true
       });
       
+      streamRef.current = stream;
+      
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
-        // Remove muted attribute to hear yourself during setup
-        videoRef.current.muted = false;
+        await videoRef.current.play();
       }
       
       setIsCameraReady(true);
@@ -107,27 +115,21 @@ export default function InterviewRoomPage() {
   };
 
   const toggleCamera = () => {
-    if (!isCameraReady) return;
+    if (!isCameraReady || !streamRef.current) return;
     
-    const stream = videoRef.current?.srcObject as MediaStream;
-    if (stream) {
-      stream.getVideoTracks().forEach(track => {
-        track.enabled = !isCameraEnabled;
-      });
-    }
+    streamRef.current.getVideoTracks().forEach(track => {
+      track.enabled = !isCameraEnabled;
+    });
     
     setIsCameraEnabled(!isCameraEnabled);
   };
 
   const toggleMic = () => {
-    if (!isCameraReady) return;
+    if (!isCameraReady || !streamRef.current) return;
     
-    const stream = videoRef.current?.srcObject as MediaStream;
-    if (stream) {
-      stream.getAudioTracks().forEach(track => {
-        track.enabled = !isMicEnabled;
-      });
-    }
+    streamRef.current.getAudioTracks().forEach(track => {
+      track.enabled = !isMicEnabled;
+    });
     
     setIsMicEnabled(!isMicEnabled);
   };
@@ -240,6 +242,11 @@ export default function InterviewRoomPage() {
       // Clear timer
       if (timerRef.current) {
         clearInterval(timerRef.current);
+      }
+
+      // Stop all tracks
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach(track => track.stop());
       }
 
       setTimeout(() => {
