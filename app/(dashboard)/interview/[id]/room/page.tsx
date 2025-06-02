@@ -15,7 +15,7 @@ import {
   DailyAudio,
   DailyVideo,
   useDevices,
-  useCallObject, // Changed from createCallObject
+  useDaily,
 } from "@daily-co/daily-react";
 
 interface InterviewData {
@@ -40,7 +40,7 @@ function InterviewRoom() {
   const [elapsedTime, setElapsedTime] = useState(0);
 
   // Daily React hooks
-  const callObject = useCallObject(); // Use the hook directly
+  const callObject = useDaily();
   const localParticipant = useLocalParticipant();
   const participantIds = useParticipantIds();
   const meetingState = useMeetingState();
@@ -70,21 +70,19 @@ function InterviewRoom() {
     };
 
     fetchInterview();
-
-    // Cleanup function
-    return () => {
-      if (timerRef.current) {
-        clearInterval(timerRef.current);
-      }
-    };
   }, [id, router]);
 
-  // Timer for elapsed time - using ref to prevent infinite loops
+  // Timer for elapsed time
   useEffect(() => {
     if (meetingState === "joined-meeting") {
       timerRef.current = setInterval(() => {
         setElapsedTime((prev) => prev + 1);
       }, 1000);
+    } else {
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+        timerRef.current = null;
+      }
     }
 
     return () => {
@@ -96,7 +94,7 @@ function InterviewRoom() {
   }, [meetingState]);
 
   const startInterview = async () => {
-    if (isStarting) return;
+    if (isStarting || !callObject) return;
     setIsStarting(true);
 
     try {
@@ -117,12 +115,10 @@ function InterviewRoom() {
       if (!response.ok) throw new Error(data.error);
 
       // Join with Daily
-      if (callObject) {
-        await callObject.join({
-          url: data.conversation_url,
-          userName: "Candidate",
-        });
-      }
+      await callObject.join({
+        url: data.conversation_url,
+        userName: "Candidate",
+      });
 
       toast.success("Interview started successfully!");
     } catch (error: any) {
@@ -134,11 +130,10 @@ function InterviewRoom() {
   };
 
   const finishInterview = async () => {
+    if (!callObject) return;
     setIsFinishing(true);
     try {
-      if (callObject) {
-        await callObject.leave();
-      }
+      await callObject.leave();
       router.push("/dashboard");
       toast.success("Interview ended successfully");
     } catch (error: any) {
@@ -149,15 +144,21 @@ function InterviewRoom() {
     }
   };
 
-  const toggleCamera = () => {
-    if (callObject) {
-      callObject.setLocalVideo(!localParticipant?.video);
+  const toggleCamera = async () => {
+    if (!callObject) return;
+    try {
+      await callObject.setLocalVideo(!localParticipant?.video);
+    } catch (error) {
+      console.error("Failed to toggle camera:", error);
     }
   };
 
-  const toggleMic = () => {
-    if (callObject) {
-      callObject.setLocalAudio(!localParticipant?.audio);
+  const toggleMic = async () => {
+    if (!callObject) return;
+    try {
+      await callObject.setLocalAudio(!localParticipant?.audio);
+    } catch (error) {
+      console.error("Failed to toggle microphone:", error);
     }
   };
 
@@ -357,7 +358,7 @@ function InterviewRoom() {
   );
 }
 
-// Wrapper component with DailyProvider - simplified
+// Wrapper component with DailyProvider
 export default function InterviewRoomPage() {
   return (
     <DailyProvider>
