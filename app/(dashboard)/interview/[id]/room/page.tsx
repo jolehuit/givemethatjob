@@ -1,5 +1,3 @@
-"use client";
-
 import { useEffect, useRef, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -17,6 +15,7 @@ interface InterviewData {
   company: string;
   interview_type: string;
   cv_path: string | null;
+  language: string;
 }
 
 interface TavusConversation {
@@ -169,6 +168,7 @@ export default function InterviewRoomPage() {
           job_title: interview?.job_title,
           company: interview?.company,
           cv_path: interview?.cv_path,
+          language: interview?.language,
         }),
       });
 
@@ -233,12 +233,32 @@ export default function InterviewRoomPage() {
         });
       }
 
+      // Create default feedback
+      const { error: feedbackError } = await supabase
+        .from('feedback')
+        .insert([
+          {
+            interview_id: id,
+            overall_score: 70, // Default score
+            strengths: ["Good communication skills", "Professional demeanor"],
+            weaknesses: ["Could improve answer structure", "Room for more specific examples"],
+            verbal_communication: 70,
+            non_verbal_communication: 70,
+            content_quality: 70,
+            question_understanding: 70,
+            improvement_suggestions: "Focus on using the STAR method for behavioral questions and provide more specific examples from your experience."
+          }
+        ]);
+
+      if (feedbackError) throw feedbackError;
+
       // Update interview status
       const { error } = await supabase
         .from('interviews')
         .update({
           status: 'completed',
           completed_at: new Date().toISOString(),
+          score: 70, // Default score
         })
         .eq('id', id);
         
@@ -407,6 +427,10 @@ export default function InterviewRoomPage() {
               <div>
                 <h4 className="text-sm font-medium text-muted-foreground">Interview Type</h4>
                 <p className="capitalize">{interview?.interview_type?.replace("_", " ")}</p>
+              </div>
+              <div>
+                <h4 className="text-sm font-medium text-muted-foreground">Language</h4>
+                <p>{interview?.language}</p>
               </div>
               
               {isInterviewStarted && (
