@@ -38,6 +38,7 @@ export default function InterviewRoomPage() {
   const [isFinishing, setIsFinishing] = useState(false);
   const [tavusConversation, setTavusConversation] = useState<TavusConversation | null>(null);
   const [elapsedTime, setElapsedTime] = useState(0);
+  const [isStarting, setIsStarting] = useState(false);
   
   const videoRef = useRef<HTMLVideoElement>(null);
   const timerRef = useRef<NodeJS.Timeout>();
@@ -54,9 +55,9 @@ export default function InterviewRoomPage() {
         if (error) throw error;
         
         setInterview(data);
-        // Automatically setup camera after fetching interview data
-        setupCamera();
+        console.log("Interview data loaded:", data);
       } catch (error: any) {
+        console.error("Failed to load interview:", error);
         toast.error(error.message || "Failed to load interview");
         router.push('/dashboard');
       } finally {
@@ -135,9 +136,17 @@ export default function InterviewRoomPage() {
       return;
     }
 
+    if (isStarting) {
+      console.log("Interview start already in progress");
+      return;
+    }
+
+    setIsStarting(true);
+    console.log("Starting interview...");
+
     try {
-      console.log("Starting interview...");
       // Create Tavus conversation
+      console.log("Creating Tavus conversation...");
       const response = await fetch('/api/tavus/conversations', {
         method: 'POST',
         headers: {
@@ -157,6 +166,7 @@ export default function InterviewRoomPage() {
 
       const conversationData = await response.json();
       console.log("Tavus conversation created:", conversationData);
+      
       setTavusConversation(conversationData);
       setIsInterviewStarted(true);
       
@@ -170,9 +180,13 @@ export default function InterviewRoomPage() {
         await saveInterviewProgress();
       }, 5 * 60 * 1000);
 
+      toast.success("Interview started successfully!");
+
     } catch (error: any) {
       console.error("Failed to start interview:", error);
       toast.error(error.message || "Failed to start interview");
+    } finally {
+      setIsStarting(false);
     }
   };
 
@@ -325,8 +339,18 @@ export default function InterviewRoomPage() {
               </div>
               
               {!isInterviewStarted ? (
-                <Button onClick={startInterview} disabled={!isCameraReady || isInterviewStarted}>
-                  Start Interview
+                <Button 
+                  onClick={startInterview} 
+                  disabled={!isCameraReady || isStarting}
+                >
+                  {isStarting ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Starting...
+                    </>
+                  ) : (
+                    "Start Interview"
+                  )}
                 </Button>
               ) : (
                 <Button 
