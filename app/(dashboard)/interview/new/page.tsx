@@ -348,7 +348,7 @@ export default function NewInterviewPage() {
                         <div className="flex flex-col items-center justify-center gap-4">
                           <Upload className="h-8 w-8 text-muted-foreground" />
                           <div className="space-y-1 text-center">
-                            <p className="text-sm font-medium">
+                            <p className="font-medium">
                               {cvPath ? "CV uploaded successfully" : "Drag & drop your CV here"}
                             </p>
                             <p className="text-xs text-muted-foreground">
