@@ -23,7 +23,6 @@ export function Hero() {
     let timeout: NodeJS.Timeout;
     
     const startSequence = async () => {
-      // Start with first company after a brief delay
       timeout = setTimeout(() => {
         setCurrentIndex(0);
       }, 1000);
@@ -42,7 +41,6 @@ export function Hero() {
         setIsTyping(true);
         setShowTooltip(false);
 
-        // Type out the text
         for (let i = 0; i <= company.name.length; i++) {
           await new Promise(resolve => setTimeout(resolve, 100));
           setDisplayText(company.name.slice(0, i));
@@ -50,11 +48,9 @@ export function Hero() {
 
         setIsTyping(false);
 
-        // Show tooltip after typing
         await new Promise(resolve => setTimeout(resolve, 500));
         setShowTooltip(true);
 
-        // Move to next company
         timeout = setTimeout(() => {
           setCurrentIndex(prev => {
             if (prev === companies.length - 1) {
@@ -76,18 +72,18 @@ export function Hero() {
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
         <div className="mx-auto max-w-3xl text-center">
           <motion.h1 
-            className="text-4xl font-bold tracking-tight text-foreground sm:text-6xl"
+            className="text-4xl font-bold tracking-tight text-foreground sm:text-6xl relative"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
           >
             Master Your Job Interviews with{" "}
-            <span className="relative inline-flex items-center min-h-[1.1em]">
+            <span className="relative inline-block" style={{ minWidth: '200px', height: '1.1em' }}>
               <AnimatePresence mode="wait">
                 {!showFinal ? (
                   <motion.span
                     key="company"
-                    className="absolute left-0 right-0"
+                    className="absolute left-1/2 -translate-x-1/2"
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
@@ -109,7 +105,8 @@ export function Hero() {
                           transition={{ duration: 0.3, ease: "easeInOut" }}
                         />
                         <motion.div
-                          className="absolute whitespace-nowrap top-[calc(100%+0.5rem)] left-1/2 -translate-x-1/2 px-3 py-1 bg-popover text-popover-foreground text-sm rounded-md shadow-lg"
+                          className="absolute left-1/2 -translate-x-1/2 px-3 py-1 bg-popover text-popover-foreground text-sm rounded-md shadow-lg"
+                          style={{ top: 'calc(100% + 0.75em)' }}
                           initial={{ opacity: 0, y: -5 }}
                           animate={{ opacity: 1, y: 0 }}
                           transition={{ duration: 0.3 }}
@@ -122,7 +119,7 @@ export function Hero() {
                 ) : (
                   <motion.span
                     key="ai"
-                    className="absolute left-0 right-0"
+                    className="absolute left-1/2 -translate-x-1/2"
                     initial={{ scale: 0.8, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
                     transition={{ 
@@ -133,17 +130,6 @@ export function Hero() {
                   >
                     <span className="bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-purple-400">
                       AI
-                      <motion.div
-                        className="absolute inset-0"
-                        animate={{ 
-                          boxShadow: ["0 0 0px rgba(147, 51, 234, 0)", "0 0 20px rgba(147, 51, 234, 0.3)", "0 0 0px rgba(147, 51, 234, 0)"]
-                        }}
-                        transition={{ 
-                          duration: 2,
-                          repeat: Infinity,
-                          ease: "easeInOut"
-                        }}
-                      />
                     </span>
                   </motion.span>
                 )}
@@ -153,7 +139,7 @@ export function Hero() {
           </motion.h1>
           
           <motion.p 
-            className="mt-16 text-lg leading-8 text-muted-foreground"
+            className="mt-24 text-lg leading-8 text-muted-foreground"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
