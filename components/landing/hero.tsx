@@ -13,17 +13,16 @@ const companies = [
 ];
 
 export function Hero() {
-  const [currentIndex, setCurrentIndex] = useState(-1);
-  const [displayText, setDisplayText] = useState("");
+  const [currentCompanyIndex, setCurrentCompanyIndex] = useState(-1);
+  const [currentText, setCurrentText] = useState("");
   const [isTyping, setIsTyping] = useState(false);
-  const [showFinal, setShowFinal] = useState(false);
   const [showStrike, setShowStrike] = useState(false);
-  const [isExiting, setIsExiting] = useState(false);
+  const [showAI, setShowAI] = useState(false);
   const [particles, setParticles] = useState([]);
 
   // Générer des particules flottantes
   useEffect(() => {
-    const newParticles = Array.from({ length: 20 }, (_, i) => ({
+    const newParticles = Array.from({ length: 30 }, (_, i) => ({
       id: i,
       x: Math.random() * 100,
       y: Math.random() * 100,
@@ -34,99 +33,62 @@ export function Hero() {
     setParticles(newParticles);
   }, []);
 
+  // Animation principale
   useEffect(() => {
-    let timeout: NodeJS.Timeout;
+    const runAnimation = async () => {
+      // Attendre un peu avant de commencer
+      await new Promise(resolve => setTimeout(resolve, 500));
 
-    const startSequence = async () => {
-      timeout = setTimeout(() => {
-        setCurrentIndex(0);
-      }, 500);
-    };
+      // Boucle infinie
+      while (true) {
+        // Parcourir toutes les entreprises
+        for (let i = 0; i < companies.length; i++) {
+          setCurrentCompanyIndex(i);
+          setCurrentText("");
+          setShowStrike(false);
+          setIsTyping(true);
 
-    startSequence();
-    return () => clearTimeout(timeout);
-  }, []);
-
-  useEffect(() => {
-    let timeouts: NodeJS.Timeout[] = [];
-
-    const animateText = async () => {
-      if (currentIndex >= 0 && currentIndex < companies.length && !showFinal) {
-        const company = companies[currentIndex];
-        setIsTyping(true);
-        setShowStrike(false);
-        setIsExiting(false);
-        setDisplayText("");
-
-        // Animation de frappe
-        for (let i = 0; i <= company.name.length; i++) {
-          await new Promise((resolve) => {
-            const t = setTimeout(resolve, 40);
-            timeouts.push(t);
-          });
-          if (!isExiting) {
-            setDisplayText(company.name.slice(0, i));
+          // Taper le nom lettre par lettre
+          for (let j = 0; j <= companies[i].name.length; j++) {
+            setCurrentText(companies[i].name.slice(0, j));
+            await new Promise(resolve => setTimeout(resolve, 50));
           }
+
+          setIsTyping(false);
+
+          // Petite pause après avoir tapé
+          await new Promise(resolve => setTimeout(resolve, 300));
+
+          // Animer le barrage
+          setShowStrike(true);
+          await new Promise(resolve => setTimeout(resolve, 800));
+
+          // Faire disparaître le texte ET le barrage ensemble
+          setCurrentCompanyIndex(-1);
+          await new Promise(resolve => setTimeout(resolve, 300));
         }
 
-        setIsTyping(false);
-
-        // Attendre puis montrer le barrage
-        await new Promise((resolve) => {
-          const t = setTimeout(resolve, 400);
-          timeouts.push(t);
-        });
-        setShowStrike(true);
-
-        // Attendre avec le barrage visible
-        await new Promise((resolve) => {
-          const t = setTimeout(resolve, 800);
-          timeouts.push(t);
-        });
-
-        // Commencer l'animation de sortie
-        setIsExiting(true);
-        
-        // Attendre la fin de l'animation de sortie
-        await new Promise((resolve) => {
-          const t = setTimeout(resolve, 300);
-          timeouts.push(t);
-        });
-
-        // Passer au suivant ou afficher AI
-        if (currentIndex === companies.length - 1) {
-          setShowFinal(true);
-          setDisplayText("");
-          
-          const t = setTimeout(() => {
-            setShowFinal(false);
-            setCurrentIndex(0);
-          }, 6000);
-          timeouts.push(t);
-        } else {
-          setCurrentIndex(currentIndex + 1);
-        }
+        // Montrer AI
+        setShowAI(true);
+        await new Promise(resolve => setTimeout(resolve, 5000));
+        setShowAI(false);
+        await new Promise(resolve => setTimeout(resolve, 300));
       }
     };
 
-    if (!showFinal) {
-      animateText();
-    }
-
-    return () => {
-      timeouts.forEach(t => clearTimeout(t));
-    };
-  }, [currentIndex, showFinal]);
+    runAnimation();
+  }, []);
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-background">
-      {/* Gradient très subtil de fond */}
+      {/* Gradient animé de fond - violet électrique */}
       <div className="absolute inset-0">
-        <div className="absolute inset-0 bg-gradient-to-b from-violet-600/[0.02] via-transparent to-transparent dark:from-violet-600/[0.05]" />
+        <div className="absolute inset-0 bg-gradient-to-br from-violet-600/10 via-violet-500/10 to-violet-700/10 dark:from-violet-600/20 dark:via-violet-500/20 dark:to-violet-700/20" />
         <motion.div
-          className="absolute inset-0 bg-gradient-to-tr from-violet-500/[0.01] via-transparent to-transparent dark:from-violet-500/[0.03]"
+          className="absolute inset-0 bg-gradient-to-tr from-violet-500/5 via-violet-600/10 to-violet-400/5 dark:from-violet-500/15 dark:via-violet-600/20 dark:to-violet-400/15"
           animate={{
-            opacity: [0.5, 1, 0.5],
+            opacity: [0.3, 0.6, 0.3],
+            scale: [1, 1.1, 1],
           }}
           transition={{
             duration: 8,
@@ -136,19 +98,19 @@ export function Hero() {
         />
       </div>
 
-      {/* Particules flottantes très subtiles */}
+      {/* Particules flottantes */}
       <div className="absolute inset-0 overflow-hidden">
         {particles.map((particle) => (
           <motion.div
             key={particle.id}
-            className="absolute rounded-full bg-violet-500/10 dark:bg-violet-500/20"
+            className="absolute rounded-full bg-violet-500/30 dark:bg-violet-500/40"
             initial={{
               x: `${particle.x}%`,
               y: `${particle.y}%`,
             }}
             animate={{
               y: [`${particle.y}%`, `${particle.y - 100}%`],
-              opacity: [0, 0.5, 0],
+              opacity: [0, 0.8, 0],
             }}
             transition={{
               duration: particle.duration,
@@ -165,6 +127,28 @@ export function Hero() {
         ))}
       </div>
 
+      {/* Lignes de grille animées */}
+      <div className="absolute inset-0 overflow-hidden opacity-[0.02] dark:opacity-[0.04]">
+        <motion.div
+          className="absolute inset-0"
+          style={{
+            backgroundImage: `
+              linear-gradient(90deg, transparent 49%, rgba(139, 92, 246, 0.1) 50%, transparent 51%),
+              linear-gradient(0deg, transparent 49%, rgba(139, 92, 246, 0.1) 50%, transparent 51%)
+            `,
+            backgroundSize: "50px 50px",
+          }}
+          animate={{
+            backgroundPosition: ["0px 0px", "50px 50px"],
+          }}
+          transition={{
+            duration: 20,
+            repeat: Infinity,
+            ease: "linear",
+          }}
+        />
+      </div>
+
       <div className="relative z-10 mx-auto max-w-7xl px-6 pt-32 lg:px-8">
         <div className="mx-auto max-w-4xl text-center">
           <motion.div
@@ -175,10 +159,10 @@ export function Hero() {
           >
             {/* Badge lumineux */}
             <motion.div
-              className="absolute -inset-4 bg-violet-600/10 blur-3xl"
+              className="absolute -inset-4 bg-violet-600/20 blur-3xl"
               animate={{
-                opacity: [0.3, 0.5, 0.3],
-                scale: [1, 1.1, 1],
+                opacity: [0.5, 0.8, 0.5],
+                scale: [1, 1.2, 1],
               }}
               transition={{
                 duration: 3,
@@ -187,7 +171,7 @@ export function Hero() {
               }}
             />
             <div className="relative px-6 py-2 bg-card/50 backdrop-blur-sm border border-violet-500/20 rounded-full">
-              <span className="text-sm font-medium bg-gradient-to-r from-violet-500 to-violet-700 bg-clip-text text-transparent">
+              <span className="text-sm font-medium bg-gradient-to-r from-violet-400 to-violet-600 bg-clip-text text-transparent">
                 ✨ Next-Gen Interview Preparation
               </span>
             </div>
@@ -201,111 +185,15 @@ export function Hero() {
           >
             <span className="block mb-4">Master Your Job</span>
             <span className="block mb-4">Interviews with</span>
-            <span className="relative inline-block min-h-[1.2em]">
+            <span className="relative inline-block h-[1.2em]">
               <AnimatePresence mode="wait">
-                {!showFinal ? (
-                  <motion.span
-                    key={`company-${currentIndex}`}
-                    className="relative inline-flex items-center justify-center"
-                    initial={{ opacity: 0, scale: 0.9, y: 10 }}
-                    animate={{ 
-                      opacity: isExiting ? 0 : 1, 
-                      scale: isExiting ? 0.9 : 1,
-                      y: isExiting ? -10 : 0
-                    }}
-                    transition={{ 
-                      duration: 0.3,
-                      ease: "easeInOut"
-                    }}
-                  >
-                    {/* Glow effect pour le texte actuel */}
-                    {currentIndex >= 0 && currentIndex < companies.length && (
-                      <motion.div
-                        className="absolute -inset-8 blur-2xl opacity-40"
-                        style={{
-                          background: `radial-gradient(circle, ${companies[currentIndex].color}20 0%, transparent 70%)`,
-                        }}
-                        animate={{
-                          scale: [1, 1.2, 1],
-                          opacity: [0.3, 0.5, 0.3],
-                        }}
-                        transition={{
-                          duration: 2,
-                          repeat: Infinity,
-                          ease: "easeInOut",
-                        }}
-                      />
-                    )}
-                    
-                    <span className="relative inline-flex items-center">
-                      <span
-                        className="font-bold relative"
-                        style={{
-                          color: currentIndex >= 0 && currentIndex < companies.length 
-                            ? companies[currentIndex].color 
-                            : "currentColor",
-                          textShadow: `0 0 20px ${currentIndex >= 0 && currentIndex < companies.length ? companies[currentIndex].color : "currentColor"}30`,
-                        }}
-                      >
-                        {displayText || <>&nbsp;</>}
-                        
-                        {/* Barrage animé organique */}
-                        <AnimatePresence>
-                          {showStrike && !isExiting && (
-                            <motion.svg
-                              className="absolute inset-0 w-full h-full pointer-events-none"
-                              initial={{ opacity: 0 }}
-                              animate={{ opacity: 1 }}
-                              exit={{ opacity: 0 }}
-                              transition={{ duration: 0.2 }}
-                            >
-                              <motion.path
-                                d={`M 0,${50} Q ${25},${45} ${50},${50} T ${100},${50}`}
-                                stroke="currentColor"
-                                strokeWidth="3"
-                                fill="none"
-                                className="text-destructive"
-                                initial={{ pathLength: 0 }}
-                                animate={{ pathLength: 1 }}
-                                transition={{
-                                  duration: 0.3,
-                                  ease: "easeOut",
-                                }}
-                                style={{
-                                  strokeLinecap: "round",
-                                  filter: "drop-shadow(0 0 2px rgba(239, 68, 68, 0.5))",
-                                }}
-                              />
-                            </motion.svg>
-                          )}
-                        </AnimatePresence>
-                      </span>
-                      
-                      {isTyping && (
-                        <motion.span
-                          className="inline-block w-[3px] h-[1.2em] ml-1 rounded-full"
-                          style={{
-                            backgroundColor: currentIndex >= 0 && currentIndex < companies.length 
-                              ? companies[currentIndex].color 
-                              : "currentColor",
-                            boxShadow: `0 0 10px ${currentIndex >= 0 && currentIndex < companies.length ? companies[currentIndex].color : "currentColor"}`,
-                          }}
-                          animate={{ opacity: [1, 0.2] }}
-                          transition={{
-                            duration: 0.5,
-                            repeat: Infinity,
-                            ease: "easeInOut",
-                          }}
-                        />
-                      )}
-                    </span>
-                  </motion.span>
-                ) : (
+                {showAI ? (
                   <motion.span
                     key="ai"
-                    className="relative inline-flex items-center justify-center"
-                    initial={{ scale: 0, rotate: -180 }}
-                    animate={{ scale: 1, rotate: 0 }}
+                    className="absolute inset-0 flex items-center justify-center"
+                    initial={{ scale: 0, rotate: -180, opacity: 0 }}
+                    animate={{ scale: 1, rotate: 0, opacity: 1 }}
+                    exit={{ scale: 0.8, opacity: 0 }}
                     transition={{
                       type: "spring",
                       stiffness: 150,
@@ -314,31 +202,45 @@ export function Hero() {
                     }}
                   >
                     {/* Effet de particules explosives */}
-                    {Array.from({ length: 8 }).map((_, i) => (
+                    {Array.from({ length: 12 }).map((_, i) => (
                       <motion.div
                         key={i}
-                        className="absolute w-1 h-1 bg-gradient-to-r from-violet-400 to-violet-600 rounded-full"
+                        className="absolute w-2 h-2 bg-gradient-to-r from-violet-400 to-violet-600 rounded-full"
                         initial={{ scale: 0, x: 0, y: 0 }}
                         animate={{
                           scale: [0, 1, 0],
-                          x: Math.cos((i * Math.PI * 2) / 8) * 80,
-                          y: Math.sin((i * Math.PI * 2) / 8) * 80,
+                          x: Math.cos((i * Math.PI * 2) / 12) * 80,
+                          y: Math.sin((i * Math.PI * 2) / 12) * 80,
                           opacity: [1, 0],
                         }}
                         transition={{
-                          duration: 0.8,
+                          duration: 1,
                           delay: i * 0.05,
                           ease: "easeOut",
                         }}
                       />
                     ))}
 
+                    {/* Effet de halo pulsant - RÉDUIT */}
+                    <motion.div
+                      className="absolute -inset-8 rounded-full bg-violet-600/20"
+                      animate={{
+                        scale: [1, 1.2, 1],
+                        opacity: [0.5, 0.8, 0.5],
+                      }}
+                      transition={{
+                        duration: 2,
+                        repeat: Infinity,
+                        ease: "easeInOut",
+                      }}
+                    />
+
                     {/* Texte AI avec effet néon */}
-                    <span className="relative font-black text-8xl">
+                    <span className="relative font-black">
                       <motion.span
                         className="absolute inset-0 bg-gradient-to-r from-violet-500 to-violet-700 bg-clip-text text-transparent blur-sm"
                         animate={{
-                          opacity: [0.5, 0.8, 0.5],
+                          opacity: [0.7, 1, 0.7],
                         }}
                         transition={{
                           duration: 2,
@@ -352,7 +254,104 @@ export function Hero() {
                         AI
                       </span>
                     </span>
+
+                    {/* Effet de lumière tournante */}
+                    <motion.div
+                      className="absolute inset-0 pointer-events-none"
+                      animate={{
+                        rotate: 360,
+                      }}
+                      transition={{
+                        duration: 10,
+                        repeat: Infinity,
+                        ease: "linear",
+                      }}
+                    >
+                      <div className="absolute top-1/2 left-1/2 w-32 h-0.5 bg-gradient-to-r from-transparent via-violet-500/50 to-transparent transform -translate-x-1/2 -translate-y-1/2" />
+                      <div className="absolute top-1/2 left-1/2 w-0.5 h-32 bg-gradient-to-b from-transparent via-violet-600/50 to-transparent transform -translate-x-1/2 -translate-y-1/2" />
+                    </motion.div>
                   </motion.span>
+                ) : currentCompanyIndex >= 0 ? (
+                  <motion.span
+                    key={`company-${currentCompanyIndex}`}
+                    className="absolute inset-0 flex items-center justify-center"
+                    initial={{ opacity: 0, scale: 0.8, rotate: -5 }}
+                    animate={{ opacity: 1, scale: 1, rotate: 0 }}
+                    exit={{ opacity: 0, scale: 0.8, rotate: 5 }}
+                    transition={{ 
+                      duration: 0.3,
+                      type: "spring",
+                      stiffness: 200
+                    }}
+                  >
+                    {/* Glow effect pour le texte actuel */}
+                    <motion.div
+                      className="absolute -inset-8 blur-2xl opacity-60"
+                      style={{
+                        background: `radial-gradient(circle, ${companies[currentCompanyIndex].color}30 0%, transparent 70%)`,
+                      }}
+                      animate={{
+                        scale: [1, 1.3, 1],
+                        opacity: [0.4, 0.7, 0.4],
+                      }}
+                      transition={{
+                        duration: 2,
+                        repeat: Infinity,
+                        ease: "easeInOut",
+                      }}
+                    />
+                    
+                    <span className="relative inline-flex items-center">
+                      <span
+                        className="font-bold relative"
+                        style={{
+                          color: companies[currentCompanyIndex].color,
+                          textShadow: `0 0 30px ${companies[currentCompanyIndex].color}40`,
+                        }}
+                      >
+                        {currentText}
+                        
+                        {/* Ligne de barrage animée */}
+                        <AnimatePresence>
+                          {showStrike && (
+                            <motion.div
+                              className="absolute left-0 right-0 top-1/2 h-[3px]"
+                              style={{
+                                background: `linear-gradient(90deg, transparent, ${companies[currentCompanyIndex].color}, transparent)`,
+                              }}
+                              initial={{ scaleX: 0, opacity: 0 }}
+                              animate={{ 
+                                scaleX: 1, 
+                                opacity: [0, 1, 1, 0.5],
+                              }}
+                              transition={{
+                                scaleX: { duration: 0.3, ease: "easeOut" },
+                                opacity: { duration: 0.8, times: [0, 0.3, 0.7, 1] }
+                              }}
+                            />
+                          )}
+                        </AnimatePresence>
+                      </span>
+                      
+                      {isTyping && (
+                        <motion.span
+                          className="inline-block w-1 h-[1.2em] ml-1 rounded-full"
+                          style={{
+                            backgroundColor: companies[currentCompanyIndex].color,
+                            boxShadow: `0 0 20px ${companies[currentCompanyIndex].color}`,
+                          }}
+                          animate={{ opacity: [1, 0.2] }}
+                          transition={{
+                            duration: 0.5,
+                            repeat: Infinity,
+                            ease: "easeInOut",
+                          }}
+                        />
+                      )}
+                    </span>
+                  </motion.span>
+                ) : (
+                  <span>&nbsp;</span>
                 )}
               </AnimatePresence>
             </span>
@@ -379,15 +378,15 @@ export function Hero() {
             <Link href="/register">
               <Button 
                 size="lg" 
-                className="group relative px-8 py-6 text-lg font-semibold rounded-full overflow-hidden"
+                className="group relative px-8 py-6 text-lg font-semibold rounded-full overflow-hidden bg-primary hover:bg-primary/90"
               >
                 <motion.div
-                  className="absolute inset-0 bg-gradient-to-r from-violet-600/20 to-violet-400/20"
+                  className="absolute inset-0 bg-gradient-to-r from-violet-600/0 via-white/20 to-violet-600/0"
                   animate={{
-                    x: ["-100%", "100%"],
+                    x: ["-200%", "200%"],
                   }}
                   transition={{
-                    duration: 1.5,
+                    duration: 2,
                     repeat: Infinity,
                     repeatDelay: 1,
                     ease: "easeInOut",
@@ -427,12 +426,12 @@ export function Hero() {
           transition={{ duration: 0.8, delay: 0.4 }}
         >
           <div className="relative">
-            {/* Effet de lumière très subtil derrière la vidéo */}
+            {/* Effet de lumière derrière la vidéo */}
             <motion.div
-              className="absolute -inset-20 bg-gradient-to-r from-violet-600/10 via-violet-500/10 to-violet-600/10 blur-3xl"
+              className="absolute -inset-20 bg-gradient-to-r from-violet-600/20 via-violet-500/20 to-violet-600/20 blur-3xl"
               animate={{
-                opacity: [0.2, 0.3, 0.2],
-                scale: [0.95, 1.05, 0.95],
+                opacity: [0.3, 0.6, 0.3],
+                scale: [0.9, 1.1, 0.9],
               }}
               transition={{
                 duration: 5,
@@ -441,8 +440,26 @@ export function Hero() {
               }}
             />
 
-            <div className="relative rounded-2xl bg-gradient-to-b from-muted/80 to-muted/40 p-1 backdrop-blur-xl">
+            <div className="relative rounded-2xl bg-gradient-to-b from-card/80 to-card/40 p-1 backdrop-blur-xl">
               <div className="relative aspect-video rounded-xl bg-card shadow-2xl overflow-hidden border border-border">
+                {/* Effet de scanlines */}
+                <div className="absolute inset-0 pointer-events-none opacity-[0.02] dark:opacity-[0.05]">
+                  <motion.div
+                    className="h-full w-full"
+                    style={{
+                      backgroundImage: "repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(139, 92, 246, 0.03) 2px, rgba(139, 92, 246, 0.03) 4px)",
+                    }}
+                    animate={{
+                      backgroundPosition: ["0px 0px", "0px 4px"],
+                    }}
+                    transition={{
+                      duration: 0.1,
+                      repeat: Infinity,
+                      ease: "linear",
+                    }}
+                  />
+                </div>
+
                 <div className="relative h-full flex items-center justify-center">
                   <div className="text-center">
                     <motion.div
