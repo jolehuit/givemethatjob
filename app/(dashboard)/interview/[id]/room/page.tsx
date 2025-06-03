@@ -16,9 +16,9 @@ import {
   DailyVideo,
   useDevices,
   useDaily,
-  useCallObject,
 } from '@daily-co/daily-react';
-import type { DailyCall } from "@daily-co/daily-react";
+import { Daily } from '@daily-co/daily-js';
+import type { DailyCall } from "@daily-co/daily-js";
 
 interface InterviewData {
   id: string;
@@ -358,8 +358,8 @@ export default function InterviewRoomPage() {
   const [callObject, setCallObject] = useState<DailyCall | null>(null);
   
   useEffect(() => {
-    // Create the call object only once using the useCallObject hook
-    const co = useCallObject();
+    // Create the call object using Daily.createCallObject() instead of useCallObject hook
+    const co = Daily.createCallObject();
     setCallObject(co);
     
     // Clean up function
