@@ -130,7 +130,7 @@ export function Hero() {
                           transition={{
                             duration: 0.5,
                             repeat: Infinity,
-                            ease: "steps(2)"
+                            ease: "steps(2, end)"
                           }}
                         />
                       )}
