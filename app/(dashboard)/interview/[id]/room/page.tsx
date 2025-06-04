@@ -16,7 +16,6 @@ import {
   DailyVideo,
   useDevices,
   useDaily,
-  Daily
 } from '@daily-co/daily-react';
 
 interface InterviewData {
@@ -75,20 +74,17 @@ function InterviewRoom() {
 
   // Timer for elapsed time
   useEffect(() => {
-    // Clear any existing timer
     if (timerRef.current) {
       clearInterval(timerRef.current);
       timerRef.current = null;
     }
     
-    // Only start a new timer if we're in a meeting
     if (meetingState === 'joined-meeting') {
       timerRef.current = setInterval(() => {
         setElapsedTime(prev => prev + 1);
       }, 1000);
     }
     
-    // Cleanup function
     return () => {
       if (timerRef.current) {
         clearInterval(timerRef.current);
@@ -102,7 +98,6 @@ function InterviewRoom() {
     setIsStarting(true);
     
     try {
-      // Create the Tavus conversation
       const response = await fetch('/api/tavus/conversations', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -118,7 +113,6 @@ function InterviewRoom() {
       const data = await response.json();
       if (!response.ok) throw new Error(data.error);
 
-      // Join with Daily
       await callObject.join({ 
         url: data.conversation_url,
         userName: 'Candidate'
@@ -185,10 +179,8 @@ function InterviewRoom() {
         <div className="lg:col-span-3 space-y-4">
           <Card className="overflow-hidden">
             <div className="aspect-video bg-black rounded-t-lg relative">
-              {/* Audio for all remote participants */}
               <DailyAudio />
               
-              {/* Videos of remote participants */}
               {participantIds
                 .filter(id => id !== localParticipant?.session_id)
                 .map(participantId => (
@@ -203,7 +195,6 @@ function InterviewRoom() {
                   />
                 ))}
               
-              {/* Local video (participant) */}
               {localParticipant && (
                 <div className="absolute bottom-4 right-4 w-48 aspect-video bg-black rounded-lg overflow-hidden">
                   <DailyVideo
@@ -352,31 +343,10 @@ function InterviewRoom() {
   );
 }
 
-// Wrapper component with DailyProvider
+// Wrapper component with DailyProvider - simplified
 export default function InterviewRoomPage() {
-  const [callObject, setCallObject] = useState<DailyCall | null>(null);
-  
-  useEffect(() => {
-    // Create the call object using Daily.createCallObject() instead of useCallObject hook
-    const co = Daily.createCallObject();
-    setCallObject(co);
-    
-    // Clean up function
-    return () => {
-      co?.destroy().catch(console.error);
-    };
-  }, []);
-  
-  if (!callObject) {
-    return (
-      <div className="flex items-center justify-center min-h-[60vh]">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
-    );
-  }
-  
   return (
-    <DailyProvider callObject={callObject}>
+    <DailyProvider>
       <InterviewRoom />
     </DailyProvider>
   );
