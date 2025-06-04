@@ -55,6 +55,15 @@ export default function FeedbackPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [averageScore, setAverageScore] = useState(0);
   
+  const [videoAnalysis, setVideoAnalysis] = useState<{
+    verbal_score: number;
+    non_verbal_score: number;
+    content_score: number;
+    understanding_score: number;
+    strengths: string[];
+    weaknesses: string[];
+  } | null>(null);
+  
   useEffect(() => {
     const fetchInterviewAndFeedback = async () => {
       try {
@@ -68,15 +77,26 @@ export default function FeedbackPage() {
         if (interviewError) throw interviewError;
         setInterview(interviewData);
         
-        // Get feedback data
-        const { data: feedbackData, error: feedbackError } = await supabase
-          .from('feedback')
+        // Get video analysis data
+        const { data: videoData, error: videoError } = await supabase
+          .from('video_recordings')
           .select('*')
           .eq('interview_id', id)
+          .eq('analysis_status', 'completed')
           .single();
           
-        if (feedbackError) throw feedbackError;
-        setFeedback(feedbackData);
+        if (videoError) throw videoError;
+        
+        if (videoData) {
+          setVideoAnalysis({
+            verbal_score: videoData.verbal_score,
+            non_verbal_score: videoData.non_verbal_score,
+            content_score: videoData.content_score,
+            understanding_score: videoData.understanding_score,
+            strengths: videoData.strengths,
+            weaknesses: videoData.weaknesses
+          });
+        }
 
         // Get average score from all completed interviews
         const { data: avgData, error: avgError } = await supabase
@@ -191,33 +211,33 @@ export default function FeedbackPage() {
               <div className="space-y-2">
                 <div className="flex justify-between text-sm">
                   <span>Verbal Communication</span>
-                  <span>{feedback?.verbal_communication}%</span>
+                  <span>{videoAnalysis?.verbal_score}%</span>
                 </div>
-                <Progress value={feedback?.verbal_communication} className="h-2" />
+                <Progress value={videoAnalysis?.verbal_score} className="h-2" />
               </div>
               
               <div className="space-y-2">
                 <div className="flex justify-between text-sm">
                   <span>Non-verbal Communication</span>
-                  <span>{feedback?.non_verbal_communication}%</span>
+                  <span>{videoAnalysis?.non_verbal_score}%</span>
                 </div>
-                <Progress value={feedback?.non_verbal_communication} className="h-2" />
+                <Progress value={videoAnalysis?.non_verbal_score} className="h-2" />
               </div>
               
               <div className="space-y-2">
                 <div className="flex justify-between text-sm">
                   <span>Content Quality</span>
-                  <span>{feedback?.content_quality}%</span>
+                  <span>{videoAnalysis?.content_score}%</span>
                 </div>
-                <Progress value={feedback?.content_quality} className="h-2" />
+                <Progress value={videoAnalysis?.content_score} className="h-2" />
               </div>
               
               <div className="space-y-2">
                 <div className="flex justify-between text-sm">
                   <span>Question Understanding</span>
-                  <span>{feedback?.question_understanding}%</span>
+                  <span>{videoAnalysis?.understanding_score}%</span>
                 </div>
-                <Progress value={feedback?.question_understanding} className="h-2" />
+                <Progress value={videoAnalysis?.understanding_score} className="h-2" />
               </div>
             </div>
             
@@ -243,7 +263,7 @@ export default function FeedbackPage() {
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">
-                  {feedback?.verbal_communication}%
+                  {videoAnalysis?.verbal_score}%
                 </div>
                 <p className="text-xs text-muted-foreground">
                   Clear and effective communication
@@ -260,7 +280,7 @@ export default function FeedbackPage() {
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">
-                  {feedback?.question_understanding}%
+                  {videoAnalysis?.understanding_score}%
                 </div>
                 <p className="text-xs text-muted-foreground">
                   Question comprehension
@@ -277,7 +297,7 @@ export default function FeedbackPage() {
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">
-                  {feedback?.non_verbal_communication}%
+                  {videoAnalysis?.non_verbal_score}%
                 </div>
                 <p className="text-xs text-muted-foreground">
                   Professional demeanor
@@ -294,7 +314,7 @@ export default function FeedbackPage() {
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">
-                  {feedback?.content_quality}%
+                  {videoAnalysis?.content_score}%
                 </div>
                 <p className="text-xs text-muted-foreground">
                   Answer quality
@@ -330,7 +350,7 @@ export default function FeedbackPage() {
                     <div>
                       <h4 className="font-medium mb-2">Key Strengths</h4>
                       <ul className="space-y-2">
-                        {feedback?.strengths.slice(0, 3).map((strength, i) => (
+                        {videoAnalysis?.strengths.slice(0, 3).map((strength, i) => (
                           <li key={i} className="flex items-start gap-2 text-sm">
                             <CheckCircle2 className="h-4 w-4 text-green-500 mt-1" />
                             <span>{strength}</span>
@@ -342,7 +362,7 @@ export default function FeedbackPage() {
                     <div>
                       <h4 className="font-medium mb-2">Areas to Improve</h4>
                       <ul className="space-y-2">
-                        {feedback?.weaknesses.slice(0, 3).map((weakness, i) => (
+                        {videoAnalysis?.weaknesses.slice(0, 3).map((weakness, i) => (
                           <li key={i} className="flex items-start gap-2 text-sm">
                             <div className="h-4 w-4 rounded-full bg-yellow-500/20 flex items-center justify-center mt-1">
                               <span className="text-yellow-500 text-xs">!</span>
@@ -367,7 +387,7 @@ export default function FeedbackPage() {
                 </CardHeader>
                 <CardContent>
                   <ul className="space-y-4">
-                    {feedback?.strengths.map((strength, i) => (
+                    {videoAnalysis?.strengths.map((strength, i) => (
                       <li key={i} className="flex items-start gap-3">
                         <CheckCircle2 className="h-5 w-5 text-green-500 mt-0.5" />
                         <div>
@@ -394,7 +414,7 @@ export default function FeedbackPage() {
                 <CardContent>
                   <div className="space-y-6">
                     <ul className="space-y-4">
-                      {feedback?.weaknesses.map((weakness, i) => (
+                      {videoAnalysis?.weaknesses.map((weakness, i) => (
                         <li key={i} className="flex items-start gap-3">
                           <div className="rounded-full h-5 w-5 bg-yellow-500/20 flex items-center justify-center mt-0.5">
                             <span className="text-yellow-500 text-xs font-bold">!</span>
