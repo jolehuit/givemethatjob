@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { useEffect, useState } from "react";
+import Lottie from "lottie-react";
 
 export function Hero() {
   const [currentStep, setCurrentStep] = useState(0);
@@ -14,22 +15,22 @@ export function Hero() {
   const steps = [
     {
       text: "Paste a job offer.",
-      icon: "📋",
+      lottieUrl: "https://fonts.gstatic.com/s/e/notoemoji/latest/1f9e0/lottie.json",
       color: "from-blue-500 to-cyan-500"
     },
     {
       text: "Upload your resume.",
-      icon: "📄",
+      lottieUrl: "https://fonts.gstatic.com/s/e/notoemoji/latest/2728/lottie.json",
       color: "from-purple-500 to-pink-500"
     },
     {
       text: "Face our AI recruiter.",
-      icon: "🤖",
+      lottieUrl: "https://fonts.gstatic.com/s/e/notoemoji/latest/1f916/lottie.json",
       color: "from-orange-500 to-red-500"
     },
     {
       text: "Get the call.",
-      icon: "📞",
+      lottieUrl: "https://fonts.gstatic.com/s/e/notoemoji/latest/1f60e/lottie.json",
       color: "from-green-500 to-emerald-500"
     }
   ];
@@ -107,7 +108,7 @@ export function Hero() {
               >
                 <div className="flex flex-col items-center gap-4">
                   <motion.div
-                    className={`text-6xl sm:text-8xl lg:text-9xl bg-clip-text text-transparent bg-gradient-to-r ${steps[currentStep].color}`}
+                    className={`w-24 h-24 sm:w-32 sm:h-32 lg:w-40 lg:h-40 bg-clip-text text-transparent bg-gradient-to-r ${steps[currentStep].color}`}
                     animate={{
                       scale: [1, 1.02, 1],
                     }}
@@ -117,7 +118,11 @@ export function Hero() {
                       ease: "easeInOut"
                     }}
                   >
-                    {steps[currentStep].icon}
+                    <Lottie
+                      animationData={steps[currentStep].lottieUrl}
+                      loop={true}
+                      style={{ width: "100%", height: "100%" }}
+                    />
                   </motion.div>
                   
                   <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight">
@@ -184,7 +189,12 @@ export function Hero() {
               >
                 <div className="absolute -inset-0.5 bg-gradient-to-r from-primary to-primary-foreground rounded-lg blur opacity-30 group-hover:opacity-50 transition duration-1000" />
                 <div className="relative p-4 bg-card rounded-lg border border-border">
-                  <div className="text-2xl mb-2">{step.icon}</div>
+                  <div className="h-12 w-12 mx-auto mb-2">
+                    <Lottie
+                      animationData={step.lottieUrl}
+                      loop={true}
+                    />
+                  </div>
                   <p className="text-sm text-muted-foreground">{step.text}</p>
                 </div>
               </div>
