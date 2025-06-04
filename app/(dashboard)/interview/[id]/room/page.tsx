@@ -16,6 +16,7 @@ import {
   DailyVideo,
   useDevices,
   useDaily,
+  Daily
 } from '@daily-co/daily-react';
 
 interface InterviewData {
