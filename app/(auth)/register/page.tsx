@@ -75,6 +75,7 @@ export default function RegisterPage() {
   }
 
   return (
+    <div className="space-y-6">
         <motion.div 
           className="flex flex-col items-center space-y-2 text-center"
           initial={{ opacity: 0, y: -20 }}
@@ -231,7 +232,6 @@ export default function RegisterPage() {
             Sign in
           </Link>
         </motion.div>
-      </div>
-    </>
+    </div>
   );
 }
