@@ -64,7 +64,7 @@ export function Hero() {
   }, []);
 
   return (
-    <div className="relative min-h-[80vh] sm:min-h-[90vh] flex items-center justify-center overflow-hidden">
+    <div className="relative min-h-[90vh] flex items-center justify-center overflow-hidden">
       {/* Animated background */}
       <div className="absolute inset-0 bg-gradient-to-b from-background via-background to-background/50">
         <div className="absolute inset-0 bg-grid-white/[0.02] bg-[size:50px_50px]" />
@@ -177,32 +177,6 @@ export function Hero() {
                 <span className="relative z-10">Start Your Journey</span>
               </Button>
             </Link>
-          </motion.div>
-
-          {/* Features grid */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.7 }}
-            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 max-w-4xl mx-auto mt-16"
-          >
-            {steps.map((step, index) => (
-              <div
-                key={index}
-                className="relative group"
-              >
-                <div className="absolute -inset-0.5 bg-gradient-to-r from-primary to-primary-foreground rounded-lg blur opacity-30 group-hover:opacity-50 transition duration-1000" />
-                <div className="relative p-4 bg-card rounded-lg border border-border">
-                  <div className="h-12 w-12 mx-auto mb-2">
-                    <Lottie
-                      animationData={step.animation}
-                      loop={true}
-                    />
-                  </div>
-                  <p className="text-sm text-muted-foreground">{step.text}</p>
-                </div>
-              </div>
-            ))}
           </motion.div>
         </div>
       </div>
