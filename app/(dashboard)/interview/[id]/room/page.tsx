@@ -13,11 +13,11 @@ import {
   useParticipantIds,
   useMeetingState,
   DailyAudio,
-  DailyVideo,
+  DailyVideo
   useDevices,
   useDaily,
 } from '@daily-co/daily-react';
-import { Daily } from '@daily-co/daily-js';
+import Daily from '@daily-co/daily-js';
 import type { DailyCall } from "@daily-co/daily-js";
 
 interface InterviewData {

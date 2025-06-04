@@ -259,8 +259,8 @@ export function Hero() {
         <motion.div 
           className="text-center space-y-8 sm:space-y-12"
           style={{
-            rotateX: window.innerWidth > 768 ? rotateX : 0,
-            rotateY: window.innerWidth > 768 ? rotateY : 0,
+            rotateX: isLargeScreen ? rotateX : 0,
+            rotateY: isLargeScreen ? rotateY : 0,
             transformPerspective: 1000,
           }}
         >
