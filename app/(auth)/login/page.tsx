@@ -20,7 +20,6 @@ import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { supabase } from "@/lib/supabase";
 import { Briefcase, Loader2, Sparkles } from "lucide-react";
-import { LoadingTransition } from "@/components/auth/loading-transition";
 
 const formSchema = z.object({
   email: z.string().email({ message: "Please enter a valid email address" }),
@@ -30,8 +29,9 @@ const formSchema = z.object({
 export default function LoginPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [isLoading, setIsLoading] = useState(false);
   const redirect = searchParams.get("redirect") || "/dashboard";
+  const [isLoading, setIsLoading] = useState(false);
+  const [isRedirecting, setIsRedirecting] = useState(false);
   
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -43,32 +43,33 @@ export default function LoginPage() {
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true);
-    
     try {
       const { data, error } = await supabase.auth.signInWithPassword({
         email: values.email,
         password: values.password,
       });
-
       if (error) {
         throw error;
       }
       
-      // Wait for auth state to be updated
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Get session to confirm auth state
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      if (sessionError) throw sessionError;
+      if (!session) throw new Error("Failed to get session");
       
-      // Refresh and redirect
+      setIsRedirecting(true);
       router.refresh();
       await router.push(redirect);
     } catch (error: any) {
       toast.error(error.message || "Failed to sign in. Please try again.");
       setIsLoading(false);
+      setIsRedirecting(false);
     }
   }
 
   return (
     <>
-      {isLoading && <LoadingTransition />}
+      {isRedirecting && <LoadingTransition />}
       <div className="space-y-6">
       <motion.div 
         className="flex flex-col items-center space-y-2 text-center"
