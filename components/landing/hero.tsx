@@ -10,8 +10,8 @@ import {
   Clock,
   Sparkles,
 } from "lucide-react";
-import { motion, useMotionValue } from "framer-motion";
-import { useState, useEffect, useRef } from "react";
+import { motion } from "framer-motion";
+import { useState, useEffect } from "react";
 
 const features = [
   {
@@ -64,17 +64,19 @@ const features = [
   },
 ];
 
-export function Features() {
+export function Hero() {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
   const [typedText, setTypedText] = useState("");
   const [showParticles, setShowParticles] = useState(false);
-  const containerRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef(null);
   const [isLargeScreen, setIsLargeScreen] = useState(false);
   
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
 
   useEffect(() => {
+    if (typeof window === 'undefined') return;
+    
     const handleMouseMove = (e: MouseEvent) => {
       const container = containerRef.current;
       if (container) {
@@ -85,13 +87,6 @@ export function Features() {
         mouseY.set(y);
       }
     };
-    
-    setIsLargeScreen(window.innerWidth > 768);
-    if (window.innerWidth > 768) {
-      window.addEventListener("mousemove", handleMouseMove);
-      return () => window.removeEventListener("mousemove", handleMouseMove);
-    }
-  }, []);
 
   return (
     <div id="features" className="relative py-24 bg-background sm:py-32 overflow-hidden">
