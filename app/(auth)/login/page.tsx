@@ -54,9 +54,12 @@ export default function LoginPage() {
         throw error;
       }
       
-      setIsLoading(true);
-      router.push(redirect);
+      // Wait for auth state to be updated
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // Refresh and redirect
       router.refresh();
+      await router.push(redirect);
     } catch (error: any) {
       toast.error(error.message || "Failed to sign in. Please try again.");
       setIsLoading(false);
