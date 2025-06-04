@@ -18,7 +18,7 @@ export function Hero() {
 
   const steps = [
     {
-      text: "Screenshot the job you want to apply for.",
+      text: "Screenshot the job you want.",
       animation: brainAnimation,
       color: "from-blue-400 via-cyan-400 to-blue-600",
       shadow: "shadow-blue-500/25"
