@@ -18,28 +18,32 @@ export function Hero() {
 
   const steps = [
     {
-      text: "Screenshot the job you want.",
+      text: "Paste a job offer.",
       animation: brainAnimation,
-      color: "from-blue-400 via-cyan-400 to-blue-600",
-      shadow: "shadow-blue-500/25"
+      color: "from-blue-400 via-cyan-300 to-indigo-500",
+      glowColor: "rgba(59, 130, 246, 0.4)",
+      lightColor: "rgb(147, 197, 253)"
     },
     {
       text: "Upload your resume.",
       animation: sparklesAnimation,
-      color: "from-purple-400 via-pink-400 to-purple-600",
-      shadow: "shadow-purple-500/25"
+      color: "from-purple-400 via-pink-300 to-violet-500",
+      glowColor: "rgba(168, 85, 247, 0.4)",
+      lightColor: "rgb(196, 181, 253)"
     },
     {
       text: "Face our AI recruiter.",
       animation: robotAnimation,
-      color: "from-orange-400 via-red-400 to-orange-600",
-      shadow: "shadow-orange-500/25"
+      color: "from-orange-400 via-amber-300 to-red-500",
+      glowColor: "rgba(251, 146, 60, 0.4)",
+      lightColor: "rgb(253, 186, 116)"
     },
     {
       text: "Get the call.",
       animation: coolAnimation,
-      color: "from-emerald-400 via-green-400 to-emerald-600",
-      shadow: "shadow-emerald-500/25"
+      color: "from-emerald-400 via-teal-300 to-green-500",
+      glowColor: "rgba(52, 211, 153, 0.4)",
+      lightColor: "rgb(110, 231, 183)"
     }
   ];
 
@@ -69,65 +73,59 @@ export function Hero() {
 
   return (
     <div className="relative min-h-[90vh] flex items-center justify-center overflow-hidden bg-background">
-      {/* Animated background grids */}
+      {/* Cinematic Background Effects */}
       <div className="absolute inset-0">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(var(--foreground)/0.03),transparent)] bg-[size:50px_50px]" />
-        <motion.div 
-          className="absolute inset-0 bg-[linear-gradient(to_right,transparent,rgba(var(--foreground)/0.01),transparent)] bg-[size:100px_100%]"
-          animate={{
-            x: ["-100%", "100%"],
-          }}
-          transition={{
-            duration: 8,
-            repeat: Infinity,
-            ease: "linear"
-          }}
-        />
-      </div>
-
-      {/* Enhanced floating particles */}
-      {showParticles && (
-        <div className="absolute inset-0 overflow-hidden">
-          {Array.from({ length: 60 }).map((_, i) => (
-            <motion.div
-              key={i}
-              className={`absolute rounded-full ${
-                i % 3 === 0 
-                  ? "w-1 h-1 bg-foreground/20" 
-                  : i % 3 === 1 
-                  ? "w-0.5 h-0.5 bg-primary/30"
-                  : "w-1.5 h-1.5 bg-muted-foreground/15"
-              }`}
-              initial={{
-                x: Math.random() * 100 + "%",
-                y: Math.random() * 100 + "%",
-                scale: 0,
-                opacity: 0
-              }}
-              animate={{
-                y: [null, "-120%"],
-                scale: [0, 1, 0.5, 0],
-                opacity: [0, 1, 0.8, 0],
-                rotate: [0, 360]
-              }}
-              transition={{
-                duration: Math.random() * 15 + 15,
-                repeat: Infinity,
-                delay: Math.random() * 8,
-                ease: "easeOut"
-              }}
-            />
-          ))}
+        {/* Dynamic mesh gradient */}
+        <div className="absolute inset-0 opacity-30">
+          <motion.div
+            className={`absolute inset-0 bg-gradient-to-br ${steps[currentStep].color} opacity-20 blur-3xl`}
+            animate={{
+              scale: [1, 1.1, 1],
+              rotate: [0, 2, 0],
+            }}
+            transition={{
+              duration: 8,
+              repeat: Infinity,
+              ease: "easeInOut"
+            }}
+          />
         </div>
-      )}
 
-      {/* Ambient light orbs */}
-      <div className="absolute inset-0">
+        {/* Animated grid system */}
+        <div className="absolute inset-0">
+          <motion.div 
+            className="absolute inset-0 bg-[linear-gradient(to_right,transparent_0%,rgba(var(--foreground)/0.02)_50%,transparent_100%)] bg-[size:60px_60px]"
+            animate={{
+              x: [0, 60],
+            }}
+            transition={{
+              duration: 20,
+              repeat: Infinity,
+              ease: "linear"
+            }}
+          />
+          <motion.div 
+            className="absolute inset-0 bg-[linear-gradient(to_bottom,transparent_0%,rgba(var(--foreground)/0.02)_50%,transparent_100%)] bg-[size:60px_60px]"
+            animate={{
+              y: [0, 60],
+            }}
+            transition={{
+              duration: 25,
+              repeat: Infinity,
+              ease: "linear"
+            }}
+          />
+        </div>
+
+        {/* Spotlight effects */}
         <motion.div
-          className={`absolute top-1/4 left-1/4 w-96 h-96 rounded-full bg-gradient-to-r ${steps[currentStep].color} opacity-5 blur-3xl`}
+          className="absolute top-0 left-1/2 w-[800px] h-[400px] -translate-x-1/2"
+          style={{
+            background: `radial-gradient(ellipse at center, ${steps[currentStep].glowColor} 0%, transparent 70%)`,
+          }}
           animate={{
-            scale: [1, 1.2, 1],
-            opacity: [0.05, 0.1, 0.05],
+            opacity: [0.3, 0.6, 0.3],
+            scale: [1, 1.05, 1],
           }}
           transition={{
             duration: 4,
@@ -135,89 +133,180 @@ export function Hero() {
             ease: "easeInOut"
           }}
         />
-        <motion.div
-          className={`absolute bottom-1/4 right-1/4 w-80 h-80 rounded-full bg-gradient-to-l ${steps[currentStep].color} opacity-5 blur-3xl`}
-          animate={{
-            scale: [1.2, 1, 1.2],
-            opacity: [0.1, 0.05, 0.1],
-          }}
-          transition={{
-            duration: 4,
-            repeat: Infinity,
-            ease: "easeInOut",
-            delay: 2
-          }}
-        />
       </div>
 
+      {/* Premium Floating Elements */}
+      {showParticles && (
+        <div className="absolute inset-0 overflow-hidden">
+          {/* Ethereal orbs */}
+          {Array.from({ length: 8 }).map((_, i) => (
+            <motion.div
+              key={`orb-${i}`}
+              className="absolute w-4 h-4 rounded-full opacity-40"
+              style={{
+                background: `radial-gradient(circle, ${steps[currentStep].lightColor}, transparent)`,
+                boxShadow: `0 0 20px ${steps[currentStep].glowColor}`,
+              }}
+              initial={{
+                x: `${Math.random() * 100}%`,
+                y: `${Math.random() * 100}%`,
+              }}
+              animate={{
+                x: [`${Math.random() * 100}%`, `${Math.random() * 100}%`],
+                y: [`${Math.random() * 100}%`, `${Math.random() * 100}%`],
+                scale: [1, 1.5, 1],
+                opacity: [0.4, 0.8, 0.4],
+              }}
+              transition={{
+                duration: Math.random() * 10 + 10,
+                repeat: Infinity,
+                ease: "easeInOut",
+                delay: Math.random() * 5,
+              }}
+            />
+          ))}
+
+          {/* Micro particles */}
+          {Array.from({ length: 30 }).map((_, i) => (
+            <motion.div
+              key={`particle-${i}`}
+              className="absolute w-1 h-1 bg-foreground/20 rounded-full"
+              initial={{
+                x: `${Math.random() * 100}%`,
+                y: `${Math.random() * 100}%`,
+                scale: 0,
+              }}
+              animate={{
+                y: [null, "-100vh"],
+                scale: [0, 1, 0.5, 0],
+                opacity: [0, 1, 0.5, 0],
+              }}
+              transition={{
+                duration: Math.random() * 15 + 15,
+                repeat: Infinity,
+                delay: Math.random() * 10,
+                ease: "easeOut"
+              }}
+            />
+          ))}
+        </div>
+      )}
+
       <div className="container relative z-10 px-4 mx-auto">
-        <div className="text-center space-y-12">
-          {/* Main heading with step animation */}
-          <div className="relative h-[180px] sm:h-[220px] flex items-center justify-center">
+        <div className="text-center space-y-16">
+          {/* Cinematic Main Section */}
+          <div className="relative h-[200px] sm:h-[240px] flex items-center justify-center">
             <AnimatePresence mode="wait">
               <motion.div
                 key={currentStep}
                 initial={{ 
                   opacity: 0, 
-                  y: 30, 
+                  y: 50, 
                   scale: 0.8,
-                  rotateX: -15
+                  filter: "blur(10px)"
                 }}
                 animate={{ 
                   opacity: 1, 
                   y: 0, 
                   scale: 1,
-                  rotateX: 0
+                  filter: "blur(0px)"
                 }}
                 exit={{ 
                   opacity: 0, 
-                  y: -30, 
+                  y: -50, 
                   scale: 0.8,
-                  rotateX: 15
+                  filter: "blur(10px)"
                 }}
                 transition={{
-                  duration: 0.6,
-                  ease: [0.22, 1, 0.36, 1]
+                  duration: 0.8,
+                  ease: [0.25, 0.46, 0.45, 0.94]
                 }}
-                className="absolute"
+                className="absolute flex flex-col items-center gap-8"
               >
-                <div className="flex flex-col items-center gap-6">
-                  <motion.div
-                    className={`relative w-28 h-28 sm:w-36 sm:h-36 lg:w-44 lg:h-44 ${steps[currentStep].shadow} shadow-2xl rounded-2xl`}
-                    animate={{
-                      scale: [1, 1.05, 1],
-                      rotateY: [0, 5, 0, -5, 0],
-                    }}
-                    transition={{
-                      duration: 3,
-                      repeat: Infinity,
-                      ease: "easeInOut"
-                    }}
-                  >
-                    <div className={`absolute inset-0 bg-gradient-to-br ${steps[currentStep].color} rounded-2xl opacity-10 blur-sm`} />
-                    <div className="relative bg-background/80 backdrop-blur-sm rounded-2xl p-4 border border-border/50 shadow-lg">
-                      <Lottie
-                        animationData={steps[currentStep].animation}
-                        loop={true}
-                        style={{ width: "100%", height: "100%" }}
+                {/* Premium Animation Container */}
+                <motion.div
+                  className="relative group"
+                  animate={{
+                    y: [0, -8, 0],
+                  }}
+                  transition={{
+                    duration: 4,
+                    repeat: Infinity,
+                    ease: "easeInOut"
+                  }}
+                >
+                  <div className="relative w-32 h-32 sm:w-40 sm:h-40 lg:w-48 lg:h-48">
+                    {/* Outer glow ring */}
+                    <motion.div
+                      className="absolute inset-0 rounded-full opacity-50"
+                      style={{
+                        background: `conic-gradient(from 0deg, transparent, ${steps[currentStep].lightColor}, transparent)`,
+                      }}
+                      animate={{
+                        rotate: [0, 360],
+                      }}
+                      transition={{
+                        duration: 8,
+                        repeat: Infinity,
+                        ease: "linear"
+                      }}
+                    />
+                    
+                    {/* Inner container */}
+                    <div className="absolute inset-2 bg-background/90 backdrop-blur-xl rounded-full border border-border/30 shadow-2xl">
+                      <div className="absolute inset-0 rounded-full opacity-20"
+                        style={{
+                          background: `radial-gradient(circle, ${steps[currentStep].glowColor}, transparent)`,
+                        }}
                       />
+                      <div className="relative p-6 h-full flex items-center justify-center">
+                        <Lottie
+                          animationData={steps[currentStep].animation}
+                          loop={true}
+                          style={{ width: "100%", height: "100%" }}
+                        />
+                      </div>
                     </div>
-                  </motion.div>
-                  
-                  <h1 className="text-4xl sm:text-6xl lg:text-7xl font-bold tracking-tight">
+                  </div>
+                </motion.div>
+                
+                {/* Cinematic Typography */}
+                <div className="relative">
+                  <h1 className="text-5xl sm:text-7xl lg:text-8xl font-black tracking-tight">
                     <span className="relative inline-block">
-                      <span className={`bg-gradient-to-r ${steps[currentStep].color} bg-clip-text text-transparent drop-shadow-sm`}>
+                      <motion.span
+                        className={`bg-gradient-to-r ${steps[currentStep].color} bg-clip-text text-transparent`}
+                        style={{
+                          filter: `drop-shadow(0 0 30px ${steps[currentStep].glowColor})`,
+                        }}
+                        animate={{
+                          filter: [
+                            `drop-shadow(0 0 30px ${steps[currentStep].glowColor})`,
+                            `drop-shadow(0 0 50px ${steps[currentStep].glowColor})`,
+                            `drop-shadow(0 0 30px ${steps[currentStep].glowColor})`,
+                          ]
+                        }}
+                        transition={{
+                          duration: 3,
+                          repeat: Infinity,
+                          ease: "easeInOut"
+                        }}
+                      >
                         {typedText}
-                      </span>
+                      </motion.span>
                       {isTyping && (
                         <motion.span
-                          className={`absolute -right-2 top-0 w-[3px] h-full bg-gradient-to-b ${steps[currentStep].color} rounded-full`}
+                          className="absolute -right-3 top-0 w-1 h-full rounded-full"
+                          style={{
+                            background: `linear-gradient(to bottom, ${steps[currentStep].lightColor}, transparent)`,
+                            boxShadow: `0 0 20px ${steps[currentStep].glowColor}`,
+                          }}
                           animate={{ 
-                            opacity: [1, 0],
+                            opacity: [1, 0.3, 1],
                             scaleY: [1, 0.8, 1]
                           }}
                           transition={{
-                            duration: 0.6,
+                            duration: 0.8,
                             repeat: Infinity,
                             ease: "easeInOut"
                           }}
@@ -230,71 +319,105 @@ export function Hero() {
             </AnimatePresence>
           </div>
 
-          {/* Enhanced CTA Button */}
+          {/* Epic CTA Section */}
           <motion.div
-            initial={{ opacity: 0, y: 30 }}
+            initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.8, duration: 0.6 }}
+            transition={{ delay: 1, duration: 0.8 }}
             className="relative group"
           >
             <Link href="/register">
-              <Button
-                size="lg"
-                className="relative px-10 py-7 text-xl font-bold rounded-2xl overflow-hidden bg-primary text-primary-foreground hover:bg-primary/90 transition-all duration-300 shadow-2xl hover:shadow-primary/20 hover:scale-105 border border-primary/20"
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.98 }}
+                className="relative"
               >
-                {/* Animated background shine */}
-                <motion.div
-                  className="absolute inset-0 bg-gradient-to-r from-transparent via-primary-foreground/30 to-transparent skew-x-12"
-                  animate={{
-                    x: ["-200%", "200%"],
+                <Button
+                  size="lg"
+                  className="relative px-12 py-8 text-2xl font-bold rounded-3xl overflow-hidden bg-primary text-primary-foreground shadow-2xl transition-all duration-500 border-0"
+                  style={{
+                    boxShadow: `0 20px 60px ${steps[currentStep].glowColor}, 0 0 0 1px rgba(255,255,255,0.1)`,
                   }}
-                  transition={{
-                    duration: 3,
-                    repeat: Infinity,
-                    ease: "easeInOut",
-                  }}
-                />
-                
-                {/* Ripple effect on hover */}
-                <motion.div
-                  className="absolute inset-0 rounded-2xl"
-                  whileHover={{
-                    boxShadow: [
-                      "0 0 0 0 rgba(var(--primary), 0.4)",
-                      "0 0 0 20px rgba(var(--primary), 0)",
-                    ],
-                  }}
-                  transition={{ duration: 0.6 }}
-                />
-                
-                <span className="relative z-10 flex items-center gap-2">
-                  Start Your Journey
-                  <motion.span
+                >
+                  {/* Animated background layers */}
+                  <motion.div
+                    className="absolute inset-0 opacity-30"
+                    style={{
+                      background: `linear-gradient(45deg, ${steps[currentStep].color})`,
+                    }}
                     animate={{
-                      x: [0, 4, 0],
+                      scale: [1, 1.1, 1],
                     }}
                     transition={{
-                      duration: 1.5,
+                      duration: 2,
                       repeat: Infinity,
                       ease: "easeInOut"
                     }}
-                  >
-                    →
-                  </motion.span>
-                </span>
-              </Button>
+                  />
+                  
+                  {/* Shimmer effect */}
+                  <motion.div
+                    className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent skew-x-12"
+                    animate={{
+                      x: ["-200%", "200%"],
+                    }}
+                    transition={{
+                      duration: 3,
+                      repeat: Infinity,
+                      ease: "easeInOut",
+                      delay: 1,
+                    }}
+                  />
+                  
+                  {/* Pulse ring effect */}
+                  <motion.div
+                    className="absolute inset-0 rounded-3xl"
+                    animate={{
+                      boxShadow: [
+                        `0 0 0 0px ${steps[currentStep].glowColor}`,
+                        `0 0 0 30px transparent`,
+                      ],
+                    }}
+                    transition={{
+                      duration: 2,
+                      repeat: Infinity,
+                      ease: "easeOut"
+                    }}
+                  />
+                  
+                  <span className="relative z-10 flex items-center gap-3">
+                    Start Your Journey
+                    <motion.span
+                      animate={{
+                        x: [0, 6, 0],
+                      }}
+                      transition={{
+                        duration: 2,
+                        repeat: Infinity,
+                        ease: "easeInOut"
+                      }}
+                      className="text-3xl"
+                    >
+                      →
+                    </motion.span>
+                  </span>
+                </Button>
+              </motion.div>
             </Link>
           </motion.div>
 
-          {/* Subtle subtitle */}
-          <motion.p
+          {/* Elegant Subtitle */}
+          <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ delay: 1.2 }}
-            className="text-lg text-gray-400 max-w-md mx-auto leading-relaxed"
+            transition={{ delay: 1.4, duration: 0.8 }}
+            className="relative"
           >
-            Transform your career with AI-powered interview preparation
-          </motion.p>
+            <p className="text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed font-light">
+              Transform your career with AI-powered interview preparation
+            </p>
+            <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-border to-transparent" />
+          </motion.div>
         </div>
       </div>
     </div>
