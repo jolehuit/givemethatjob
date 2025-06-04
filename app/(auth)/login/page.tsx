@@ -45,20 +45,17 @@ export default function LoginPage() {
     setIsLoading(true);
     
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({
+      const { error } = await supabase.auth.signInWithPassword({
         email: values.email,
         password: values.password,
       });
       
       if (error) throw error;
 
-      router.refresh();
-      router.push(redirect);
       toast.success("Successfully signed in!");
+      window.location.href = redirect;
     } catch (error: any) {
       toast.error(error.message || "Failed to sign in. Please try again.");
-      setIsLoading(false);
-    } finally {
       setIsLoading(false);
     }
   }
