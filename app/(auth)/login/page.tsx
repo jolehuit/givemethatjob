@@ -64,16 +64,47 @@ export default function LoginPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col items-center space-y-2 text-center">
+      <motion.div 
+        className="flex flex-col items-center space-y-2 text-center"
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+      >
         <Link href="/" className="flex items-center space-x-2">
-          <Briefcase className="h-6 w-6" />
+          <motion.div
+            className="relative"
+            animate={{
+              rotate: [0, 360],
+            }}
+            transition={{
+              duration: 20,
+              repeat: Infinity,
+              ease: "linear"
+            }}
+          >
+            <Briefcase className="h-6 w-6 text-primary" />
+            <motion.div
+              className="absolute inset-0"
+              animate={{
+                scale: [1, 1.5, 1],
+                opacity: [0.5, 0, 0.5],
+              }}
+              transition={{
+                duration: 2,
+                repeat: Infinity,
+                ease: "easeOut"
+              }}
+            >
+              <Sparkles className="h-6 w-6 text-primary" />
+            </motion.div>
+          </motion.div>
           <span className="font-bold text-2xl">GiveMeThatJob</span>
         </Link>
         <h1 className="text-2xl font-semibold tracking-tight">Welcome back</h1>
         <p className="text-sm text-muted-foreground">
           Enter your credentials to sign in to your account
         </p>
-      </div>
+      </motion.div>
 
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -81,42 +112,83 @@ export default function LoginPage() {
             control={form.control}
             name="email"
             render={({ field }) => (
-              <FormItem>
+              <motion.div
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.2 }}
+              >
+                <FormItem>
                 <FormLabel>Email</FormLabel>
                 <FormControl>
                   <Input placeholder="your.email@example.com" type="email" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
+              </motion.div>
             )}
           />
           <FormField
             control={form.control}
             name="password"
             render={({ field }) => (
-              <FormItem>
+              <motion.div
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.3 }}
+              >
+                <FormItem>
                 <FormLabel>Password</FormLabel>
                 <FormControl>
                   <Input placeholder="••••••••" type="password" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
+              </motion.div>
             )}
           />
-          <Button type="submit" className="w-full" disabled={isLoading}>
-            {isLoading ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Signing in...
-              </>
-            ) : (
-              "Sign In"
-            )}
-          </Button>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 }}
+          >
+            <Button 
+              type="submit" 
+              className="w-full relative overflow-hidden" 
+              disabled={isLoading}
+            >
+              <motion.div
+                className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12"
+                animate={{
+                  x: ["-200%", "200%"],
+                }}
+                transition={{
+                  duration: 2,
+                  repeat: Infinity,
+                  ease: "easeInOut",
+                  repeatDelay: 1,
+                }}
+              />
+              <span className="relative z-10">
+                {isLoading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin inline" />
+                    Signing in...
+                  </>
+                ) : (
+                  "Sign In"
+                )}
+              </span>
+            </Button>
+          </motion.div>
         </form>
       </Form>
 
-      <div className="text-center text-sm">
+      <motion.div 
+        className="text-center text-sm"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.5 }}
+      >
         Don&apos;t have an account?{" "}
         <Link
           href="/register"
@@ -124,7 +196,7 @@ export default function LoginPage() {
         >
           Sign up
         </Link>
-      </div>
+      </motion.div>
     </div>
   );
 }
