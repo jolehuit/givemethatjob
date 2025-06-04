@@ -44,14 +44,14 @@ export default function LoginPage() {
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true);
+    
     try {
       const { data, error } = await supabase.auth.signInWithPassword({
         email: values.email,
         password: values.password,
       });
-      if (error) {
-        throw error;
-      }
+      
+      if (error) throw error;
       
       // Get session to confirm auth state
       const { data: { session }, error: sessionError } = await supabase.auth.getSession();
@@ -60,11 +60,13 @@ export default function LoginPage() {
       
       setIsRedirecting(true);
       router.refresh();
-      await router.push(redirect);
+      router.push(redirect);
     } catch (error: any) {
       toast.error(error.message || "Failed to sign in. Please try again.");
       setIsLoading(false);
       setIsRedirecting(false);
+    } finally {
+      setIsLoading(false);
     }
   }
 

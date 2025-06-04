@@ -34,6 +34,8 @@ const formSchema = z.object({
 export default function RegisterPage() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
+  const [isRedirecting, setIsRedirecting] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -49,7 +51,6 @@ export default function RegisterPage() {
     setIsLoading(true);
     
     try {
-      // Sign up the user
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email: values.email,
         password: values.password,
@@ -62,45 +63,34 @@ export default function RegisterPage() {
 
       if (authError) throw authError;
 
-      // Wait a moment to ensure the trigger has time to create the profile
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Get session to confirm auth state
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      if (sessionError) throw sessionError;
 
-      // Verify the profile was created
-      const { data: profile, error: profileError } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', authData.user?.id)
-        .single();
-
-      if (profileError) {
-        // If profile doesn't exist, create it manually
-        const { error: insertError } = await supabase
-          .from('profiles')
-          .insert([
-            {
-              id: authData.user?.id,
-              name: values.name,
-              email: values.email,
-            }
-          ]);
-
-        if (insertError) throw insertError;
+      if (session) {
+        setIsRedirecting(true);
+        router.refresh();
+        router.push('/dashboard');
+      } else {
+        toast.success("Account created! Please check your email to confirm your registration.");
+        router.push('/login');
       }
-
-      toast.success("Account created! Please check your email to confirm your registration.");
-      router.push('/login');
     } catch (error: any) {
       if (error.message === "User already registered") {
         toast.error("An account with this email already exists. Please sign in instead.");
       } else {
         toast.error(error.message || "Failed to create account. Please try again.");
       }
+      setIsLoading(false);
+      setIsRedirecting(false);
     } finally {
       setIsLoading(false);
     }
   }
 
   return (
+    <>
+      {isRedirecting && <LoadingTransition />}
     <div className="space-y-6">
       <motion.div 
         className="flex flex-col items-center space-y-2 text-center"
