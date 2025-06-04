@@ -82,48 +82,6 @@
   }
 }
 
-/* Hero section styles */
-.hero-container {
-  @apply min-h-[90vh] flex flex-col items-center justify-center py-12 px-4;
-}
-
-.hero-content {
-  @apply container mx-auto max-w-4xl;
-}
-
-.hero-animation {
-  @apply h-[200px] xs:h-[250px] sm:h-[300px] md:h-[350px];
-}
-
-.hero-title {
-  @apply text-3xl xs:text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight;
-}
-
-.hero-button {
-  @apply px-6 py-3 xs:px-8 xs:py-4 text-base xs:text-lg font-semibold;
-}
-
-.hero-subtitle {
-  @apply text-sm xs:text-base sm:text-lg text-muted-foreground max-w-xl mx-auto;
-}
-
-/* Dashboard card styles */
-.card-dashboard {
-  @apply p-4 border rounded-lg bg-background/80 backdrop-blur-sm transition-all hover:border-border/80 hover:shadow-sm;
-}
-
-.space-items {
-  @apply space-y-2;
-}
-
-.icon-sm {
-  @apply h-4 w-4;
-}
-
-.icon-md {
-  @apply h-6 w-6;
-}
-
 /* Custom scrollbar */
 ::-webkit-scrollbar {
   width: 8px;
