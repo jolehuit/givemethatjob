@@ -7,7 +7,6 @@ import { Button } from "@/components/ui/button";
 import { ModeToggle } from "@/components/theme/mode-toggle";
 import {
   BarChart3,
-  Briefcase,
   LogOut,
   Menu,
   PlusCircle,
@@ -156,7 +155,7 @@ export function DashboardNav() {
           >
             <Link href="/dashboard" className="flex items-center space-x-2 group">
               <motion.div
-                className="relative"
+                className="relative w-6 h-6"
                 animate={{
                   rotate: [0, 360],
                 }}
@@ -166,7 +165,6 @@ export function DashboardNav() {
                   ease: "linear"
                 }}
               >
-                <Briefcase className="h-6 w-6 text-primary" />
                 <motion.div
                   className="absolute inset-0"
                   animate={{
@@ -182,7 +180,7 @@ export function DashboardNav() {
                   <Sparkles className="h-6 w-6 text-primary" />
                 </motion.div>
               </motion.div>
-              <span className="font-bold text-xl bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
+              <span className="font-bold text-2xl bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
                 GiveMeThatJob
               </span>
             </Link>
