@@ -30,7 +30,6 @@ export default function LoginPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const redirect = searchParams.get("redirect") || "/dashboard";
-  import { Sparkles, Loader2 } from "lucide-react";
   
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),

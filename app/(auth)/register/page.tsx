@@ -33,7 +33,6 @@ const formSchema = z.object({
 
 export default function RegisterPage() {
   const router = useRouter();
-  import { Sparkles, Loader2 } from "lucide-react";
   
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
