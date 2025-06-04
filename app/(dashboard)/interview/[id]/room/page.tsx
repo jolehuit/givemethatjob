@@ -89,11 +89,14 @@ function InterviewRoom() {
     
     if (meetingState === 'joined-meeting') {
       timerRef.current = setInterval(() => {
-        setElapsedTime(prev => prev + 1);
-        // Check if time limit reached and duration is set
-        if (selectedDuration && prev + 1 >= selectedDuration * 60) {
-          finishInterview();
-        }
+        setElapsedTime(prevTime => {
+          const newTime = prevTime + 1;
+          // Check if time limit reached and duration is set
+          if (selectedDuration && newTime >= selectedDuration * 60) {
+            finishInterview();
+          }
+          return newTime;
+        });
       }, 1000);
     }
     
@@ -103,7 +106,7 @@ function InterviewRoom() {
         timerRef.current = null;
       }
     };
-  }, [meetingState]);
+  }, [meetingState, selectedDuration, finishInterview]);
 
   const startInterview = useCallback(async () => {
     if (isStarting || !callObject) return;
