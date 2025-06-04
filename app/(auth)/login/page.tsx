@@ -20,6 +20,7 @@ import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { supabase } from "@/lib/supabase";
 import { Briefcase, Loader2, Sparkles } from "lucide-react";
+import { LoadingTransition } from "@/components/auth/loading-transition";
 
 const formSchema = z.object({
   email: z.string().email({ message: "Please enter a valid email address" }),
@@ -52,19 +53,20 @@ export default function LoginPage() {
       if (error) {
         throw error;
       }
-
-      toast.success("Successfully signed in!");
+      
+      setIsLoading(true);
       router.push(redirect);
       router.refresh();
     } catch (error: any) {
       toast.error(error.message || "Failed to sign in. Please try again.");
-    } finally {
       setIsLoading(false);
     }
   }
 
   return (
-    <div className="space-y-6">
+    <>
+      {isLoading && <LoadingTransition />}
+      <div className="space-y-6">
       <motion.div 
         className="flex flex-col items-center space-y-2 text-center"
         initial={{ opacity: 0, y: -20 }}
@@ -182,5 +184,6 @@ export default function LoginPage() {
         </Link>
       </motion.div>
     </div>
+    </>
   );
 }
