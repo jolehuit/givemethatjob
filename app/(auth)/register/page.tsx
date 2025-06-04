@@ -1,3 +1,4 @@
+// File: /app/(auth)/register/page.tsx
 "use client";
 
 import { useState } from "react";
@@ -28,8 +29,12 @@ const formSchema = z
     password: z
       .string()
       .min(8, { message: "Password must be at least 8 characters" })
-      .regex(/[A-Z]/, { message: "Password must contain at least one uppercase letter" })
-      .regex(/[^a-zA-Z0-9]/, { message: "Password must contain at least one special character" }),
+      .regex(/[A-Z]/, {
+        message: "Password must contain at least one uppercase letter",
+      })
+      .regex(/[^a-zA-Z0-9]/, {
+        message: "Password must contain at least one special character",
+      }),
     confirmPassword: z.string(),
   })
   .refine((data) => data.password === data.confirmPassword, {
@@ -62,8 +67,17 @@ export default function RegisterPage() {
         password: values.password,
         options: {
           data: {
-            name: values.name,
+            // Assurez-vous que 'name' est bien un champ autorisé dans user_metadata
+            // ou dans une table 'profiles' liée par un trigger.
+            // Pour user_metadata, la structure serait plutôt:
+            // name: values.name, // Directement si c'est un champ standard
+            // Ou si c'est dans options.data pour un trigger:
+            // full_name: values.name, // ou le nom de colonne attendu par votre trigger
+            name: values.name, // S'il est géré par un trigger pour la table profiles
           },
+          // Si vous voulez que l'utilisateur soit redirigé vers une page spécifique
+          // après avoir cliqué sur le lien de confirmation dans l'e-mail :
+          // emailRedirectTo: `${window.location.origin}/auth/callback`,
         },
       });
 
@@ -72,6 +86,11 @@ export default function RegisterPage() {
       toast.success(
         "Account created! Please check your email to confirm your registration.",
       );
+      
+      // AJOUTÉ : Rafraîchir la session côté serveur avant de rediriger vers /login
+      // Cela garantit que si signUp crée une session, le middleware en sera conscient.
+      router.refresh();
+
       router.push("/login");
     } catch (error: any) {
       if (error.message === "User already registered") {
@@ -185,6 +204,9 @@ export default function RegisterPage() {
                         size="sm"
                         className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
                         onClick={() => setShowPassword(!showPassword)}
+                        aria-label={
+                          showPassword ? "Hide password" : "Show password"
+                        }
                       >
                         {showPassword ? (
                           <EyeOff className="h-4 w-4 text-muted-foreground" />
@@ -223,7 +245,14 @@ export default function RegisterPage() {
                         variant="ghost"
                         size="sm"
                         className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                        onClick={() =>
+                          setShowConfirmPassword(!showConfirmPassword)
+                        }
+                        aria-label={
+                          showConfirmPassword
+                            ? "Hide confirm password"
+                            : "Show confirm password"
+                        }
                       >
                         {showConfirmPassword ? (
                           <EyeOff className="h-4 w-4 text-muted-foreground" />
@@ -284,7 +313,7 @@ export default function RegisterPage() {
       >
         Already have an account?{" "}
         <Link
-          href="/login"
+          href="/login" // Vous pourriez aussi vouloir passer le paramètre 'redirect' ici si pertinent
           className="font-semibold text-primary hover:underline"
         >
           Sign in
