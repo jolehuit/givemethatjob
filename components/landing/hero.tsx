@@ -5,62 +5,39 @@ import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { useEffect, useState } from "react";
 import Lottie from "lottie-react";
+import brainAnimation from "@/public/lottie-animations/brain.json";
+import sparklesAnimation from "@/public/lottie-animations/sparkles.json";
+import robotAnimation from "@/public/lottie-animations/robot.json";
+import coolAnimation from "@/public/lottie-animations/cool.json";
 
 export function Hero() {
   const [currentStep, setCurrentStep] = useState(0);
   const [isTyping, setIsTyping] = useState(false);
   const [typedText, setTypedText] = useState("");
   const [showParticles, setShowParticles] = useState(false);
-  const [animationData, setAnimationData] = useState<Record<string, any>>({});
 
   const steps = [
     {
       text: "Paste a job offer.",
-      lottieUrl: "https://fonts.gstatic.com/s/e/notoemoji/latest/1f9e0/lottie.json",
+      animation: brainAnimation,
       color: "from-blue-500 to-cyan-500"
     },
     {
       text: "Upload your resume.",
-      lottieUrl: "https://fonts.gstatic.com/s/e/notoemoji/latest/2728/lottie.json",
+      animation: sparklesAnimation,
       color: "from-purple-500 to-pink-500"
     },
     {
       text: "Face our AI recruiter.",
-      lottieUrl: "https://fonts.gstatic.com/s/e/notoemoji/latest/1f916/lottie.json",
+      animation: robotAnimation,
       color: "from-orange-500 to-red-500"
     },
     {
       text: "Get the call.",
-      lottieUrl: "https://fonts.gstatic.com/s/e/notoemoji/latest/1f60e/lottie.json",
+      animation: coolAnimation,
       color: "from-green-500 to-emerald-500"
     }
   ];
-
-  useEffect(() => {
-    // Fetch all animation data when component mounts
-    const fetchAnimationData = async () => {
-      try {
-        const animations = await Promise.all(
-          steps.map(async (step) => {
-            const response = await fetch(step.lottieUrl);
-            return await response.json();
-          })
-        );
-        
-        // Create an object with animation data indexed by URL
-        const animationsMap = steps.reduce((acc, step, index) => {
-          acc[step.lottieUrl] = animations[index];
-          return acc;
-        }, {} as Record<string, any>);
-        
-        setAnimationData(animationsMap);
-      } catch (error) {
-        console.error("Failed to load animations:", error);
-      }
-    };
-
-    fetchAnimationData();
-  }, []);
 
   useEffect(() => {
     const animateStep = async () => {
@@ -145,13 +122,11 @@ export function Hero() {
                       ease: "easeInOut"
                     }}
                   >
-                    {animationData[steps[currentStep].lottieUrl] && (
-                      <Lottie
-                        animationData={animationData[steps[currentStep].lottieUrl]}
-                        loop={true}
-                        style={{ width: "100%", height: "100%" }}
-                      />
-                    )}
+                    <Lottie
+                      animationData={steps[currentStep].animation}
+                      loop={true}
+                      style={{ width: "100%", height: "100%" }}
+                    />
                   </motion.div>
                   
                   <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight">
@@ -219,12 +194,10 @@ export function Hero() {
                 <div className="absolute -inset-0.5 bg-gradient-to-r from-primary to-primary-foreground rounded-lg blur opacity-30 group-hover:opacity-50 transition duration-1000" />
                 <div className="relative p-4 bg-card rounded-lg border border-border">
                   <div className="h-12 w-12 mx-auto mb-2">
-                    {animationData[step.lottieUrl] && (
-                      <Lottie
-                        animationData={animationData[step.lottieUrl]}
-                        loop={true}
-                      />
-                    )}
+                    <Lottie
+                      animationData={step.animation}
+                      loop={true}
+                    />
                   </div>
                   <p className="text-sm text-muted-foreground">{step.text}</p>
                 </div>
