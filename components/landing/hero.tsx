@@ -176,8 +176,7 @@ export function Hero() {
                 bottom: `-10px`,
               }}
               animate={{
-                y: [0, -window.innerHeight - 100],
-                y: [0, typeof window !== 'undefined' ? -window.innerHeight - 100 : -1000],
+                y: [0, typeof window !== 'undefined' ? -window.innerHeight - 100 : -800],
                 opacity: [0, 1, 0],
               }}
               transition={{
@@ -197,7 +196,7 @@ export function Hero() {
           style={{
             rotateX: window.innerWidth > 768 ? rotateX : 0,
             rotateY: window.innerWidth > 768 ? rotateY : 0,
-            transformPerspective: typeof window !== 'undefined' && window.innerWidth > 768 ? 1000 : 0,
+            transformPerspective: 1000,
           }}
         >
           {/* Main Animation Section */}
