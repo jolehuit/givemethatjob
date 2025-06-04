@@ -106,7 +106,7 @@ export function Hero() {
   }, []);
 
   return (
-    <div ref={containerRef} className="relative overflow-hidden bg-background">
+    <div ref={containerRef} className="relative min-h-[90vh] flex items-center justify-center overflow-hidden bg-background">
       {/* Background Effects */}
       <div className="absolute inset-0">
         {/* Gradient overlay */}
@@ -186,221 +186,220 @@ export function Hero() {
         </div>
       </div>
 
-      <div className="hero-container">
-        <div className="hero-content">
-          <motion.div 
-            className="text-center space-y-8 sm:space-y-12"
-            style={{
-              rotateX: isLargeScreen ? rotateX : 0,
-              rotateY: isLargeScreen ? rotateY : 0,
-              transformPerspective: 1000,
-            }}
-          >
-            {/* Main Animation Section */}
-            <div className="relative hero-animation flex items-center justify-center">
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={currentStep}
-                  initial={{ 
-                    opacity: 0, 
-                    y: 30,
-                    scale: 0.8,
-                    filter: "blur(10px)"
-                  }}
-                  animate={{ 
-                    opacity: 1, 
-                    y: 0,
-                    scale: 1,
-                    filter: "blur(0px)"
-                  }}
-                  exit={{ 
-                    opacity: 0, 
-                    y: -30,
-                    scale: 0.8,
-                    filter: "blur(10px)"
+      <div className="container relative z-10 px-4 mx-auto py-8 sm:py-12 flex flex-col items-center justify-center">
+        <motion.div 
+          className="text-center space-y-6 sm:space-y-8 max-w-4xl mx-auto w-full"
+          style={{
+            rotateX: isLargeScreen ? rotateX : 0,
+            rotateY: isLargeScreen ? rotateY : 0,
+            transformPerspective: 1000,
+          }}
+        >
+          {/* Main Animation Section */}
+          <div className="relative h-[200px] sm:h-[250px] flex items-center justify-center">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={currentStep}
+                initial={{ 
+                  opacity: 0, 
+                  y: 30,
+                  scale: 0.8,
+                  filter: "blur(10px)"
+                }}
+                animate={{ 
+                  opacity: 1, 
+                  y: 0,
+                  scale: 1,
+                  filter: "blur(0px)"
+                }}
+                exit={{ 
+                  opacity: 0, 
+                  y: -30,
+                  scale: 0.8,
+                  filter: "blur(10px)"
+                }}
+                transition={{
+                  duration: 0.8,
+                  ease: "easeOut"
+                }}
+                className="absolute flex flex-col items-center gap-6 sm:gap-10"
+              >
+                {/* Animation Container */}
+                <motion.div 
+                  className="relative w-24 h-24 sm:w-32 sm:h-32 lg:w-40 lg:h-40"
+                  animate={{
+                    y: [0, -10, 0],
                   }}
                   transition={{
-                    duration: 0.8,
-                    ease: "easeOut"
+                    duration: 4,
+                    repeat: Infinity,
+                    ease: "easeInOut"
                   }}
-                  className="absolute flex flex-col items-center gap-6 sm:gap-10"
                 >
-                  {/* Animation Container */}
-                  <motion.div
-                    className="relative"
-                    animate={{
-                      y: [0, -10, 0],
-                    }}
-                    transition={{
-                      duration: 4,
-                      repeat: Infinity,
-                      ease: "easeInOut"
-                    }}
-                  >
-                    <div className="relative w-24 h-24 xs:w-32 xs:h-32 sm:w-40 sm:h-40 md:w-44 md:h-44 lg:w-48 lg:h-48">
-                      {/* Glow ring */}
+                  <div className="relative w-full h-full">
+                    {/* Glow ring */}
+                    <motion.div
+                      className="absolute inset-0 rounded-full"
+                      style={{
+                        background: `conic-gradient(from 0deg, transparent, ${steps[currentStep].lightColor}, transparent)`,
+                        filter: "blur(8px)",
+                      }}
+                      animate={{
+                        rotate: [0, 360],
+                      }}
+                      transition={{
+                        duration: 8,
+                        repeat: Infinity,
+                        ease: "linear"
+                      }}
+                    />
+                    
+                    {/* Inner sphere */}
+                    <motion.div 
+                      className="absolute inset-4 bg-background/80 backdrop-blur-xl rounded-full border border-border/50 shadow-2xl overflow-hidden"
+                      style={{
+                        boxShadow: `0 0 40px ${steps[currentStep].glowColor}`,
+                      }}
+                    >
+                      <div className="absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-black/20" />
                       <motion.div
-                        className="absolute inset-0 rounded-full"
+                        className="absolute inset-0 opacity-30"
                         style={{
-                          background: `conic-gradient(from 0deg, transparent, ${steps[currentStep].lightColor}, transparent)`,
-                          filter: "blur(8px)",
-                        }}
-                        animate={{
-                          rotate: [0, 360],
-                        }}
-                        transition={{
-                          duration: 8,
-                          repeat: Infinity,
-                          ease: "linear"
+                          background: `radial-gradient(circle at 30% 30%, ${steps[currentStep].lightColor}, transparent)`,
                         }}
                       />
-                      
-                      {/* Inner sphere */}
-                      <motion.div 
-                        className="absolute inset-4 bg-background/80 backdrop-blur-xl rounded-full border border-border/50 shadow-2xl overflow-hidden"
-                        style={{
-                          boxShadow: `0 0 40px ${steps[currentStep].glowColor}`,
-                        }}
-                      >
-                        <div className="absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-black/20" />
-                        <motion.div
-                          className="absolute inset-0 opacity-30"
-                          style={{
-                            background: `radial-gradient(circle at 30% 30%, ${steps[currentStep].lightColor}, transparent)`,
-                          }}
+                      <div className="relative p-4 sm:p-6 h-full flex items-center justify-center">
+                        <Lottie
+                          animationData={steps[currentStep].animation}
+                          loop={true}
+                          style={{ width: "100%", height: "100%" }}
                         />
-                        <div className="relative p-4 sm:p-6 h-full flex items-center justify-center">
-                          <Lottie
-                            animationData={steps[currentStep].animation}
-                            loop={true}
-                            style={{ width: "100%", height: "100%" }}
-                          />
-                        </div>
-                      </motion.div>
+                      </div>
+                    </motion.div>
 
-                      {/* Pulse effect */}
-                      <motion.div
-                        className="absolute inset-0 rounded-full border"
-                        style={{
-                          borderColor: steps[currentStep].particleColor,
-                        }}
-                        animate={{
-                          scale: [1, 1.3, 1],
-                          opacity: [0.5, 0, 0.5],
-                        }}
-                        transition={{
-                          duration: 2,
-                          repeat: Infinity,
-                          ease: "easeOut"
-                        }}
-                      />
-                    </div>
-                  </motion.div>
-                  
-                  {/* Typography */}
-                  <div className="relative">
-                    <h1 className="hero-title">
-                      <motion.span
-                        className={`bg-gradient-to-r ${steps[currentStep].color} bg-clip-text text-transparent`}
-                        style={{
-                          filter: `drop-shadow(0 2px 10px ${steps[currentStep].glowColor})`,
-                        }}
-                      >
-                        {typedText}
-                      </motion.span>
-                      {isTyping && (
-                        <motion.span
-                          className="inline-block ml-1 w-1 h-[1.2em] align-middle"
-                          style={{
-                            background: `linear-gradient(to bottom, ${steps[currentStep].lightColor}, ${steps[currentStep].particleColor})`,
-                            boxShadow: `0 0 20px ${steps[currentStep].glowColor}`,
-                          }}
-                          animate={{ 
-                            opacity: [1, 0, 1],
-                          }}
-                          transition={{
-                            duration: 0.8,
-                            repeat: Infinity,
-                            ease: "easeInOut"
-                          }}
-                        />
-                      )}
-                    </h1>
+                    {/* Pulse effect */}
+                    <motion.div
+                      className="absolute inset-0 rounded-full border"
+                      style={{
+                        borderColor: steps[currentStep].particleColor,
+                      }}
+                      animate={{
+                        scale: [1, 1.3, 1],
+                        opacity: [0.5, 0, 0.5],
+                      }}
+                      transition={{
+                        duration: 2,
+                        repeat: Infinity,
+                        ease: "easeOut"
+                      }}
+                    />
                   </div>
                 </motion.div>
-              </AnimatePresence>
-            </div>
-
-            {/* CTA Button */}
-            <motion.div
-              initial={{ opacity: 0, y: 40 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 1, duration: 0.8 }}
-              className="relative mt-8 sm:mt-12"
-            >
-              <Link href="/register">
-                <motion.div
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.98 }}
-                  className="relative inline-block"
-                >
-                  {/* Button glow */}
-                  <motion.div
-                    className="absolute -inset-2 rounded-2xl opacity-60"
-                    style={{
-                      background: `radial-gradient(circle, ${steps[currentStep].glowColor} 0%, transparent 60%)`,
-                      filter: "blur(20px)",
-                    }}
-                    animate={{
-                      scale: [1, 1.1, 1],
-                    }}
-                    transition={{
-                      duration: 2,
-                      repeat: Infinity,
-                      ease: "easeInOut"
-                    }}
-                  />
-                  
-                  <Button
-                    className="hero-button relative rounded-2xl bg-primary text-primary-foreground shadow-lg transition-all duration-300 border-0"
-                    style={{
-                      boxShadow: `0 10px 40px ${steps[currentStep].glowColor}`,
-                    }}
-                  >
-                    <span className="relative z-10 flex items-center gap-2">
-                      Start Your Journey
+                
+                {/* Typography */}
+                <div className="relative px-4 mt-4 sm:mt-6">
+                  <h1 className="text-3xl sm:text-4xl lg:text-6xl font-bold tracking-tight">
+                    <motion.span
+                      className={`bg-gradient-to-r ${steps[currentStep].color} bg-clip-text text-transparent`}
+                      style={{
+                        filter: `drop-shadow(0 2px 10px ${steps[currentStep].glowColor})`,
+                      }}
+                    >
+                      {typedText}
+                    </motion.span>
+                    {isTyping && (
                       <motion.span
-                        animate={{
-                          x: [0, 5, 0],
+                        className="inline-block ml-1 w-1 h-[1.2em] align-middle"
+                        style={{
+                          background: `linear-gradient(to bottom, ${steps[currentStep].lightColor}, ${steps[currentStep].particleColor})`,
+                          boxShadow: `0 0 20px ${steps[currentStep].glowColor}`,
+                        }}
+                        animate={{ 
+                          opacity: [1, 0, 1],
                         }}
                         transition={{
-                          duration: 1.5,
+                          duration: 0.8,
                           repeat: Infinity,
                           ease: "easeInOut"
                         }}
-                        className="text-xl"
-                      >
-                        →
-                      </motion.span>
-                    </span>
-                  </Button>
-                </motion.div>
-              </Link>
-            </motion.div>
+                      />
+                    )}
+                  </h1>
+                </div>
+              </motion.div>
+            </AnimatePresence>
+          </div>
 
-            {/* Subtitle */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 1.5, duration: 0.8 }}
-              className="relative mt-6 sm:mt-8"
-            >
-              <p className="hero-subtitle">
-                Transform your career with AI-powered interview preparation
-              </p>
-            </motion.div>
+          {/* CTA Button */}
+          <motion.div
+            initial={{ opacity: 0, y: 40 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 1, duration: 0.8 }}
+            className="relative mt-8 sm:mt-12"
+          >
+            <Link href="/register">
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.98 }}
+                className="relative inline-block"
+              >
+                {/* Button glow */}
+                <motion.div
+                  className="absolute -inset-2 rounded-2xl opacity-60"
+                  style={{
+                    background: `radial-gradient(circle, ${steps[currentStep].glowColor} 0%, transparent 60%)`,
+                    filter: "blur(20px)",
+                  }}
+                  animate={{
+                    scale: [1, 1.1, 1],
+                  }}
+                  transition={{
+                    duration: 2,
+                    repeat: Infinity,
+                    ease: "easeInOut"
+                  }}
+                />
+                
+                <Button
+                  size="lg"
+                  className="relative px-6 sm:px-8 py-5 sm:py-6 text-base sm:text-lg font-semibold rounded-xl bg-primary text-primary-foreground shadow-lg transition-all duration-300 border-0"
+                  style={{
+                    boxShadow: `0 10px 40px ${steps[currentStep].glowColor}`,
+                  }}
+                >
+                  <span className="relative z-10 flex items-center gap-2">
+                    Start Your Journey
+                    <motion.span
+                      animate={{
+                        x: [0, 5, 0],
+                      }}
+                      transition={{
+                        duration: 1.5,
+                        repeat: Infinity,
+                        ease: "easeInOut"
+                      }}
+                      className="text-xl"
+                    >
+                      →
+                    </motion.span>
+                  </span>
+                </Button>
+              </motion.div>
+            </Link>
           </motion.div>
-        </div>
+
+          {/* Subtitle */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 1.5, duration: 0.8 }}
+            className="relative px-4 mt-4 sm:mt-6"
+          >
+            <p className="text-sm sm:text-base text-muted-foreground max-w-xl mx-auto leading-relaxed">
+              Transform your career with AI-powered interview preparation
+            </p>
+          </motion.div>
+        </motion.div>
       </div>
     </div>
   );
