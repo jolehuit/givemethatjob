@@ -111,91 +111,80 @@ export function Hero() {
       <div className="absolute inset-0">
         {/* Gradient overlay */}
         <motion.div
-          className={`absolute inset-0 bg-gradient-to-br ${steps[currentStep].color} opacity-10`}
+          className={`absolute inset-0 bg-gradient-to-br ${steps[currentStep].color}`}
           animate={{
-            opacity: [0.05, 0.15, 0.05],
+            opacity: [0.02, 0.05, 0.02],
           }}
           transition={{
-            duration: 4,
+            duration: 6,
             repeat: Infinity,
             ease: "easeInOut"
           }}
         />
 
         {/* Grid pattern */}
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,hsl(var(--border)/0.3)_1px,transparent_1px),linear-gradient(to_bottom,hsl(var(--border)/0.3)_1px,transparent_1px)] bg-[size:60px_60px]" />
+        <div className="absolute inset-0">
+          <motion.div 
+            className="absolute inset-0 bg-[linear-gradient(to_right,hsl(var(--border)/0.2)_1px,transparent_1px),linear-gradient(to_bottom,hsl(var(--border)/0.2)_1px,transparent_1px)] bg-[size:60px_60px]"
+            animate={{
+              opacity: [0.3, 0.4, 0.3]
+            }}
+            transition={{
+              duration: 8,
+              repeat: Infinity,
+              ease: "easeInOut"
+            }}
+          />
+        </div>
 
         {/* Spotlight */}
         <motion.div
           className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] max-w-[90vw] max-h-[90vh]"
           style={{
             background: `radial-gradient(circle, ${steps[currentStep].glowColor} 0%, transparent 50%)`,
-            filter: "blur(60px)",
+            filter: "blur(80px)",
           }}
           animate={{
-            scale: [1, 1.1, 1],
+            scale: [1, 1.2, 1],
+            opacity: [0.3, 0.5, 0.3],
           }}
           transition={{
-            duration: 4,
+            duration: 8,
             repeat: Infinity,
             ease: "easeInOut"
           }}
         />
-      </div>
-
-      {/* Particle System */}
-      {showParticles && (
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          {/* Floating orbs */}
-          {Array.from({ length: 6 }).map((_, i) => (
+        
+        {/* Animated gradient rings */}
+        <div className="absolute inset-0 overflow-hidden">
+          {Array.from({ length: 3 }).map((_, i) => (
             <motion.div
-              key={`orb-${i}`}
-              className="absolute w-3 h-3 sm:w-4 sm:h-4 rounded-full"
+              key={`ring-${i}`}
+              className="absolute top-1/2 left-1/2 rounded-full border border-primary/10"
               style={{
-                background: `radial-gradient(circle, ${steps[currentStep].lightColor}, ${steps[currentStep].particleColor})`,
-                boxShadow: `0 0 20px ${steps[currentStep].glowColor}`,
-                left: `${Math.random() * 100}%`,
-                top: `${Math.random() * 100}%`,
+                width: `${(i + 1) * 40}%`,
+                height: `${(i + 1) * 40}%`,
+                x: "-50%",
+                y: "-50%",
               }}
               animate={{
-                x: [0, Math.random() * 100 - 50, 0],
-                y: [0, Math.random() * 100 - 50, 0],
-                scale: [1, 1.5, 1],
-                opacity: [0.4, 0.8, 0.4],
+                rotate: [0, 360],
+                scale: [1, 1.1, 1],
               }}
               transition={{
-                duration: Math.random() * 10 + 10,
+                duration: 20 + i * 5,
                 repeat: Infinity,
-                ease: "easeInOut",
-                delay: Math.random() * 5,
-              }}
-            />
-          ))}
-
-          {/* Rising particles */}
-          {Array.from({ length: 20 }).map((_, i) => (
-            <motion.div
-              key={`particle-${i}`}
-              className="absolute w-1 h-1 rounded-full"
-              style={{
-                background: steps[currentStep].particleColor,
-                left: `${Math.random() * 100}%`,
-                bottom: `-10px`,
-              }}
-              animate={{
-                y: [0, -800],
-                opacity: [0, 1, 0],
-              }}
-              transition={{
-                duration: Math.random() * 10 + 10,
-                repeat: Infinity,
-                delay: Math.random() * 10,
-                ease: "easeOut"
+                ease: "linear",
+                scale: {
+                  duration: 8,
+                  repeat: Infinity,
+                  ease: "easeInOut",
+                }
               }}
             />
           ))}
         </div>
-      )}
+      </div>
 
       <div className="container relative z-10 px-4 mx-auto py-12 sm:py-16">
         <motion.div 
