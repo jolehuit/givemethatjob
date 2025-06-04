@@ -1,204 +1,363 @@
 "use client";
 
-import {
-  BadgeCheck,
-  Brain,
-  FileVideo,
-  BarChart3,
-  Upload,
-  Mic,
-  Clock,
-  Sparkles,
-} from "lucide-react";
-import { motion } from "framer-motion";
-import { useState, useEffect } from "react";
-
-const features = [
-  {
-    name: "Personalized Interviews",
-    description:
-      "AI generates questions based on the specific job description and your CV for a tailored experience.",
-    icon: Brain,
-    color: "from-blue-500 to-cyan-500",
-    glow: "rgba(59, 130, 246, 0.5)",
-  },
-  {
-    name: "Video Interviews",
-    description:
-      "Practice with realistic AI avatar interviewers that respond to your answers in real-time.",
-    icon: FileVideo,
-    color: "from-purple-500 to-pink-500",
-    glow: "rgba(168, 85, 247, 0.5)",
-  },
-  {
-    name: "Detailed Feedback",
-    description:
-      "Receive comprehensive feedback on your performance, with specific tips for improvement.",
-    icon: BarChart3,
-    color: "from-orange-500 to-amber-500",
-    glow: "rgba(251, 146, 60, 0.5)",
-  },
-  {
-    name: "One-Click Setup",
-    description:
-      "Just paste a job URL and upload your CV to start practicing immediately.",
-    icon: Upload,
-    color: "from-emerald-500 to-teal-500",
-    glow: "rgba(52, 211, 153, 0.5)",
-  },
-  {
-    name: "Natural Voice Interaction",
-    description:
-      "AI interviewers use natural-sounding voices that make the experience feel real.",
-    icon: Mic,
-    color: "from-red-500 to-rose-500",
-    glow: "rgba(239, 68, 68, 0.5)",
-  },
-  {
-    name: "Unlimited Practice",
-    description:
-      "Practice as many times as you need to perfect your interview skills.",
-    icon: Clock,
-    color: "from-indigo-500 to-violet-500",
-    glow: "rgba(99, 102, 241, 0.5)",
-  },
-];
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
+import { motion, AnimatePresence, useMotionValue, useTransform } from "framer-motion";
+import { useEffect, useState, useRef } from "react";
+import Lottie from "lottie-react";
+import brainAnimation from "@/public/lottie-animations/brain.json";
+import sparklesAnimation from "@/public/lottie-animations/sparkles.json";
+import robotAnimation from "@/public/lottie-animations/robot.json";
+import coolAnimation from "@/public/lottie-animations/cool.json";
 
 export function Hero() {
-  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+  const [currentStep, setCurrentStep] = useState(0);
+  const [isTyping, setIsTyping] = useState(false);
   const [typedText, setTypedText] = useState("");
   const [showParticles, setShowParticles] = useState(false);
-  const containerRef = useRef(null);
-  const [isLargeScreen, setIsLargeScreen] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
   
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
+  
+  const rotateX = useTransform(mouseY, [-300, 300], [5, -5]);
+  const rotateY = useTransform(mouseX, [-300, 300], [-5, 5]);
+
+  const steps = [
+    {
+      text: "Paste a job offer.",
+      animation: brainAnimation,
+      color: "from-blue-500 via-cyan-400 to-blue-600",
+      glowColor: "rgba(59, 130, 246, 0.5)",
+      lightColor: "rgb(147, 197, 253)",
+      particleColor: "#3B82F6"
+    },
+    {
+      text: "Upload your resume.",
+      animation: sparklesAnimation,
+      color: "from-purple-500 via-pink-400 to-purple-600",
+      glowColor: "rgba(168, 85, 247, 0.5)",
+      lightColor: "rgb(196, 181, 253)",
+      particleColor: "#A855F7"
+    },
+    {
+      text: "Face our AI recruiter.",
+      animation: robotAnimation,
+      color: "from-orange-500 via-amber-400 to-orange-600",
+      glowColor: "rgba(251, 146, 60, 0.5)",
+      lightColor: "rgb(253, 186, 116)",
+      particleColor: "#F97316"
+    },
+    {
+      text: "Get the call.",
+      animation: coolAnimation,
+      color: "from-emerald-500 via-teal-400 to-emerald-600",
+      glowColor: "rgba(52, 211, 153, 0.5)",
+      lightColor: "rgb(110, 231, 183)",
+      particleColor: "#10B981"
+    }
+  ];
 
   useEffect(() => {
-    if (typeof window === 'undefined') return;
-    
     const handleMouseMove = (e: MouseEvent) => {
-      const container = containerRef.current;
-      if (container) {
-        const rect = container.getBoundingClientRect();
-        const x = e.clientX - rect.left;
-        const y = e.clientY - rect.top;
+      if (containerRef.current) {
+        const rect = containerRef.current.getBoundingClientRect();
+        const x = e.clientX - rect.left - rect.width / 2;
+        const y = e.clientY - rect.top - rect.height / 2;
         mouseX.set(x);
         mouseY.set(y);
       }
     };
 
+    if (window.innerWidth > 768) {
+      window.addEventListener("mousemove", handleMouseMove);
+      return () => window.removeEventListener("mousemove", handleMouseMove);
+    }
+  }, [mouseX, mouseY]);
+
+  useEffect(() => {
+    const animateStep = async () => {
+      while (true) {
+        for (let i = 0; i < steps.length; i++) {
+          setCurrentStep(i);
+          setTypedText("");
+          setIsTyping(true);
+
+          for (let j = 0; j <= steps[i].text.length; j++) {
+            setTypedText(steps[i].text.slice(0, j));
+            await new Promise(resolve => setTimeout(resolve, 50));
+          }
+
+          setIsTyping(false);
+          await new Promise(resolve => setTimeout(resolve, 2000));
+        }
+      }
+    };
+
+    animateStep();
+    setTimeout(() => setShowParticles(true), 500);
+  }, []);
+
   return (
-    <div id="features" className="relative py-24 bg-background sm:py-32 overflow-hidden">
-      {/* Animated Background */}
+    <div ref={containerRef} className="relative min-h-[100vh] flex items-center justify-center overflow-hidden bg-background">
+      {/* Background Effects */}
       <div className="absolute inset-0">
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,hsl(var(--border)/0.3)_1px,transparent_1px),linear-gradient(to_bottom,hsl(var(--border)/0.3)_1px,transparent_1px)] bg-[size:60px_60px]" />
-        
+        {/* Gradient overlay */}
         <motion.div
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px]"
+          className={`absolute inset-0 bg-gradient-to-br ${steps[currentStep].color} opacity-10`}
+          animate={{
+            opacity: [0.05, 0.15, 0.05],
+          }}
+          transition={{
+            duration: 4,
+            repeat: Infinity,
+            ease: "easeInOut"
+          }}
+        />
+
+        {/* Grid pattern */}
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,hsl(var(--border)/0.3)_1px,transparent_1px),linear-gradient(to_bottom,hsl(var(--border)/0.3)_1px,transparent_1px)] bg-[size:60px_60px]" />
+
+        {/* Spotlight */}
+        <motion.div
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] max-w-[90vw] max-h-[90vh]"
           style={{
-            background: "radial-gradient(circle, rgba(59, 130, 246, 0.1) 0%, transparent 50%)",
-            filter: "blur(100px)",
+            background: `radial-gradient(circle, ${steps[currentStep].glowColor} 0%, transparent 50%)`,
+            filter: "blur(60px)",
           }}
           animate={{
             scale: [1, 1.1, 1],
           }}
           transition={{
-            duration: 8,
+            duration: 4,
             repeat: Infinity,
             ease: "easeInOut"
           }}
         />
       </div>
 
-      {/* Floating Particles */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        {Array.from({ length: 8 }).map((_, i) => (
-          <motion.div
-            key={`particle-${i}`}
-            className="absolute w-2 h-2 rounded-full bg-primary/20"
-            style={{
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-            }}
-            animate={{
-              y: [0, -100, 0],
-              x: [0, Math.random() * 50 - 25, 0],
-              opacity: [0.2, 0.6, 0.2],
-            }}
-            transition={{
-              duration: Math.random() * 10 + 10,
-              repeat: Infinity,
-              ease: "easeInOut",
-              delay: Math.random() * 5,
-            }}
-          />
-        ))}
-      </div>
+      {/* Particle System */}
+      {showParticles && (
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          {/* Floating orbs */}
+          {Array.from({ length: 6 }).map((_, i) => (
+            <motion.div
+              key={`orb-${i}`}
+              className="absolute w-3 h-3 sm:w-4 sm:h-4 rounded-full"
+              style={{
+                background: `radial-gradient(circle, ${steps[currentStep].lightColor}, ${steps[currentStep].particleColor})`,
+                boxShadow: `0 0 20px ${steps[currentStep].glowColor}`,
+                left: `${Math.random() * 100}%`,
+                top: `${Math.random() * 100}%`,
+              }}
+              animate={{
+                x: [0, Math.random() * 100 - 50, 0],
+                y: [0, Math.random() * 100 - 50, 0],
+                scale: [1, 1.5, 1],
+                opacity: [0.4, 0.8, 0.4],
+              }}
+              transition={{
+                duration: Math.random() * 10 + 10,
+                repeat: Infinity,
+                ease: "easeInOut",
+                delay: Math.random() * 5,
+              }}
+            />
+          ))}
 
-      <div className="relative z-10 mx-auto max-w-7xl px-6 lg:px-8">
+          {/* Rising particles */}
+          {Array.from({ length: 20 }).map((_, i) => (
+            <motion.div
+              key={`particle-${i}`}
+              className="absolute w-1 h-1 rounded-full"
+              style={{
+                background: steps[currentStep].particleColor,
+                left: `${Math.random() * 100}%`,
+                bottom: `-10px`,
+              }}
+              animate={{
+                y: [0, -window.innerHeight - 100],
+                x: [0, (Math.random() - 0.5) * 100],
+                opacity: [0, 1, 0],
+              }}
+              transition={{
+                duration: Math.random() * 10 + 10,
+                repeat: Infinity,
+                delay: Math.random() * 10,
+                ease: "easeOut"
+              }}
+            />
+          ))}
+        </div>
+      )}
+
+      <div className="container relative z-10 px-4 mx-auto py-12 sm:py-16">
         <motion.div 
-          className="mx-auto max-w-2xl lg:text-center"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
+          className="text-center space-y-8 sm:space-y-12"
+          style={{
+            rotateX: window.innerWidth > 768 ? rotateX : 0,
+            rotateY: window.innerWidth > 768 ? rotateY : 0,
+            transformPerspective: 1000,
+          }}
         >
-          <motion.h2 
-            className="text-base font-semibold leading-7 bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent"
-            animate={{
-              backgroundPosition: ["0%", "100%", "0%"],
-            }}
-            transition={{
-              duration: 5,
-              repeat: Infinity,
-              ease: "linear"
-            }}
-            style={{
-              backgroundSize: "200% 100%",
-            }}
-          >
-            Better Preparation
-          </motion.h2>
-          <motion.p 
-            className="mt-2 text-3xl font-bold tracking-tight text-foreground sm:text-4xl"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.1 }}
-          >
-            Everything you need to ace your next interview
-          </motion.p>
-          <motion.p 
-            className="mt-6 text-lg leading-8 text-muted-foreground"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
-          >
-            Our AI-powered platform helps you prepare for interviews with realistic practice sessions, personalized feedback, and targeted improvement suggestions.
-          </motion.p>
-        </motion.div>
-        
-        <div className="mx-auto mt-16 max-w-2xl sm:mt-20 lg:mt-24 lg:max-w-4xl">
-          <dl className="grid max-w-xl grid-cols-1 gap-8 lg:max-w-none lg:grid-cols-2 lg:gap-12">
-            {features.map((feature, index) => (
+          {/* Main Animation Section */}
+          <div className="relative h-[250px] sm:h-[300px] flex items-center justify-center">
+            <AnimatePresence mode="wait">
               <motion.div
-                key={feature.name}
-                className="relative group"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, delay: index * 0.1 }}
-                onMouseEnter={() => setHoveredIndex(index)}
-                onMouseLeave={() => setHoveredIndex(null)}
+                key={currentStep}
+                initial={{ 
+                  opacity: 0, 
+                  y: 30,
+                  scale: 0.8,
+                  filter: "blur(10px)"
+                }}
+                animate={{ 
+                  opacity: 1, 
+                  y: 0,
+                  scale: 1,
+                  filter: "blur(0px)"
+                }}
+                exit={{ 
+                  opacity: 0, 
+                  y: -30,
+                  scale: 0.8,
+                  filter: "blur(10px)"
+                }}
+                transition={{
+                  duration: 0.8,
+                  ease: "easeOut"
+                }}
+                className="absolute flex flex-col items-center gap-6 sm:gap-10"
               >
-                {/* Card Glow Effect */}
+                {/* Animation Container */}
                 <motion.div
-                  className="absolute -inset-4 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"
-                  style={{
-                    background: `radial-gradient(circle at center, ${feature.glow} 0%, transparent 60%)`,
-                    filter: "blur(40px)",
+                  className="relative"
+                  animate={{
+                    y: [0, -10, 0],
                   }}
-                  animate={hoveredIndex === index ? {
+                  transition={{
+                    duration: 4,
+                    repeat: Infinity,
+                    ease: "easeInOut"
+                  }}
+                >
+                  <div className="relative w-32 h-32 sm:w-40 sm:h-40 lg:w-48 lg:h-48">
+                    {/* Glow ring */}
+                    <motion.div
+                      className="absolute inset-0 rounded-full"
+                      style={{
+                        background: `conic-gradient(from 0deg, transparent, ${steps[currentStep].lightColor}, transparent)`,
+                        filter: "blur(8px)",
+                      }}
+                      animate={{
+                        rotate: [0, 360],
+                      }}
+                      transition={{
+                        duration: 8,
+                        repeat: Infinity,
+                        ease: "linear"
+                      }}
+                    />
+                    
+                    {/* Inner sphere */}
+                    <motion.div 
+                      className="absolute inset-4 bg-background/80 backdrop-blur-xl rounded-full border border-border/50 shadow-2xl overflow-hidden"
+                      style={{
+                        boxShadow: `0 0 40px ${steps[currentStep].glowColor}`,
+                      }}
+                    >
+                      <div className="absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-black/20" />
+                      <motion.div
+                        className="absolute inset-0 opacity-30"
+                        style={{
+                          background: `radial-gradient(circle at 30% 30%, ${steps[currentStep].lightColor}, transparent)`,
+                        }}
+                      />
+                      <div className="relative p-4 sm:p-6 h-full flex items-center justify-center">
+                        <Lottie
+                          animationData={steps[currentStep].animation}
+                          loop={true}
+                          style={{ width: "100%", height: "100%" }}
+                        />
+                      </div>
+                    </motion.div>
+
+                    {/* Pulse effect */}
+                    <motion.div
+                      className="absolute inset-0 rounded-full border"
+                      style={{
+                        borderColor: steps[currentStep].particleColor,
+                      }}
+                      animate={{
+                        scale: [1, 1.3, 1],
+                        opacity: [0.5, 0, 0.5],
+                      }}
+                      transition={{
+                        duration: 2,
+                        repeat: Infinity,
+                        ease: "easeOut"
+                      }}
+                    />
+                  </div>
+                </motion.div>
+                
+                {/* Typography */}
+                <div className="relative px-4">
+                  <h1 className="text-4xl sm:text-5xl lg:text-7xl font-bold tracking-tight">
+                    <motion.span
+                      className={`bg-gradient-to-r ${steps[currentStep].color} bg-clip-text text-transparent`}
+                      style={{
+                        filter: `drop-shadow(0 2px 10px ${steps[currentStep].glowColor})`,
+                      }}
+                    >
+                      {typedText}
+                    </motion.span>
+                    {isTyping && (
+                      <motion.span
+                        className="inline-block ml-1 w-1 h-[1.2em] align-middle"
+                        style={{
+                          background: `linear-gradient(to bottom, ${steps[currentStep].lightColor}, ${steps[currentStep].particleColor})`,
+                          boxShadow: `0 0 20px ${steps[currentStep].glowColor}`,
+                        }}
+                        animate={{ 
+                          opacity: [1, 0, 1],
+                        }}
+                        transition={{
+                          duration: 0.8,
+                          repeat: Infinity,
+                          ease: "easeInOut"
+                        }}
+                      />
+                    )}
+                  </h1>
+                </div>
+              </motion.div>
+            </AnimatePresence>
+          </div>
+
+          {/* CTA Button */}
+          <motion.div
+            initial={{ opacity: 0, y: 40 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 1, duration: 0.8 }}
+            className="relative"
+          >
+            <Link href="/register">
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.98 }}
+                className="relative inline-block"
+              >
+                {/* Button glow */}
+                <motion.div
+                  className="absolute -inset-2 rounded-2xl opacity-60"
+                  style={{
+                    background: `radial-gradient(circle, ${steps[currentStep].glowColor} 0%, transparent 60%)`,
+                    filter: "blur(20px)",
+                  }}
+                  animate={{
                     scale: [1, 1.1, 1],
-                  } : {}}
+                  }}
                   transition={{
                     duration: 2,
                     repeat: Infinity,
@@ -206,53 +365,60 @@ export function Hero() {
                   }}
                 />
                 
-                <div className="relative bg-background/80 backdrop-blur-sm border border-border/50 rounded-2xl p-6 transition-all duration-300 hover:border-border hover:shadow-lg">
-                  <dt className="flex items-center gap-4">
-                    <motion.div 
-                      className="relative flex h-12 w-12 items-center justify-center rounded-xl overflow-hidden"
-                      whileHover={{ scale: 1.1, rotate: 5 }}
-                      transition={{ type: "spring", stiffness: 400, damping: 10 }}
-                    >
-                      {/* Icon Background */}
-                      <div className={`absolute inset-0 bg-gradient-to-br ${feature.color} opacity-90`} />
-                      
-                      {/* Icon Shimmer */}
-                      <motion.div
-                        className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent skew-x-12"
-                        animate={hoveredIndex === index ? {
-                          x: ["-200%", "200%"],
-                        } : {}}
-                        transition={{
-                          duration: 1,
-                          ease: "easeInOut",
-                        }}
-                      />
-                      
-                      <feature.icon className="relative h-6 w-6 text-white" aria-hidden="true" />
-                    </motion.div>
-                    
-                    <span className="text-lg font-semibold text-foreground">
-                      {feature.name}
-                    </span>
-                  </dt>
-                  
-                  <dd className="mt-4 text-base leading-7 text-muted-foreground">
-                    {feature.description}
-                  </dd>
-                  
-                  {/* Bottom gradient line */}
+                <Button
+                  size="lg"
+                  className="relative px-8 sm:px-12 py-6 sm:py-8 text-lg sm:text-xl font-semibold rounded-2xl bg-primary text-primary-foreground shadow-lg transition-all duration-300 border-0"
+                  style={{
+                    boxShadow: `0 10px 40px ${steps[currentStep].glowColor}`,
+                  }}
+                >
+                  {/* Shimmer effect */}
                   <motion.div
-                    className={`absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r ${feature.color} rounded-b-2xl`}
-                    initial={{ scaleX: 0 }}
-                    animate={hoveredIndex === index ? { scaleX: 1 } : { scaleX: 0 }}
-                    transition={{ duration: 0.3 }}
-                    style={{ transformOrigin: "left" }}
+                    className="absolute inset-0 rounded-2xl bg-gradient-to-r from-transparent via-white/20 to-transparent skew-x-12"
+                    animate={{
+                      x: ["-200%", "200%"],
+                    }}
+                    transition={{
+                      duration: 3,
+                      repeat: Infinity,
+                      ease: "easeInOut",
+                      repeatDelay: 1,
+                    }}
                   />
-                </div>
+                  
+                  <span className="relative z-10 flex items-center gap-2">
+                    Start Your Journey
+                    <motion.span
+                      animate={{
+                        x: [0, 5, 0],
+                      }}
+                      transition={{
+                        duration: 1.5,
+                        repeat: Infinity,
+                        ease: "easeInOut"
+                      }}
+                      className="text-xl"
+                    >
+                      →
+                    </motion.span>
+                  </span>
+                </Button>
               </motion.div>
-            ))}
-          </dl>
-        </div>
+            </Link>
+          </motion.div>
+
+          {/* Subtitle */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 1.5, duration: 0.8 }}
+            className="relative px-4"
+          >
+            <p className="text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+              Transform your career with AI-powered interview preparation
+            </p>
+          </motion.div>
+        </motion.div>
       </div>
     </div>
   );
