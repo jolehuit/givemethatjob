@@ -22,9 +22,6 @@ const config: Config = {
       },
     },
     extend: {
-      screens: {
-        'xs': '475px',
-      },
       colors: {
         background: 'hsl(var(--background))',
         foreground: 'hsl(var(--foreground))',
