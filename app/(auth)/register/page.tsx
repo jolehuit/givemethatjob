@@ -34,7 +34,6 @@ const formSchema = z.object({
 export default function RegisterPage() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
-  const [isRedirecting, setIsRedirecting] = useState(false);
   
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -62,35 +61,20 @@ export default function RegisterPage() {
 
       if (authError) throw authError;
 
-      // Get session to confirm auth state
-      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-      if (sessionError) throw sessionError;
-
-      if (session) {
-        setIsRedirecting(true);
-        router.refresh();
-        router.push('/dashboard');
-      } else {
-        toast.success("Account created! Please check your email to confirm your registration.");
-        router.push('/login');
-      }
+      toast.success("Account created! Please check your email to confirm your registration.");
+      router.push('/login');
     } catch (error: any) {
       if (error.message === "User already registered") {
         toast.error("An account with this email already exists. Please sign in instead.");
       } else {
         toast.error(error.message || "Failed to create account. Please try again.");
       }
-      setIsLoading(false);
-      setIsRedirecting(false);
     } finally {
       setIsLoading(false);
     }
   }
 
   return (
-    <>
-      {isRedirecting && <LoadingTransition />}
-      <div className="space-y-6">
         <motion.div 
           className="flex flex-col items-center space-y-2 text-center"
           initial={{ opacity: 0, y: -20 }}

@@ -32,7 +32,6 @@ export default function LoginPage() {
   const searchParams = useSearchParams();
   const redirect = searchParams.get("redirect") || "/dashboard";
   const [isLoading, setIsLoading] = useState(false);
-  const [isRedirecting, setIsRedirecting] = useState(false);
   
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -52,28 +51,20 @@ export default function LoginPage() {
       });
       
       if (error) throw error;
-      
-      // Get session to confirm auth state
-      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-      if (sessionError) throw sessionError;
-      if (!session) throw new Error("Failed to get session");
-      
-      setIsRedirecting(true);
+
       router.refresh();
       router.push(redirect);
+      toast.success("Successfully signed in!");
     } catch (error: any) {
       toast.error(error.message || "Failed to sign in. Please try again.");
       setIsLoading(false);
-      setIsRedirecting(false);
     } finally {
       setIsLoading(false);
     }
   }
 
   return (
-    <>
-      {isRedirecting && <LoadingTransition />}
-      <div className="space-y-6">
+    <div className="space-y-6">
       <motion.div 
         className="flex flex-col items-center space-y-2 text-center"
         initial={{ opacity: 0, y: -20 }}
