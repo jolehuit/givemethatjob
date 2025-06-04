@@ -171,16 +171,12 @@ export function InterviewList() {
   return (
     <div className="space-y-4">
       <AnimatePresence>
-        {interviews.map((interview, index) => {
+        {interviews.map((interview) => {
           const ScoreIcon = getScoreIcon(interview.score);
           
           return (
             <motion.div
               key={interview.id}
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: 20 }}
-              transition={{ delay: index * 0.1 }}
               onMouseEnter={() => setHoveredId(interview.id)}
               onMouseLeave={() => setHoveredId(null)}
               className="relative"
@@ -205,7 +201,7 @@ export function InterviewList() {
                 className="block"
               >
                 <motion.div 
-                  className="relative flex items-center justify-between p-6 border rounded-xl bg-background/80 backdrop-blur-sm transition-all hover:border-border/80 hover:shadow-lg"
+                  className="relative flex items-center justify-between p-4 border rounded-lg bg-background/80 backdrop-blur-sm transition-all hover:border-border/80 hover:shadow-sm"
                   whileHover={{ y: -2 }}
                   transition={{ duration: 0.2 }}
                 >
@@ -234,7 +230,7 @@ export function InterviewList() {
                     </motion.div>
                     
                     <div>
-                      <h4 className="font-semibold text-lg flex items-center gap-2">
+                      <h4 className="font-medium text-base flex items-center gap-2">
                         {interview.job_title}
                         {hoveredId === interview.id && (
                           <motion.span
@@ -301,7 +297,7 @@ export function InterviewList() {
                     ) : (
                       <Badge 
                         variant="outline" 
-                        className="relative px-4 py-1.5 bg-gradient-to-r from-blue-500 to-cyan-500 text-white border-0 animate-pulse"
+                        className="relative px-3 py-1 bg-gradient-to-r from-blue-500 to-cyan-500 text-white border-0 animate-pulse"
                       >
                         <span className="relative z-10 flex items-center gap-2">
                           <motion.div
