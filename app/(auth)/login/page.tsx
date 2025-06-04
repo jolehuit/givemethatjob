@@ -72,33 +72,9 @@ export default function LoginPage() {
         transition={{ duration: 0.5 }}
       >
         <Link href="/" className="flex items-center space-x-2">
-          <motion.div
-            className="relative"
-            animate={{
-              rotate: [0, 360],
-            }}
-            transition={{
-              duration: 20,
-              repeat: Infinity,
-              ease: "linear"
-            }}
-          >
+          <div className="bg-primary/10 p-2 rounded-lg">
             <Briefcase className="h-6 w-6 text-primary" />
-            <motion.div
-              className="absolute inset-0"
-              animate={{
-                scale: [1, 1.5, 1],
-                opacity: [0.5, 0, 0.5],
-              }}
-              transition={{
-                duration: 2,
-                repeat: Infinity,
-                ease: "easeOut"
-              }}
-            >
-              <Sparkles className="h-6 w-6 text-primary" />
-            </motion.div>
-          </motion.div>
+          </div>
           <span className="font-bold text-2xl">GiveMeThatJob</span>
         </Link>
         <h1 className="text-2xl font-semibold tracking-tight">Welcome back</h1>
