@@ -117,6 +117,7 @@ export default function LoginPage() {
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.2 }}
+                className="relative z-10"
               >
                 <FormItem>
                 <FormLabel>Email</FormLabel>
@@ -136,6 +137,7 @@ export default function LoginPage() {
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.3 }}
+                className="relative z-10"
               >
                 <FormItem>
                 <FormLabel>Password</FormLabel>
@@ -154,7 +156,7 @@ export default function LoginPage() {
           >
             <Button 
               type="submit" 
-              className="w-full relative overflow-hidden" 
+              className="w-full relative overflow-hidden z-10" 
               disabled={isLoading}
             >
               <motion.div
@@ -168,6 +170,7 @@ export default function LoginPage() {
                   ease: "easeInOut",
                   repeatDelay: 1,
                 }}
+                style={{ pointerEvents: "none" }}
               />
               <span className="relative z-10">
                 {isLoading ? (

@@ -67,6 +67,7 @@ export default function AuthLayout({
             style={{
               background: "radial-gradient(circle at center, rgba(168, 85, 247, 0.2) 0%, transparent 60%)",
               filter: "blur(20px)",
+              pointerEvents: "none",
             }}
             animate={{
               opacity: [0.5, 0.8, 0.5],
