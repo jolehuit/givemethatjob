@@ -1,3 +1,4 @@
+// File: /app/(auth)/login/page.tsx
 "use client";
 
 import { useState } from "react";
@@ -18,7 +19,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
-import { supabase } from "@/lib/supabase";
+import { supabase } from "@/lib/supabase"; // Assure-toi que c'est le client Supabase configuré pour le client
 import { Eye, EyeOff, Loader2, Sparkles } from "lucide-react";
 
 const formSchema = z.object({
@@ -52,17 +53,23 @@ export default function LoginPage() {
         password: values.password,
       });
 
-      if (error) throw error;
+      if (error) {
+        throw error;
+      }
 
       toast.success("Successfully signed in!");
-      router.replace(redirect); // MODIFIÉ: Utilisation de router.replace
+      
+      // ÉTAPE CRUCIALE AJOUTÉE : Rafraîchir la session côté serveur avant de rediriger
+      router.refresh(); 
+      
+      router.replace(redirect);
+      // setIsLoading(false) n'est généralement pas nécessaire ici car le composant sera démonté
+      // lors de la redirection. Si la redirection échouait pour une raison quelconque
+      // et que le composant restait monté, il faudrait le gérer.
     } catch (error: any) {
       toast.error(error.message || "Failed to sign in. Please try again.");
-      setIsLoading(false); // S'assurer que isLoading est false en cas d'erreur
+      setIsLoading(false); // Important de le remettre à false en cas d'erreur
     }
-    // Note: setIsLoading(false) n'est pas explicitement remis à false en cas de succès ici,
-    // car la redirection via router.replace() va démonter le composant actuel.
-    // Si la redirection échouait ou était conditionnelle, il faudrait le gérer.
   }
 
   return (
@@ -140,6 +147,9 @@ export default function LoginPage() {
                         size="sm"
                         className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
                         onClick={() => setShowPassword(!showPassword)}
+                        aria-label={
+                          showPassword ? "Hide password" : "Show password"
+                        }
                       >
                         {showPassword ? (
                           <EyeOff className="h-4 w-4 text-muted-foreground" />
@@ -200,7 +210,7 @@ export default function LoginPage() {
       >
         Don&apos;t have an account?{" "}
         <Link
-          href="/register"
+          href={`/register${redirect !== "/dashboard" ? `?redirect=${encodeURIComponent(redirect)}` : ""}`}
           className="font-semibold text-primary hover:underline"
         >
           Sign up
