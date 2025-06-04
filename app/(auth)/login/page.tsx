@@ -182,6 +182,5 @@ export default function LoginPage() {
         </Link>
       </motion.div>
     </div>
-    </>
   );
 }
