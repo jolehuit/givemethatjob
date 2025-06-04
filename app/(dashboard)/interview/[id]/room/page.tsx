@@ -39,7 +39,6 @@ function InterviewRoom() {
   const [isFinishing, setIsFinishing] = useState(false);
   const [elapsedTime, setElapsedTime] = useState(0);
   const [selectedDuration, setSelectedDuration] = useState<number | null>(null);
-  const [shouldEndInterview, setShouldEndInterview] = useState(false);
   
   // Daily React hooks
   const callObject = useDaily();
@@ -80,37 +79,6 @@ function InterviewRoom() {
       setSelectedDuration(interview.duration_minutes);
     }
   }, [interview]);
-
-  // Timer for elapsed time
-  useEffect(() => {
-    if (timerRef.current) {
-      clearInterval(timerRef.current);
-      timerRef.current = null;
-    }
-    
-    if (meetingState === 'joined-meeting') {
-      timerRef.current = setInterval(() => setElapsedTime(prev => prev + 1), 1000);
-    }
-    
-    return () => {
-      if (timerRef.current) {
-        clearInterval(timerRef.current);
-        timerRef.current = null;
-      }
-    };
-  }, [meetingState]);
-
-  // Check for interview duration limit
-  useEffect(() => {
-    if (selectedDuration && elapsedTime >= selectedDuration * 60) {
-      setShouldEndInterview(true);
-    }
-  }, [elapsedTime, selectedDuration]);
-
-  // Handle auto-end when time limit reached
-  useEffect(() => {
-    if (shouldEndInterview) finishInterview();
-  }, [shouldEndInterview, finishInterview]);
 
   const startInterview = useCallback(async () => {
     if (isStarting || !callObject) return;
@@ -183,6 +151,35 @@ function InterviewRoom() {
       setIsFinishing(false);
     }
   }, [callObject, router]);
+
+  // Timer and auto-end logic
+  useEffect(() => {
+    if (meetingState !== 'joined-meeting') {
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+        timerRef.current = null;
+      }
+      return;
+    }
+
+    timerRef.current = setInterval(() => {
+      setElapsedTime(prev => {
+        const newTime = prev + 1;
+        // Check duration limit
+        if (selectedDuration && newTime >= selectedDuration * 60) {
+          finishInterview();
+        }
+        return newTime;
+      });
+    }, 1000);
+
+    return () => {
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+        timerRef.current = null;
+      }
+    };
+  }, [meetingState, selectedDuration, finishInterview]);
 
   const toggleCamera = useCallback(() => {
     if (!callObject) return;
