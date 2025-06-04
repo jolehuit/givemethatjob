@@ -54,7 +54,6 @@ export default function FeedbackPage() {
   const [feedback, setFeedback] = useState<FeedbackData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [averageScore, setAverageScore] = useState(0);
-  
   const [videoAnalysis, setVideoAnalysis] = useState<{
     verbal_score: number;
     non_verbal_score: number;
@@ -432,7 +431,7 @@ export default function FeedbackPage() {
                     <div>
                       <h4 className="font-medium mb-2">Improvement Suggestions</h4>
                       <p className="text-sm text-muted-foreground">
-                        {feedback?.improvement_suggestions}
+                        {videoAnalysis?.weaknesses.map(w => `Work on ${w.toLowerCase()}`).join('. ')}
                       </p>
                     </div>
                   </div>
