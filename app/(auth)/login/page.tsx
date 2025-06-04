@@ -4,7 +4,6 @@ import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { LoadingTransition } from "@/components/auth/loading-transition";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -20,11 +19,13 @@ import {
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { supabase } from "@/lib/supabase";
-import { Briefcase, Loader2, Sparkles } from "lucide-react";
+import { Loader2, Sparkles } from "lucide-react"; // Briefcase retiré
 
 const formSchema = z.object({
   email: z.string().email({ message: "Please enter a valid email address" }),
-  password: z.string().min(6, { message: "Password must be at least 6 characters" }),
+  password: z
+    .string()
+    .min(6, { message: "Password must be at least 6 characters" }),
 });
 
 export default function LoginPage() {
@@ -32,7 +33,7 @@ export default function LoginPage() {
   const searchParams = useSearchParams();
   const redirect = searchParams.get("redirect") || "/dashboard";
   const [isLoading, setIsLoading] = useState(false);
-  
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -43,26 +44,29 @@ export default function LoginPage() {
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true);
-    
+
     try {
       const { error } = await supabase.auth.signInWithPassword({
         email: values.email,
         password: values.password,
       });
-      
+
       if (error) throw error;
 
       toast.success("Successfully signed in!");
-      window.location.href = redirect;
+      router.replace(redirect); // MODIFIÉ: Utilisation de router.replace
     } catch (error: any) {
       toast.error(error.message || "Failed to sign in. Please try again.");
-      setIsLoading(false);
+      setIsLoading(false); // S'assurer que isLoading est false en cas d'erreur
     }
+    // Note: setIsLoading(false) n'est pas explicitement remis à false en cas de succès ici,
+    // car la redirection via router.replace() va démonter le composant actuel.
+    // Si la redirection échouait ou était conditionnelle, il faudrait le gérer.
   }
 
   return (
     <div className="space-y-6">
-      <motion.div 
+      <motion.div
         className="flex flex-col items-center space-y-2 text-center"
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -97,12 +101,16 @@ export default function LoginPage() {
                 className="relative z-10"
               >
                 <FormItem>
-                <FormLabel>Email</FormLabel>
-                <FormControl>
-                  <Input placeholder="your.email@example.com" type="email" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
+                  <FormLabel>Email</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="your.email@example.com"
+                      type="email"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
               </motion.div>
             )}
           />
@@ -117,12 +125,16 @@ export default function LoginPage() {
                 className="relative z-10"
               >
                 <FormItem>
-                <FormLabel>Password</FormLabel>
-                <FormControl>
-                  <Input placeholder="••••••••" type="password" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
+                  <FormLabel>Password</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="••••••••"
+                      type="password"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
               </motion.div>
             )}
           />
@@ -131,9 +143,9 @@ export default function LoginPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 }}
           >
-            <Button 
-              type="submit" 
-              className="w-full relative overflow-hidden z-10" 
+            <Button
+              type="submit"
+              className="w-full relative overflow-hidden z-10"
               disabled={isLoading}
             >
               <motion.div
@@ -164,7 +176,7 @@ export default function LoginPage() {
         </form>
       </Form>
 
-      <motion.div 
+      <motion.div
         className="text-center text-sm"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
