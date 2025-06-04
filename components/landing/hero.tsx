@@ -68,12 +68,12 @@ export function Hero() {
   }, []);
 
   return (
-    <div className="relative min-h-[90vh] flex items-center justify-center overflow-hidden bg-gradient-to-br from-slate-950 via-slate-900 to-slate-800">
+    <div className="relative min-h-[90vh] flex items-center justify-center overflow-hidden bg-background">
       {/* Animated background grids */}
       <div className="absolute inset-0">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(255,255,255,0.03),transparent)] bg-[size:50px_50px]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(var(--foreground)/0.03),transparent)] bg-[size:50px_50px]" />
         <motion.div 
-          className="absolute inset-0 bg-[linear-gradient(to_right,transparent,rgba(255,255,255,0.01),transparent)] bg-[size:100px_100%]"
+          className="absolute inset-0 bg-[linear-gradient(to_right,transparent,rgba(var(--foreground)/0.01),transparent)] bg-[size:100px_100%]"
           animate={{
             x: ["-100%", "100%"],
           }}
@@ -93,10 +93,10 @@ export function Hero() {
               key={i}
               className={`absolute rounded-full ${
                 i % 3 === 0 
-                  ? "w-1 h-1 bg-white/40" 
+                  ? "w-1 h-1 bg-foreground/20" 
                   : i % 3 === 1 
-                  ? "w-0.5 h-0.5 bg-blue-400/30"
-                  : "w-1.5 h-1.5 bg-purple-400/20"
+                  ? "w-0.5 h-0.5 bg-primary/30"
+                  : "w-1.5 h-1.5 bg-muted-foreground/15"
               }`}
               initial={{
                 x: Math.random() * 100 + "%",
@@ -194,8 +194,8 @@ export function Hero() {
                       ease: "easeInOut"
                     }}
                   >
-                    <div className={`absolute inset-0 bg-gradient-to-br ${steps[currentStep].color} rounded-2xl opacity-20 blur-sm`} />
-                    <div className="relative bg-white/5 backdrop-blur-sm rounded-2xl p-4 border border-white/10">
+                    <div className={`absolute inset-0 bg-gradient-to-br ${steps[currentStep].color} rounded-2xl opacity-10 blur-sm`} />
+                    <div className="relative bg-background/80 backdrop-blur-sm rounded-2xl p-4 border border-border/50 shadow-lg">
                       <Lottie
                         animationData={steps[currentStep].animation}
                         loop={true}
