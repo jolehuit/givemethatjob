@@ -211,29 +211,7 @@ function InterviewRoom() {
             </div>
             
             <div className="p-4 flex justify-between items-center">
-              <div className="flex items-center gap-2">
-                <Button
-                  variant="outline"
-                  size="icon"
-                  onClick={toggleCamera}
-                  disabled={!callObject}
-                >
-                  {localParticipant?.video ? 
-                    <Camera className="h-4 w-4" /> : 
-                    <CameraOff className="h-4 w-4" />
-                  }
-                </Button>
-                <Button
-                  variant="outline"
-                  size="icon"
-                  onClick={toggleMic}
-                  disabled={!callObject}
-                >
-                  {localParticipant?.audio ? 
-                    <Mic className="h-4 w-4" /> : 
-                    <MicOff className="h-4 w-4" />
-                  }
-                </Button>
+              <div>
                 {meetingState === 'joined-meeting' && (
                   <span className="text-sm font-medium ml-2">
                     {formatTime(elapsedTime)}
