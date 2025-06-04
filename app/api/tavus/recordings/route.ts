@@ -60,7 +60,7 @@ export async function POST(request: Request) {
       }),
       config: {
         responseMimeType: "application/json"
-      })
+      }
     });
 
     if (!response.ok) {
