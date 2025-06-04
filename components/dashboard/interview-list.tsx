@@ -76,21 +76,23 @@ export function InterviewList() {
   
   if (isLoading) {
     return (
-      <div className="space-y-4">
+      <div className="space-items">
         {Array.from({ length: 3 }).map((_, i) => (
-          <motion.div 
-            key={i} 
+          <motion.div
+            key={i}
             className="relative overflow-hidden"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: i * 0.1 }}
           >
-            <div className="flex items-center justify-between p-6 border rounded-xl backdrop-blur-sm bg-background/50">
-              <div className="space-y-3">
-                <Skeleton className="h-5 w-48" />
-                <Skeleton className="h-4 w-32" />
+            <div className="card-dashboard">
+              <div className="flex items-center justify-between">
+                <div className="space-y-2">
+                  <Skeleton className="h-4 w-48" />
+                  <Skeleton className="h-3 w-32" />
+                </div>
+                <Skeleton className="h-6 w-16 rounded-full" />
               </div>
-              <Skeleton className="h-8 w-20 rounded-full" />
             </div>
           </motion.div>
         ))}
@@ -100,67 +102,29 @@ export function InterviewList() {
   
   if (interviews.length === 0) {
     return (
-      <motion.div 
-        className="relative text-center py-16 px-8 border-2 border-dashed border-border/50 rounded-2xl"
+      <motion.div
+        className="card-dashboard text-center py-8"
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.5 }}
       >
-        {/* Background glow */}
-        <motion.div
-          className="absolute inset-0 rounded-2xl"
-          style={{
-            background: "radial-gradient(circle at center, rgba(168, 85, 247, 0.1) 0%, transparent 60%)",
-            filter: "blur(40px)",
-          }}
-          animate={{
-            opacity: [0.3, 0.5, 0.3],
-          }}
-          transition={{
-            duration: 4,
-            repeat: Infinity,
-            ease: "easeInOut"
-          }}
-        />
-        
         <motion.div
           initial={{ y: 20 }}
           animate={{ y: 0 }}
           transition={{ delay: 0.2 }}
-          className="relative z-10"
         >
-          <motion.div
-            className="inline-flex p-4 rounded-full bg-primary/10 mb-4"
-            animate={{
-              scale: [1, 1.1, 1],
-              rotate: [0, 5, -5, 0],
-            }}
-            transition={{
-              duration: 4,
-              repeat: Infinity,
-              ease: "easeInOut"
-            }}
-          >
-            <Sparkles className="h-8 w-8 text-primary" />
-          </motion.div>
-          <p className="text-lg text-muted-foreground mb-4">No interviews yet. Start practicing!</p>
+          <div className="inline-flex p-3 rounded-full bg-primary/10 mb-3">
+            <Sparkles className="icon-md text-primary" />
+          </div>
+          <p className="text-sm text-muted-foreground mb-4">Aucun entretien pour le moment</p>
           <Link href="/interview/new">
             <motion.button
-              className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-primary-foreground rounded-lg font-medium shadow-lg"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
+              className="inline-flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-md text-sm font-medium"
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
             >
-              Create your first interview
-              <motion.span
-                animate={{ x: [0, 5, 0] }}
-                transition={{
-                  duration: 1.5,
-                  repeat: Infinity,
-                  ease: "easeInOut"
-                }}
-              >
-                <ArrowRight className="h-4 w-4" />
-              </motion.span>
+              Créer votre premier entretien
+              <ArrowRight className="icon-sm" />
             </motion.button>
           </Link>
         </motion.div>
@@ -169,7 +133,7 @@ export function InterviewList() {
   }
   
   return (
-    <div className="space-y-4">
+    <div className="space-items">
       <AnimatePresence>
         {interviews.map((interview) => {
           const ScoreIcon = getScoreIcon(interview.score);
@@ -181,141 +145,73 @@ export function InterviewList() {
               onMouseLeave={() => setHoveredId(null)}
               className="relative"
             >
-              {/* Background glow on hover */}
-              <motion.div
-                className="absolute -inset-2 rounded-2xl opacity-0"
-                style={{
-                  background: interview.status === "completed" 
-                    ? `radial-gradient(circle at left, ${getScoreGlow(interview.score)} 0%, transparent 60%)`
-                    : "radial-gradient(circle at left, rgba(59, 130, 246, 0.3) 0%, transparent 60%)",
-                  filter: "blur(20px)",
-                }}
-                animate={{
-                  opacity: hoveredId === interview.id ? 1 : 0,
-                }}
-                transition={{ duration: 0.3 }}
-              />
-              
               <Link
                 href={`/interview/${interview.id}/${interview.status === "completed" ? "feedback" : "room"}`}
                 className="block"
               >
-                <motion.div 
-                  className="relative flex items-center justify-between p-4 border rounded-lg bg-background/80 backdrop-blur-sm transition-all hover:border-border/80 hover:shadow-sm"
-                  whileHover={{ y: -2 }}
+                <motion.div
+                  className="card-dashboard group"
+                  whileHover={{ y: -1 }}
                   transition={{ duration: 0.2 }}
                 >
-                  <div className="flex items-start gap-4">
-                    {/* Icon with gradient */}
-                    <motion.div
-                      className="relative mt-1"
-                      animate={hoveredId === interview.id ? {
-                        rotate: [0, 5, -5, 0],
-                      } : {}}
-                      transition={{
-                        duration: 0.5,
-                        ease: "easeInOut"
-                      }}
-                    >
-                      <div className={`p-2 rounded-lg bg-gradient-to-br ${
-                        interview.status === "completed" 
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      {/* Fixed icon visibility */}
+                      <div className={`p-2 rounded-md bg-gradient-to-br ${
+                        interview.status === "completed"
                           ? getScoreColor(interview.score)
                           : "from-blue-500 to-cyan-500"
-                      } opacity-10`} />
-                      {interview.status === "completed" ? (
-                        <ScoreIcon className="absolute inset-2 h-5 w-5 text-foreground" />
-                      ) : (
-                        <Clock className="absolute inset-2 h-5 w-5 text-foreground animate-pulse" />
-                      )}
-                    </motion.div>
-                    
-                    <div>
-                      <h4 className="font-medium text-base flex items-center gap-2">
-                        {interview.job_title}
-                        {hoveredId === interview.id && (
-                          <motion.span
-                            initial={{ opacity: 0, x: -10 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            className="text-primary"
-                          >
-                            <ArrowRight className="h-4 w-4" />
-                          </motion.span>
+                      } relative`}>
+                        {interview.status === "completed" ? (
+                          <ScoreIcon className="icon-sm text-white" />
+                        ) : (
+                          <Clock className="icon-sm text-white" />
                         )}
-                      </h4>
-                      <p className="text-sm text-muted-foreground mt-1 flex items-center gap-2">
-                        <span>{interview.company}</span>
-                        <span className="text-xs">•</span>
-                        <span className="text-xs">
-                          {formatDistanceToNow(new Date(interview.created_at), { addSuffix: true })}
-                        </span>
-                      </p>
+                      </div>
+                      
+                      <div className="min-w-0 flex-1">
+                        <h4 className="font-medium text-sm flex items-center gap-2 truncate">
+                          {interview.job_title}
+                          {hoveredId === interview.id && (
+                            <motion.span
+                              initial={{ opacity: 0, x: -5 }}
+                              animate={{ opacity: 1, x: 0 }}
+                              className="text-primary"
+                            >
+                              <ArrowRight className="icon-sm" />
+                            </motion.span>
+                          )}
+                        </h4>
+                        <p className="text-xs text-muted-foreground flex items-center gap-2 mt-1">
+                          <span className="truncate">{interview.company}</span>
+                          <span>•</span>
+                          <span>
+                            {formatDistanceToNow(new Date(interview.created_at), { addSuffix: true })}
+                          </span>
+                        </p>
+                      </div>
                     </div>
-                  </div>
-                  
-                  <div className="flex items-center gap-3">
-                    {interview.status === "completed" ? (
-                      <motion.div
-                        className="relative"
-                        animate={hoveredId === interview.id ? {
-                          scale: [1, 1.1, 1],
-                        } : {}}
-                        transition={{
-                          duration: 0.3,
-                        }}
-                      >
-                        <Badge 
-                          variant="outline" 
-                          className={`relative px-4 py-1.5 font-semibold bg-gradient-to-r ${getScoreColor(interview.score)} text-white border-0`}
-                          style={{
-                            boxShadow: `0 4px 20px ${getScoreGlow(interview.score)}`,
-                          }}
+                    
+                    <div className="flex-shrink-0">
+                      {interview.status === "completed" ? (
+                        <Badge
+                          variant="outline"
+                          className={`px-2 py-1 text-xs bg-gradient-to-r ${getScoreColor(interview.score)} text-white border-0`}
                         >
-                          <motion.span
-                            className="relative z-10"
-                            animate={{
-                              textShadow: hoveredId === interview.id 
-                                ? `0 0 20px rgba(255,255,255,0.8)`
-                                : `0 0 0px rgba(255,255,255,0)`,
-                            }}
-                          >
-                            {interview.score}%
-                          </motion.span>
-                          
-                          {/* Shimmer effect */}
-                          <motion.div
-                            className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent skew-x-12 rounded-md"
-                            animate={{
-                              x: hoveredId === interview.id ? ["-200%", "200%"] : "-200%",
-                            }}
-                            transition={{
-                              duration: 1,
-                              ease: "easeInOut",
-                            }}
-                          />
+                          {interview.score}%
                         </Badge>
-                      </motion.div>
-                    ) : (
-                      <Badge 
-                        variant="outline" 
-                        className="relative px-3 py-1 bg-gradient-to-r from-blue-500 to-cyan-500 text-white border-0 animate-pulse"
-                      >
-                        <span className="relative z-10 flex items-center gap-2">
-                          <motion.div
-                            className="w-2 h-2 bg-white rounded-full"
-                            animate={{
-                              scale: [1, 1.5, 1],
-                              opacity: [1, 0.5, 1],
-                            }}
-                            transition={{
-                              duration: 1.5,
-                              repeat: Infinity,
-                              ease: "easeInOut"
-                            }}
-                          />
-                          In Progress
-                        </span>
-                      </Badge>
-                    )}
+                      ) : (
+                        <Badge
+                          variant="outline"
+                          className="px-2 py-1 text-xs bg-gradient-to-r from-blue-500 to-cyan-500 text-white border-0"
+                        >
+                          <div className="flex items-center gap-1">
+                            <div className="w-1 h-1 bg-white rounded-full animate-pulse" />
+                            En cours
+                          </div>
+                        </Badge>
+                      )}
+                    </div>
                   </div>
                 </motion.div>
               </Link>
