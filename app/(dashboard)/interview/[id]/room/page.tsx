@@ -38,7 +38,7 @@ function InterviewRoom() {
   const [isStarting, setIsStarting] = useState(false);
   const [isFinishing, setIsFinishing] = useState(false);
   const [elapsedTime, setElapsedTime] = useState(0);
-  const [selectedDuration, setSelectedDuration] = useState(30);
+  const [selectedDuration, setSelectedDuration] = useState<number | null>(null);
   
   // Daily React hooks
   const callObject = useDaily();
@@ -72,6 +72,13 @@ function InterviewRoom() {
     
     fetchInterview();
   }, [id, router]);
+  
+  // Set initial duration from interview data
+  useEffect(() => {
+    if (interview?.duration_minutes) {
+      setSelectedDuration(interview.duration_minutes);
+    }
+  }, [interview]);
 
   // Timer for elapsed time
   useEffect(() => {
@@ -83,8 +90,8 @@ function InterviewRoom() {
     if (meetingState === 'joined-meeting') {
       timerRef.current = setInterval(() => {
         setElapsedTime(prev => prev + 1);
-        // Check if time limit reached
-        if (prev + 1 >= selectedDuration * 60) {
+        // Check if time limit reached and duration is set
+        if (selectedDuration && prev + 1 >= selectedDuration * 60) {
           finishInterview();
         }
       }, 1000);
@@ -103,6 +110,15 @@ function InterviewRoom() {
     setIsStarting(true);
     
     try {
+      const { data: updateData, error: updateError } = await supabase
+        .from('interviews')
+        .update({ duration_minutes: selectedDuration })
+        .eq('id', id)
+        .select()
+        .single();
+
+      if (updateError) throw updateError;
+
       const response = await fetch('/api/tavus/conversations', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -111,6 +127,7 @@ function InterviewRoom() {
           job_title: interview?.job_title,
           company: interview?.company,
           cv_path: interview?.cv_path,
+          duration_minutes: selectedDuration,
           language: interview?.language,
           properties: {
             enable_recording: true,
@@ -124,6 +141,13 @@ function InterviewRoom() {
       const data = await response.json();
       if (!response.ok) throw new Error(data.error);
 
+      // Store Tavus conversation ID
+      await supabase
+        .from('interviews')
+        .update({ tavus_conversation_id: data.conversation_id })
+        .eq('id', id);
+
+      // Join the call
       await callObject.join({ 
         url: data.conversation_url,
         userName: 'Candidate'
@@ -136,7 +160,7 @@ function InterviewRoom() {
     } finally {
       setIsStarting(false);
     }
-  }, [callObject, id, interview, isStarting]);
+  }, [callObject, id, interview, isStarting, selectedDuration]);
 
   const finishInterview = useCallback(async () => {
     if (!callObject) return;
@@ -293,7 +317,7 @@ function InterviewRoom() {
                   {[1, 5, 10, 15, 30, 45].map((duration) => (
                     <Button
                       key={duration}
-                      variant={selectedDuration === duration ? "default" : "outline"}
+                      variant={selectedDuration === duration ? "default" : "outline"} 
                       size="sm"
                       onClick={() => setSelectedDuration(duration)}
                       disabled={meetingState === 'joined-meeting'}
@@ -302,6 +326,11 @@ function InterviewRoom() {
                     </Button>
                   ))}
                 </div>
+                {selectedDuration && meetingState === 'joined-meeting' && (
+                  <p className="text-xs text-muted-foreground mt-2">
+                    Interview will end automatically after {selectedDuration} minutes
+                  </p>
+                )}
               </div>
             </CardContent>
           </Card>

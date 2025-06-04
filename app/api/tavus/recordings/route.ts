@@ -18,21 +18,25 @@ export async function POST(request: Request) {
     const { conversation_id, recording_url } = body;
     
     // Store recording URL
-    const { data: interview, error: fetchError } = await supabase
+    const { data: interview, error: fetchError } = await supabase 
       .from('interviews')
       .select('id')
       .eq('tavus_conversation_id', conversation_id)
       .single();
       
     if (fetchError) throw fetchError;
-    
-    const { error: insertError } = await supabase
+
+    // Create video recording entry
+    const { data: recording, error: insertError } = await supabase
       .from('video_recordings')
       .insert({
         interview_id: interview.id,
-        recording_url: recording_url
-      });
-      
+        recording_url: recording_url,
+        analysis_status: 'processing'
+      })
+      .select()
+      .single();
+    
     if (insertError) throw insertError;
     
     // Start video analysis with Gemini
@@ -45,7 +49,7 @@ export async function POST(request: Request) {
       body: JSON.stringify({
         contents: [{
           parts: [{
-            text: "Analyze this interview recording and provide scores for: verbal communication, non-verbal communication, content quality, and question understanding. Also list strengths and areas for improvement."
+            text: "Analyze this interview recording and provide a structured evaluation with the following scores (0-100): verbal_communication, non_verbal_communication, content_quality, question_understanding. Also provide two arrays: strengths and weaknesses. Format the response as JSON."
           }, {
             fileData: {
               fileUri: recording_url,
@@ -53,6 +57,9 @@ export async function POST(request: Request) {
             }
           }]
         }]
+      }),
+      config: {
+        responseMimeType: "application/json"
       })
     });
 
@@ -63,13 +70,21 @@ export async function POST(request: Request) {
     const analysisResult = await response.json();
     
     // Update recording with analysis
+    const scores = analysisResult.scores;
+    
     const { error: updateError } = await supabase
       .from('video_recordings')
       .update({
         analysis_status: 'completed',
-        analysis_result: analysisResult
+        analysis_result: analysisResult,
+        verbal_score: scores.verbal_communication,
+        non_verbal_score: scores.non_verbal_communication,
+        content_score: scores.content_quality,
+        understanding_score: scores.question_understanding,
+        strengths: analysisResult.strengths,
+        weaknesses: analysisResult.weaknesses
       })
-      .eq('interview_id', interview.id);
+      .eq('id', recording.id);
       
     if (updateError) throw updateError;
 
