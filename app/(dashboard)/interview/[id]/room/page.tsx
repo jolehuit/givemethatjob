@@ -38,6 +38,7 @@ function InterviewRoom() {
   const [isStarting, setIsStarting] = useState(false);
   const [isFinishing, setIsFinishing] = useState(false);
   const [elapsedTime, setElapsedTime] = useState(0);
+  const [selectedDuration, setSelectedDuration] = useState(30);
   
   // Daily React hooks
   const callObject = useDaily();
@@ -82,6 +83,10 @@ function InterviewRoom() {
     if (meetingState === 'joined-meeting') {
       timerRef.current = setInterval(() => {
         setElapsedTime(prev => prev + 1);
+        // Check if time limit reached
+        if (prev + 1 >= selectedDuration * 60) {
+          finishInterview();
+        }
       }, 1000);
     }
     
@@ -107,6 +112,12 @@ function InterviewRoom() {
           company: interview?.company,
           cv_path: interview?.cv_path,
           language: interview?.language,
+          properties: {
+            enable_recording: true,
+            recording_s3_bucket_name: process.env.NEXT_PUBLIC_AWS_S3_BUCKET,
+            recording_s3_bucket_region: process.env.NEXT_PUBLIC_AWS_REGION,
+            callback_url: `${window.location.origin}/api/tavus/recordings`
+          }
         }),
       });
 
@@ -279,12 +290,17 @@ function InterviewRoom() {
               <div>
                 <h4 className="text-sm font-medium text-muted-foreground">Duration</h4>
                 <div className="flex gap-2 mt-1">
-                  <Button variant="outline" size="sm">1 min</Button>
-                  <Button variant="outline" size="sm">5 min</Button>
-                  <Button variant="outline" size="sm">10 min</Button>
-                  <Button variant="outline" size="sm">15 min</Button>
-                  <Button variant="outline" size="sm">30 min</Button>
-                  <Button variant="outline" size="sm">45 min</Button>
+                  {[1, 5, 10, 15, 30, 45].map((duration) => (
+                    <Button
+                      key={duration}
+                      variant={selectedDuration === duration ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => setSelectedDuration(duration)}
+                      disabled={meetingState === 'joined-meeting'}
+                    >
+                      {duration} min
+                    </Button>
+                  ))}
                 </div>
               </div>
             </CardContent>
