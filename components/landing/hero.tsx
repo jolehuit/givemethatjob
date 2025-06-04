@@ -378,20 +378,6 @@ export function Hero() {
                     boxShadow: `0 10px 40px ${steps[currentStep].glowColor}`,
                   }}
                 >
-                  {/* Shimmer effect */}
-                  <motion.div
-                    className="absolute inset-0 rounded-2xl bg-gradient-to-r from-transparent via-white/20 to-transparent skew-x-12"
-                    animate={{
-                      x: ["-200%", "200%"],
-                    }}
-                    transition={{
-                      duration: 3,
-                      repeat: Infinity,
-                      ease: "easeInOut",
-                      repeatDelay: 1,
-                    }}
-                  />
-                  
                   <span className="relative z-10 flex items-center gap-2">
                     Start Your Journey
                     <motion.span
