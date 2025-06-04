@@ -1,9 +1,9 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence, useMotionValue, useTransform } from "framer-motion";
-import { useEffect, useState, useRef } from "react";
 import Lottie from "lottie-react";
 import brainAnimation from "@/public/lottie-animations/brain.json";
 import sparklesAnimation from "@/public/lottie-animations/sparkles.json";
@@ -16,6 +16,7 @@ export function Hero() {
   const [typedText, setTypedText] = useState("");
   const [showParticles, setShowParticles] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  const [isLargeScreen, setIsLargeScreen] = useState(false);
   
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
@@ -59,6 +60,12 @@ export function Hero() {
   ];
 
   useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setIsLargeScreen(window.innerWidth > 768);
+    }
+  }, []);
+
+  useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
       if (containerRef.current) {
         const rect = containerRef.current.getBoundingClientRect();
@@ -69,7 +76,7 @@ export function Hero() {
       }
     };
 
-    if (window.innerWidth > 768) {
+    if (isLargeScreen) {
       window.addEventListener("mousemove", handleMouseMove);
       return () => window.removeEventListener("mousemove", handleMouseMove);
     }
@@ -176,7 +183,7 @@ export function Hero() {
                 bottom: `-10px`,
               }}
               animate={{
-                y: [0, typeof window !== 'undefined' ? -window.innerHeight - 100 : -800],
+                y: [0, -800],
                 opacity: [0, 1, 0],
               }}
               transition={{
@@ -194,8 +201,8 @@ export function Hero() {
         <motion.div 
           className="text-center space-y-8 sm:space-y-12"
           style={{
-            rotateX: window.innerWidth > 768 ? rotateX : 0,
-            rotateY: window.innerWidth > 768 ? rotateY : 0,
+            rotateX: isLargeScreen ? rotateX : 0,
+            rotateY: isLargeScreen ? rotateY : 0,
             transformPerspective: 1000,
           }}
         >
