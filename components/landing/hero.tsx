@@ -66,9 +66,8 @@ export function Hero() {
   return (
     <div className="relative min-h-[90vh] flex items-center justify-center overflow-hidden">
       {/* Animated background */}
-      <div className="absolute inset-0 bg-gradient-to-b from-background via-background to-background/50">
+      <div className="absolute inset-0 bg-gradient-to-b from-background to-background/50">
         <div className="absolute inset-0 bg-grid-white/[0.02] bg-[size:50px_50px]" />
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-background" />
       </div>
 
       {/* Floating particles */}
@@ -182,4 +181,3 @@ export function Hero() {
       </div>
     </div>
   );
-}
