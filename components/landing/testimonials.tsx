@@ -64,7 +64,7 @@ const features = [
   },
 ];
 
-export function Features() {
+export function Testimonials() {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
 
   return (
