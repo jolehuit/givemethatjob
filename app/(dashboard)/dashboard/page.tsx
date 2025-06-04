@@ -39,6 +39,8 @@ import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { toast } from "sonner";
+import { motion } from "framer-motion";
+import { useRouter } from "next/navigation";
 
 interface UserProfile {
   id: string;
@@ -73,18 +75,25 @@ const BADGES = {
 };
 
 export default function DashboardPage() {
+  const router = useRouter();
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [progressData, setProgressData] = useState<any[]>([]);
   const [achievements, setAchievements] = useState<Achievement[]>([]);
   const [goals, setGoals] = useState<Goal[]>([]);
   const [leaderboard, setLeaderboard] = useState<any[]>([]);
+  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
   
   useEffect(() => {
     const fetchProfile = async () => {
       try {
+        setIsLoading(true);
         const { data: { user } } = await supabase.auth.getUser();
-        if (!user) throw new Error("No user found");
+        if (!user) {
+          toast.error("Please sign in to view your dashboard");
+          router.push('/login');
+          return;
+        }
         
         const { data, error } = await supabase
           .from('profiles')
@@ -225,15 +234,46 @@ export default function DashboardPage() {
   }
   
   return (
-    <div className="space-y-8">
+    <div className="relative space-y-8">
+      {/* Background Effects */}
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,hsl(var(--border)/0.2)_1px,transparent_1px),linear-gradient(to_bottom,hsl(var(--border)/0.2)_1px,transparent_1px)] bg-[size:60px_60px]" />
+        
+        <motion.div
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px]"
+          style={{
+            background: "radial-gradient(circle, rgba(168, 85, 247, 0.1) 0%, transparent 50%)",
+            filter: "blur(100px)",
+          }}
+          animate={{
+            scale: [1, 1.1, 1],
+            opacity: [0.3, 0.5, 0.3],
+          }}
+          transition={{
+            duration: 8,
+            repeat: Infinity,
+            ease: "easeInOut"
+          }}
+        />
+      </div>
+
       <div className="flex flex-col md:flex-row gap-4 md:items-center md:justify-between">
-        <div>
+        <motion.div
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.5 }}
+        >
           <h2 className="text-3xl font-bold tracking-tight">Dashboard</h2>
           <p className="text-muted-foreground">
             Track your interview progress and performance
           </p>
-        </div>
-        <div className="flex gap-2">
+        </motion.div>
+        <motion.div 
+          className="flex gap-2"
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+        >
           <Button variant="outline" onClick={shareProgress}>
             <Share2 className="mr-2 h-4 w-4" /> Share Progress
           </Button>
@@ -242,79 +282,112 @@ export default function DashboardPage() {
               <PlusCircle className="mr-2 h-4 w-4" /> New Interview
             </Button>
           </Link>
-        </div>
+        </motion.div>
       </div>
       
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Total Interviews
-            </CardTitle>
-            <Briefcase className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {profile?.interviews_completed || 0}
-            </div>
-            <div className="text-xs text-muted-foreground mt-1">
-              +{Math.floor(Math.random() * 5)} this week
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Average Score
-            </CardTitle>
-            <Trophy className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {profile?.average_score || 0}%
-            </div>
-            <div className="mt-2">
-              <Progress value={profile?.average_score || 0} />
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Current Rank
-            </CardTitle>
-            <Award className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {profile?.average_score >= 80 ? '#12' : '#24'}
-            </div>
-            <div className="text-xs text-muted-foreground mt-1">
-              Top {profile?.average_score >= 80 ? '5%' : '10%'} of users
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Next Goal
-            </CardTitle>
-            <Target className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">90%</div>
-            <div className="text-xs text-muted-foreground mt-1">
-              {Math.round(90 - (profile?.average_score || 0))}% to reach target
-            </div>
-          </CardContent>
-        </Card>
+        {[
+          {
+            title: "Total Interviews",
+            value: profile?.interviews_completed || 0,
+            change: `+${Math.floor(Math.random() * 5)} this week`,
+            icon: Briefcase,
+            color: "from-blue-500 to-cyan-500",
+            glow: "rgba(59, 130, 246, 0.5)"
+          },
+          {
+            title: "Average Score",
+            value: `${profile?.average_score || 0}%`,
+            progress: profile?.average_score || 0,
+            icon: Trophy,
+            color: "from-purple-500 to-pink-500",
+            glow: "rgba(168, 85, 247, 0.5)"
+          },
+          {
+            title: "Current Rank",
+            value: profile?.average_score >= 80 ? '#12' : '#24',
+            subtitle: `Top ${profile?.average_score >= 80 ? '5%' : '10%'} of users`,
+            icon: Award,
+            color: "from-orange-500 to-amber-500",
+            glow: "rgba(251, 146, 60, 0.5)"
+          },
+          {
+            title: "Next Goal",
+            value: "90%",
+            subtitle: `${Math.round(90 - (profile?.average_score || 0))}% to reach target`,
+            icon: Target,
+            color: "from-emerald-500 to-teal-500",
+            glow: "rgba(52, 211, 153, 0.5)"
+          }
+        ].map((card, index) => (
+          <motion.div
+            key={card.title}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: index * 0.1 }}
+            onMouseEnter={() => setHoveredIndex(index)}
+            onMouseLeave={() => setHoveredIndex(null)}
+            className="relative"
+          >
+            {/* Card glow effect */}
+            <motion.div
+              className="absolute -inset-2 rounded-xl opacity-0"
+              style={{
+                background: `radial-gradient(circle at center, ${card.glow} 0%, transparent 60%)`,
+                filter: "blur(20px)",
+              }}
+              animate={{
+                opacity: hoveredIndex === index ? 1 : 0,
+              }}
+              transition={{ duration: 0.3 }}
+            />
+            
+            <Card className="relative transition-all duration-300 hover:border-border/80 hover:shadow-lg">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">
+                {card.title}
+              </CardTitle>
+              <motion.div
+                className={`p-2 rounded-lg bg-gradient-to-br ${card.color} opacity-10`}
+                whileHover={{ scale: 1.1, rotate: 5 }}
+                transition={{ type: "spring", stiffness: 400, damping: 10 }}
+              >
+                <card.icon className="h-4 w-4 text-foreground" />
+              </motion.div>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">
+                {card.value}
+              </div>
+              {card.change && (
+                <div className="text-xs text-muted-foreground mt-1">
+                  {card.change}
+                </div>
+              )}
+              {card.progress && (
+                <div className="mt-2">
+                  <Progress value={card.progress} />
+                </div>
+              )}
+              {card.subtitle && (
+                <div className="text-xs text-muted-foreground mt-1">
+                  {card.subtitle}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+          </motion.div>
+        ))}
       </div>
       
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
-        <Card className="col-span-4">
+        <motion.div
+          className="col-span-4"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.4 }}
+        >
+          <Card className="h-full transition-all duration-300 hover:border-border/80 hover:shadow-lg">
           <CardHeader>
             <CardTitle>Progress Overview</CardTitle>
             <CardDescription>
@@ -346,9 +419,16 @@ export default function DashboardPage() {
               </ResponsiveContainer>
             </div>
           </CardContent>
-        </Card>
+          </Card>
+        </motion.div>
         
-        <Card className="col-span-3">
+        <motion.div
+          className="col-span-3"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.5 }}
+        >
+          <Card className="h-full transition-all duration-300 hover:border-border/80 hover:shadow-lg">
           <CardHeader>
             <CardTitle>Achievements</CardTitle>
             <CardDescription>
@@ -400,9 +480,16 @@ export default function DashboardPage() {
               </div>
             </ScrollArea>
           </CardContent>
-        </Card>
+          </Card>
+        </motion.div>
 
-        <Card className="col-span-4">
+        <motion.div
+          className="col-span-4"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.6 }}
+        >
+          <Card className="h-full transition-all duration-300 hover:border-border/80 hover:shadow-lg">
           <CardHeader>
             <CardTitle>Recent Interviews</CardTitle>
             <CardDescription>
@@ -412,9 +499,16 @@ export default function DashboardPage() {
           <CardContent>
             <InterviewList />
           </CardContent>
-        </Card>
+          </Card>
+        </motion.div>
         
-        <Card className="col-span-3">
+        <motion.div
+          className="col-span-3"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.7 }}
+        >
+          <Card className="h-full transition-all duration-300 hover:border-border/80 hover:shadow-lg">
           <CardHeader>
             <CardTitle>Monthly Leaderboard</CardTitle>
             <CardDescription>
@@ -454,7 +548,8 @@ export default function DashboardPage() {
               ))}
             </div>
           </CardContent>
-        </Card>
+          </Card>
+        </motion.div>
       </div>
     </div>
   );
