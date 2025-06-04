@@ -19,6 +19,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { supabase } from "@/lib/supabase";
+import { useState } from "react";
 import { Briefcase, Loader2, Sparkles } from "lucide-react";
 
 const formSchema = z.object({
@@ -29,6 +30,7 @@ const formSchema = z.object({
 export default function LoginPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const [isLoading, setIsLoading] = useState(false);
   const redirect = searchParams.get("redirect") || "/dashboard";
   
   const form = useForm<z.infer<typeof formSchema>>({
