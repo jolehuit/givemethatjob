@@ -154,20 +154,21 @@ export function Hero() {
               style={{
                 background: `radial-gradient(circle, ${steps[currentStep].lightColor}, ${steps[currentStep].particleColor})`,
                 boxShadow: `0 0 20px ${steps[currentStep].glowColor}`,
-                left: `${Math.random() * 100}%`,
-                top: `${Math.random() * 100}%`,
+                left: `${Math.random() * 80 + 10}%`,
+                top: `${Math.random() * 80 + 10}%`,
               }}
               animate={{
-                x: [0, Math.random() * 100 - 50, 0],
-                y: [0, Math.random() * 100 - 50, 0],
+                x: [0, Math.random() * 60 - 30],
+                y: [0, Math.random() * 60 - 30],
                 scale: [1, 1.5, 1],
                 opacity: [0.4, 0.8, 0.4],
               }}
               transition={{
-                duration: Math.random() * 10 + 10,
+                duration: Math.random() * 5 + 15,
                 repeat: Infinity,
-                ease: "easeInOut",
+                ease: "easeOut",
                 delay: Math.random() * 5,
+                repeatType: "reverse"
               }}
             />
           ))}
@@ -179,18 +180,19 @@ export function Hero() {
               className="absolute w-1 h-1 rounded-full"
               style={{
                 background: steps[currentStep].particleColor,
-                left: `${Math.random() * 100}%`,
+                left: `${Math.random() * 80 + 10}%`,
                 bottom: `-10px`,
               }}
               animate={{
-                y: [0, -800],
-                opacity: [0, 1, 0],
+                y: [0, -600],
+                opacity: [0, 0.6, 0],
+                x: [0, Math.random() * 40 - 20]
               }}
               transition={{
-                duration: Math.random() * 10 + 10,
+                duration: Math.random() * 8 + 12,
                 repeat: Infinity,
                 delay: Math.random() * 10,
-                ease: "easeOut"
+                ease: "easeInOut"
               }}
             />
           ))}
