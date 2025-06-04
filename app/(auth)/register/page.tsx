@@ -33,7 +33,7 @@ const formSchema = z.object({
 
 export default function RegisterPage() {
   const router = useRouter();
-  const [isLoading, setIsLoading] = useState(false);
+  import { Sparkles, Loader2 } from "lucide-react";
   
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -109,9 +109,13 @@ export default function RegisterPage() {
         transition={{ duration: 0.5 }}
       >
         <Link href="/" className="flex items-center space-x-2">
-          <div className="bg-primary/10 p-2 rounded-lg">
-            <Briefcase className="h-6 w-6 text-primary" />
-          </div>
+          <motion.div
+            className="relative"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            <Sparkles className="h-6 w-6 text-primary" />
+          </motion.div>
           <span className="font-bold text-2xl">GiveMeThatJob</span>
         </Link>
         <h1 className="text-2xl font-semibold tracking-tight">Create an account</h1>
