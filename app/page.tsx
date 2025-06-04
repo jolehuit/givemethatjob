@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Hero } from "@/components/landing/hero";
 import { Features } from "@/components/landing/features";
 import { PricingSection } from "@/components/landing/pricing";
-import { Testimon                           eials } from "@/components/landing/testimonials";
+import { Testimonials } from "@/components/landing/testimonials";
 import { Navbar } from "@/components/landing/navbar";
 import { Footer } from "@/components/landing/footer";
 
