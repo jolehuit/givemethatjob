@@ -39,6 +39,7 @@ function InterviewRoom() {
   const [isFinishing, setIsFinishing] = useState(false);
   const [elapsedTime, setElapsedTime] = useState(0);
   const [selectedDuration, setSelectedDuration] = useState<number | null>(null);
+  const [shouldEndInterview, setShouldEndInterview] = useState(false);
   
   // Daily React hooks
   const callObject = useDaily();
@@ -88,16 +89,7 @@ function InterviewRoom() {
     }
     
     if (meetingState === 'joined-meeting') {
-      timerRef.current = setInterval(() => {
-        setElapsedTime(prevTime => {
-          const newTime = prevTime + 1;
-          // Check if time limit reached and duration is set
-          if (selectedDuration && newTime >= selectedDuration * 60) {
-            finishInterview();
-          }
-          return newTime;
-        });
-      }, 1000);
+      timerRef.current = setInterval(() => setElapsedTime(prev => prev + 1), 1000);
     }
     
     return () => {
@@ -106,7 +98,19 @@ function InterviewRoom() {
         timerRef.current = null;
       }
     };
-  }, [meetingState, selectedDuration, finishInterview]);
+  }, [meetingState]);
+
+  // Check for interview duration limit
+  useEffect(() => {
+    if (selectedDuration && elapsedTime >= selectedDuration * 60) {
+      setShouldEndInterview(true);
+    }
+  }, [elapsedTime, selectedDuration]);
+
+  // Handle auto-end when time limit reached
+  useEffect(() => {
+    if (shouldEndInterview) finishInterview();
+  }, [shouldEndInterview, finishInterview]);
 
   const startInterview = useCallback(async () => {
     if (isStarting || !callObject) return;
