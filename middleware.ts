@@ -2,7 +2,11 @@ import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
 export async function middleware(request: NextRequest) {
-  const response = NextResponse.next()
+  let response = NextResponse.next({
+    request: {
+      headers: request.headers,
+    },
+  })
 
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
@@ -19,32 +23,43 @@ export async function middleware(request: NextRequest) {
       cookies: {
         get: (name) => request.cookies.get(name)?.value,
         set: (name, value, options) => {
+          // Important: set cookies sur request ET response
+          request.cookies.set(name, value)
           response.cookies.set(name, value, options)
         },
         remove: (name, options) => {
-          response.cookies.delete(name, options)
+          // Important: remove cookies sur request ET response  
+          request.cookies.delete(name)
+          response.cookies.set(name, '', { ...options, maxAge: 0 })
         },
       },
     }
   )
 
-  const { data: { user } } = await supabase.auth.getUser()
+  // Récupérer l'utilisateur et rafraîchir la session si nécessaire
+  const { data: { user }, error } = await supabase.auth.getUser()
 
-  // Protected routes
-  if (request.nextUrl.pathname.startsWith('/dashboard') || 
-      request.nextUrl.pathname.startsWith('/interview') || 
-      request.nextUrl.pathname.startsWith('/settings')) {
-    if (!user) {
-      return NextResponse.redirect(new URL('/login', request.url))
-    }
+  // Log pour debug (à retirer en prod)
+  console.log('Middleware - Path:', request.nextUrl.pathname, 'User:', !!user, 'Error:', error?.message)
+
+  const isAuthPage = request.nextUrl.pathname.startsWith('/login') || 
+                     request.nextUrl.pathname.startsWith('/register')
+  
+  const isProtectedPage = request.nextUrl.pathname.startsWith('/dashboard') || 
+                          request.nextUrl.pathname.startsWith('/interview') || 
+                          request.nextUrl.pathname.startsWith('/settings')
+
+  // Si c'est une page protégée et pas d'utilisateur
+  if (isProtectedPage && !user) {
+    const redirectUrl = new URL('/login', request.url)
+    redirectUrl.searchParams.set('redirect', request.nextUrl.pathname)
+    return NextResponse.redirect(redirectUrl)
   }
 
-  // Auth routes - redirect to dashboard if already authenticated
-  if (user && (
-    request.nextUrl.pathname.startsWith('/login') || 
-    request.nextUrl.pathname.startsWith('/register')
-  )) {
-    return NextResponse.redirect(new URL('/dashboard', request.url))
+  // Si c'est une page d'auth et utilisateur connecté
+  if (isAuthPage && user) {
+    const redirectPath = request.nextUrl.searchParams.get('redirect') || '/dashboard'
+    return NextResponse.redirect(new URL(redirectPath, request.url))
   }
 
   return response
@@ -52,11 +67,6 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    '/',
-    '/login',
-    '/register',
-    '/interview/:path*',
-    '/dashboard/:path*',
-    '/settings/:path*'
+    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
   ]
 }
