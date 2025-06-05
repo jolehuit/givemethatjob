@@ -1,4 +1,3 @@
-// File: /app/(auth)/login/page.tsx
 "use client";
 
 import { useState } from "react";
@@ -48,7 +47,7 @@ export default function LoginPage() {
     setIsLoading(true);
 
     try {
-      const { error } = await supabase.auth.signInWithPassword({
+      const { data, error } = await supabase.auth.signInWithPassword({
         email: values.email,
         password: values.password,
       });
@@ -57,18 +56,22 @@ export default function LoginPage() {
         throw error;
       }
 
+      if (!data.user || !data.session) {
+        throw new Error("Authentication failed - no user or session returned");
+      }
+
       toast.success("Successfully signed in!");
+
+      // Attendre que la session soit vraiment établie
+      await new Promise(resolve => setTimeout(resolve, 100));
       
-      // ÉTAPE CRUCIALE AJOUTÉE : Rafraîchir la session côté serveur avant de rediriger
-      router.refresh(); 
+      // Forcer le refresh de la page pour synchroniser la session côté serveur
+      window.location.href = redirect;
       
-      router.replace(redirect);
-      // setIsLoading(false) n'est généralement pas nécessaire ici car le composant sera démonté
-      // lors de la redirection. Si la redirection échouait pour une raison quelconque
-      // et que le composant restait monté, il faudrait le gérer.
     } catch (error: any) {
+      console.error("Login error:", error);
       toast.error(error.message || "Failed to sign in. Please try again.");
-      setIsLoading(false); // Important de le remettre à false en cas d'erreur
+      setIsLoading(false);
     }
   }
 
