@@ -1,91 +1,88 @@
-import { createServerClient } from '@supabase/ssr'
-import { NextResponse, type NextRequest } from 'next/server'
+'use client';
 
-export async function middleware(request: NextRequest) {
-  let response = NextResponse.next({
-    request: {
-      headers: request.headers,
-    },
-  })
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+export default function LoginPage() {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
+  const supabase = createClientComponentClient();
 
-  if (!supabaseUrl || !supabaseAnonKey) {
-    console.error('Supabase credentials not configured. Please check your environment variables.');
-    return NextResponse.redirect(new URL('/error?message=Configuration+error', request.url));
-  }
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
 
-  const supabase = createServerClient(
-    supabaseUrl,
-    supabaseAnonKey,
-    {
-      cookies: {
-        get: (name) => request.cookies.get(name)?.value,
-        set: (name, value, options) => {
-          // Important: set cookies sur request ET response
-          request.cookies.set(name, value)
-          response.cookies.set(name, value, options)
-        },
-        remove: (name, options) => {
-          // Important: remove cookies sur request ET response  
-          request.cookies.delete(name)
-          response.cookies.set(name, '', { ...options, maxAge: 0 })
-        },
-      },
-      auth: {
-        persistSession: false, // Important: ne pas persister côté serveur
-        autoRefreshToken: false,
-        detectSessionInUrl: false,
-      },
+    try {
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (error) {
+        throw error;
+      }
+
+      router.refresh();
+      router.push('/dashboard');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'An error occurred during login');
+    } finally {
+      setLoading(false);
     }
-  )
+  };
 
-  // Récupérer l'utilisateur - être plus permissif avec les erreurs
-  let user = null;
-  try {
-    const { data, error } = await supabase.auth.getUser()
-    if (data?.user && !error) {
-      user = data.user;
-    }
-  } catch (error) {
-    console.log('Middleware - Error getting user:', error);
-    // Continue sans user, ne pas bloquer
-  }
-
-  // Log pour debug (à retirer en prod)
-  console.log('Middleware - Path:', request.nextUrl.pathname, 'User:', !!user)
-
-  const isAuthPage = request.nextUrl.pathname.startsWith('/login') || 
-                     request.nextUrl.pathname.startsWith('/register')
-  
-  const isProtectedPage = request.nextUrl.pathname.startsWith('/dashboard') || 
-                          request.nextUrl.pathname.startsWith('/interview') || 
-                          request.nextUrl.pathname.startsWith('/settings')
-
-  // Vérifier s'il y a des tokens dans les cookies comme fallback
-  const accessToken = request.cookies.get('sb-access-token')?.value;
-  const refreshToken = request.cookies.get('sb-refresh-token')?.value;
-  const hasTokens = !!(accessToken || refreshToken);
-
-  // Si c'est une page protégée et pas d'utilisateur ET pas de tokens
-  if (isProtectedPage && !user && !hasTokens) {
-    const redirectUrl = new URL('/login', request.url)
-    redirectUrl.searchParams.set('redirect', request.nextUrl.pathname)
-    return NextResponse.redirect(redirectUrl)
-  }
-
-  // Si c'est une page d'auth et utilisateur connecté OU tokens présents
-  if (isAuthPage && (user || hasTokens)) {
-    const redirectPath = request.nextUrl.searchParams.get('redirect') || '/dashboard'
-    return NextResponse.redirect(new URL(redirectPath, request.url))
-  }
-
-  return response
-}
-
-export const config = {
-  matcher: [
-    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
-  ]
+  return (
+    <div className="flex min-h-screen items-center justify-center p-4">
+      <Card className="w-full max-w-md">
+        <CardHeader>
+          <CardTitle>Login</CardTitle>
+          <CardDescription>Enter your credentials to access your account</CardDescription>
+        </CardHeader>
+        <form onSubmit={handleLogin}>
+          <CardContent className="space-y-4">
+            {error && (
+              <div className="text-sm text-red-500">
+                {error}
+              </div>
+            )}
+            <div className="space-y-2">
+              <Input
+                type="email"
+                placeholder="Email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
+            </div>
+            <div className="space-y-2">
+              <Input
+                type="password"
+                placeholder="Password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+            </div>
+          </CardContent>
+          <CardFooter>
+            <Button 
+              type="submit" 
+              className="w-full"
+              disabled={loading}
+            >
+              {loading ? 'Logging in...' : 'Login'}
+            </Button>
+          </CardFooter>
+        </form>
+      </Card>
+    </div>
+  );
 }
