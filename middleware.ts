@@ -33,14 +33,28 @@ export async function middleware(request: NextRequest) {
           response.cookies.set(name, '', { ...options, maxAge: 0 })
         },
       },
+      auth: {
+        persistSession: false, // Important: ne pas persister côté serveur
+        autoRefreshToken: false,
+        detectSessionInUrl: false,
+      },
     }
   )
 
-  // Récupérer l'utilisateur et rafraîchir la session si nécessaire
-  const { data: { user }, error } = await supabase.auth.getUser()
+  // Récupérer l'utilisateur - être plus permissif avec les erreurs
+  let user = null;
+  try {
+    const { data, error } = await supabase.auth.getUser()
+    if (data?.user && !error) {
+      user = data.user;
+    }
+  } catch (error) {
+    console.log('Middleware - Error getting user:', error);
+    // Continue sans user, ne pas bloquer
+  }
 
   // Log pour debug (à retirer en prod)
-  console.log('Middleware - Path:', request.nextUrl.pathname, 'User:', !!user, 'Error:', error?.message)
+  console.log('Middleware - Path:', request.nextUrl.pathname, 'User:', !!user)
 
   const isAuthPage = request.nextUrl.pathname.startsWith('/login') || 
                      request.nextUrl.pathname.startsWith('/register')
@@ -49,15 +63,20 @@ export async function middleware(request: NextRequest) {
                           request.nextUrl.pathname.startsWith('/interview') || 
                           request.nextUrl.pathname.startsWith('/settings')
 
-  // Si c'est une page protégée et pas d'utilisateur
-  if (isProtectedPage && !user) {
+  // Vérifier s'il y a des tokens dans les cookies comme fallback
+  const accessToken = request.cookies.get('sb-access-token')?.value;
+  const refreshToken = request.cookies.get('sb-refresh-token')?.value;
+  const hasTokens = !!(accessToken || refreshToken);
+
+  // Si c'est une page protégée et pas d'utilisateur ET pas de tokens
+  if (isProtectedPage && !user && !hasTokens) {
     const redirectUrl = new URL('/login', request.url)
     redirectUrl.searchParams.set('redirect', request.nextUrl.pathname)
     return NextResponse.redirect(redirectUrl)
   }
 
-  // Si c'est une page d'auth et utilisateur connecté
-  if (isAuthPage && user) {
+  // Si c'est une page d'auth et utilisateur connecté OU tokens présents
+  if (isAuthPage && (user || hasTokens)) {
     const redirectPath = request.nextUrl.searchParams.get('redirect') || '/dashboard'
     return NextResponse.redirect(new URL(redirectPath, request.url))
   }
@@ -67,13 +86,6 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    /*
-     * Match all request paths except for the ones starting with:
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     * - public folder
-     */
     '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
   ]
 }
