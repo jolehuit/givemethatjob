@@ -47,26 +47,31 @@ export default function LoginPage() {
     setIsLoading(true);
 
     try {
+      // Écouter les changements de session AVANT de tenter la connexion
+      const authListener = supabase.auth.onAuthStateChange((event, session) => {
+        if (event === 'SIGNED_IN' && session) {
+          toast.success("Successfully signed in!");
+          // Redirection après confirmation de la session
+          window.location.href = redirect;
+        }
+      });
+
       const { data, error } = await supabase.auth.signInWithPassword({
         email: values.email,
         password: values.password,
       });
 
       if (error) {
+        authListener.data.subscription.unsubscribe();
         throw error;
       }
 
       if (!data.user || !data.session) {
+        authListener.data.subscription.unsubscribe();
         throw new Error("Authentication failed - no user or session returned");
       }
 
-      toast.success("Successfully signed in!");
-
-      // Attendre que la session soit vraiment établie
-      await new Promise(resolve => setTimeout(resolve, 100));
-      
-      // Forcer le refresh de la page pour synchroniser la session côté serveur
-      window.location.href = redirect;
+      // Le listener va gérer la redirection
       
     } catch (error: any) {
       console.error("Login error:", error);
