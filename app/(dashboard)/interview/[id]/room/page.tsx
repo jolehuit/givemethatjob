@@ -5,7 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { toast } from "sonner";
-import { supabase } from "@/lib/supabase";
+import { supabase } from "@/lib/supabaseBrowser";
 import { Camera, CameraOff, Loader2, Mic, MicOff } from "lucide-react";
 import {
   DailyProvider,

@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { supabase } from '@/lib/supabase';
+import { createServerSupabaseClient } from '@/lib/supabaseServer';
 import { headers } from 'next/headers';
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
@@ -7,6 +7,8 @@ const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 export async function POST(request: Request) {
   try {
     const body = await request.json();
+    
+    const supabase = createServerSupabaseClient();
     
     // Verify Tavus webhook signature
     const signature = headers().get('x-tavus-signature');

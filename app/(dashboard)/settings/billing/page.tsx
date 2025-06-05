@@ -6,7 +6,7 @@ import { SubscriptionCard } from "@/components/subscription/subscription-card";
 import { SubscriptionStatus } from "@/components/subscription/subscription-status";
 import { Separator } from "@/components/ui/separator";
 import { initializeRevenueCat, getCustomerInfo } from "@/lib/revenuecat";
-import { supabase } from "@/lib/supabase";
+import { supabase } from "@/lib/supabaseBrowser";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 

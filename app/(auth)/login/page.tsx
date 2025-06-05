@@ -19,7 +19,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
-import { supabase } from "@/lib/supabase"; // Assure-toi que c'est le client Supabase configuré pour le client
+import { supabase } from "@/lib/supabaseBrowser";
 import { Eye, EyeOff, Loader2, Sparkles } from "lucide-react";
 
 const formSchema = z.object({
