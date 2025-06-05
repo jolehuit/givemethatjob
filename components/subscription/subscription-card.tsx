@@ -7,7 +7,7 @@ import { Check, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { Purchases } from "@revenuecat/purchases-js";
-import { supabase } from "@/lib/supabase";
+import { supabase } from "@/lib/supabaseBrowser";
 
 interface SubscriptionCardProps {
   name: string;

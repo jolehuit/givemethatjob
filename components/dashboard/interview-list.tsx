@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { supabase } from "@/lib/supabase";
+import { supabase } from "@/lib/supabaseBrowser";
 import Link from "next/link";
 import { formatDistanceToNow } from "date-fns";
 import { Badge } from "@/components/ui/badge";

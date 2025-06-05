@@ -23,7 +23,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { supabase } from "@/lib/supabase";
+import { supabase } from "@/lib/supabaseBrowser";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
 

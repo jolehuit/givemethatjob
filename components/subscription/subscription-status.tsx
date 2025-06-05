@@ -7,7 +7,7 @@ import { getCustomerInfo, getOfferings, initializeRevenueCat } from "@/lib/reven
 import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { supabase } from "@/lib/supabase";
+import { supabase } from "@/lib/supabaseBrowser";
 import { Purchases } from "@revenuecat/purchases-js";
 
 interface CustomerInfo {
