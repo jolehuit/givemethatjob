@@ -1,5 +1,6 @@
 import { createBrowserClient } from '@supabase/ssr'
 import { Database } from './supabase-types'
+import { cookies } from 'next/headers'
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
@@ -11,7 +12,13 @@ function getSupabaseClient() {
   }
 
   try {
-    return createBrowserClient<Database>(supabaseUrl, supabaseAnonKey);
+    return createBrowserClient<Database>(
+      supabaseUrl,
+      supabaseAnonKey,
+      {
+        cookies: typeof window !== 'undefined' ? undefined : cookies
+      }
+    );
   } catch (error) {
     console.error('Failed to create Supabase client:', error);
     throw new Error('Failed to create Supabase client. Please check your environment variables.');
