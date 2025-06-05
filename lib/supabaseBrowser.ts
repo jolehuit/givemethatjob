@@ -6,5 +6,23 @@ const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 
 export const supabase = createClient<Database>(
   supabaseUrl,
-  supabaseAnonKey
+  supabaseAnonKey,
+  {
+    auth: {
+      persistSession: true,
+      autoRefreshToken: true,
+      detectSessionInUrl: true,
+      storageKey: 'sb-auth-token',
+    },
+    realtime: {
+      params: {
+        eventsPerSecond: 2,
+      },
+    },
+    global: {
+      headers: {
+        'X-Client-Info': 'supabase-js-web',
+      },
+    },
+  }
 )
