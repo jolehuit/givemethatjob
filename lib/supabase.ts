@@ -1,23 +1,19 @@
-import { createBrowserClient } from '@supabase/ssr'
+import { createClient } from '@supabase/supabase-js'
 import { Database } from './supabase-types'
-import { cookies } from 'next/headers'
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-function getSupabaseClient() {
+export function createSupabaseClient() {
   if (!supabaseUrl || !supabaseAnonKey) {
     console.error('Supabase credentials not configured. Please check your environment variables.');
     throw new Error('Supabase credentials not configured. Please check your environment variables.');
   }
 
   try {
-    return createBrowserClient<Database>(
+    return createClient<Database>(
       supabaseUrl,
-      supabaseAnonKey,
-      {
-        cookies: typeof window !== 'undefined' ? undefined : cookies
-      }
+      supabaseAnonKey
     );
   } catch (error) {
     console.error('Failed to create Supabase client:', error);
@@ -25,12 +21,4 @@ function getSupabaseClient() {
   }
 }
 
-export const supabase = getSupabaseClient();
-
-export function createClient() {
-  const client = getSupabaseClient();
-  if (!client) {
-    throw new Error('Supabase client could not be initialized. Please check your environment variables.');
-  }
-  return client;
-}
+export const supabase = createSupabaseClient();
